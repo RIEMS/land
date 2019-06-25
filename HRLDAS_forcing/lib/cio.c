@@ -72,14 +72,14 @@
 copen(nunit, name, mode, err, oflag)
  /*
   * nunit = UNIX file descriptor associated with file named *name*
-  * name  = UNIX file name 
-  * mode  = 0 : write only - file will be created if it doesn't exist, 
+  * name  = UNIX file name
+  * mode  = 0 : write only - file will be created if it doesn't exist,
                            - otherwise will be rewritten
           = 1 : read only
           = 2 : read/write
   * err   = 0 : no error opening file.
          != 0 : Error opening file
-  * oflag = 0 : no notification if file opened OK 
+  * oflag = 0 : no notification if file opened OK
           = 1 : file name and unit number printed
   */
 
@@ -103,11 +103,11 @@ copen(nunit, name, mode, err, oflag)
 
     /* strip trailing blanks and add null character to name */
     for (i = 0; name[i] != ' ' && name[i] != '\0' && i < 120; ++i)
-	fname[i] = name[i];
+    fname[i] = name[i];
     fname[i] = '\0';
 
     if (*oflag != 0) {
-	printf("Copen: File = %s\n", fname);
+    printf("Copen: File = %s\n", fname);
     }
 
 /* if (*mode == 0)    WRITE ONLY
@@ -119,22 +119,22 @@ copen(nunit, name, mode, err, oflag)
      printf ("UNIX File descriptor: %d\n", fd = open (fname, O_RDWR));*/
 
     if (*mode == 0) {		/* WRITE ONLY */
-	fd = creat(fname, 0777);
+    fd = creat(fname, 0777);
     }
     else if (*mode == 1) {	/* READ ONLY */
-	fd = open(fname, O_RDONLY);
+    fd = open(fname, O_RDONLY);
     }
     else {			/* READ/WRITE */
-	fd = open(fname, O_RDWR);
+    fd = open(fname, O_RDWR);
     }
 
     if (*oflag != 0)
-	printf("UNIX File descriptor: %d\n\n", fd);
+    printf("UNIX File descriptor: %d\n\n", fd);
 
     if (fd == -1) {		/* error opening file */
-	printf("Error opening '%s'  Error status: %d\n", fname, errno);
-	perror("copen.c");
-	*err = errno;
+    printf("Error opening '%s'  Error status: %d\n", fname, errno);
+    perror("copen.c");
+    *err = errno;
     }
     else {
       *err = 0;
@@ -156,7 +156,7 @@ bnseek(fd, bread, mode, iprint)
                > 0 : move the pointer to the end + BREAD bytes. (?)
        iprint : Flag to turn on (iprint = 1)  or off (iprint = 0) print.
 
-   Location 0 [bnseek(fd,0,-1,0)] puts us just before the first byte, 
+   Location 0 [bnseek(fd,0,-1,0)] puts us just before the first byte,
    so the next bnread will get byte 1.
 */
 
@@ -167,15 +167,15 @@ bnseek(fd, bread, mode, iprint)
     int             how_to_space;
 
     if (*mode == 0)
-	how_to_space = SEEK_CUR;
+    how_to_space = SEEK_CUR;
     else if (*mode < 0)
-	how_to_space = SEEK_SET;
+    how_to_space = SEEK_SET;
     else
-	how_to_space = SEEK_END;
+    how_to_space = SEEK_END;
 
     offset = *bread;
     i = lseek(*fd, offset, how_to_space);
-    if (*iprint != 0) 
+    if (*iprint != 0)
        printf(" lseek return=%d, *mode=%d\n", i, *mode);
 
     return(0);
@@ -185,11 +185,11 @@ bnseek(fd, bread, mode, iprint)
 
 bnread(fd, buf, nbuf, bread, ios, idiag)
  /*
-  * fd = UNIX file descriptor number (NOT a Fortran unit) 
-  * buf = area into which to read 
-  * nbuf = number of bytes to read from fd 
-  * bread = number actually read 
-  * ios = error number returned to Fortran: 
+  * fd = UNIX file descriptor number (NOT a Fortran unit)
+  * buf = area into which to read
+  * nbuf = number of bytes to read from fd
+  * bread = number actually read
+  * ios = error number returned to Fortran:
           1 = End of File
           2 = Error in reading
   * idiag : if non-zero, error and EOF messages will be printed
@@ -209,23 +209,23 @@ bnread(fd, buf, nbuf, bread, ios, idiag)
     /* printf ("Bytes %d   stat %d\n", bytesread, errno);  */
 
     if (bytesread == -1) {	/* error reading file */
-	if (*idiag != 0)
-	    printf("Error reading C unit %d\n", *fd);
-	perror("bnread.c");
-	*ios = 2;
-	/*  *ios = errno; */
+    if (*idiag != 0)
+        printf("Error reading C unit %d\n", *fd);
+    perror("bnread.c");
+    *ios = 2;
+    /*  *ios = errno; */
     } else if (bytesread == 0) {/* end-of-file on input */
-	if (*idiag != 0)
-	    printf("End of file on C unit %d\n", *fd);
-            *ios = 1; 
-	/*  *ios = errno; */
+    if (*idiag != 0)
+        printf("End of file on C unit %d\n", *fd);
+            *ios = 1;
+    /*  *ios = errno; */
     } else {			/* read OK */
 
-	/*
-	 * printf ("BNREAD - bytes read = %d   Buf = %d %d %d\n", bytesread,
-	 * buf[0], buf[1], buf[2]);
-	 */
-	*ios = 0;
+    /*
+     * printf ("BNREAD - bytes read = %d   Buf = %d %d %d\n", bytesread,
+     * buf[0], buf[1], buf[2]);
+     */
+    *ios = 0;
     };
 
     *bread = bytesread;
@@ -256,10 +256,10 @@ bnwrit(fd, buf, nbuf, bwritten, err, idiag)
 
     *err = 0;
     if (byteswritten == -1) {	/* error writing file */
-	if (*idiag != 0)
-	    printf("Error writing C unit %d\n", *fd);
-	perror("bnwrit.c");
-	*err = errno;
+    if (*idiag != 0)
+        printf("Error writing C unit %d\n", *fd);
+    perror("bnwrit.c");
+    *err = errno;
     };
 
     *bwritten = byteswritten;
@@ -288,7 +288,7 @@ Close a C (UNIX?) file descriptor:
     istat = close(*nunit);
     if (istat == 0) {
       if ( *iprint != 0 )
-	printf(" *** CCLOSE successful: File descriptor: NUNIT = %d \n", *nunit);
+    printf(" *** CCLOSE successful: File descriptor: NUNIT = %d \n", *nunit);
     }
     else
       printf("CCLOSE error: %d : File descriptor NUNIT = %d \n", istat, *nunit);

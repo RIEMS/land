@@ -6,7 +6,7 @@
 
 load "$NCARG_ROOT/lib/ncarg/nclex/gsun/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
-load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"  
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 
 begin
 
@@ -22,8 +22,8 @@ number_stations = 3
 
 nums = (/"00","01","02","03","04","05","06","07","08","09", \
          "10","11","12","13","14","15","16","17","18","19", \
-	 "20","21","22","23","24","25","26","27","28","29", \
-	 "30","31" /)
+         "20","21","22","23","24","25","26","27","28","29", \
+         "30","31" /)
 ddinmm = (/31,28,31,30,31,30,31,31,30,31,30,31/)
 
 precip_input = new((/total_timesteps,number_stations/),float)
@@ -46,7 +46,7 @@ sfcprs_input = new((/total_timesteps,number_stations/),float)
 ;    SPECIFIC HUMIDITY [kg/kg]
 ;    U/V WIND COMPONENTS [m/s] (the model doesn't care about direction)
 ;    PRESSURE [Pa]
-;    
+;
 ;    ***********Note: you may need to adjust units*************
 ;;;;;;;;;;;;
 
@@ -103,23 +103,23 @@ do istep = 0, total_timesteps - 1
 
  filename = yyyy_start+nums(mm_start)+nums(dd_start)+nums(hh_start)+".LDASIN_DOMAIN1"
  print( "Starting creation of: "+ filename )
- 
+
  outfile = addfile(filename+".nc","c")
  filedimdef(outfile,(/"Time","south_north","west_east"/),(/1,1,number_stations/),(/True,False,False/))
- 
+
  vartmp = new((/1,1,number_stations/),"float")
  vartmp!0 = "Time"
  vartmp!1 = "south_north"
  vartmp!2 = "west_east"
- 
+
  vartmp(0,0,:) = (/ sfctmp_input(istep,:) /)  ; fill temporary structure with forcing
  vartmp@units = "K"
  outfile->T2D = vartmp
- 
+
  vartmp(0,0,:) = (/ spechu_input(istep,:) /)  ; fill temporary structure with forcing
  vartmp@units = "kg/kg"
  outfile->Q2D = vartmp
- 
+
  vartmp(0,0,:) = (/ u_wind_input(istep,:) /)  ; fill temporary structure with forcing
  vartmp@units = "m/s"
  outfile->U2D = vartmp
@@ -135,21 +135,21 @@ do istep = 0, total_timesteps - 1
  vartmp(0,0,:) = (/ precip_input(istep,:) /)  ; fill temporary structure with forcing
  vartmp@units = "mm/s"
  outfile->RAINRATE = vartmp
- 
+
  vartmp(0,0,:) = (/ swdown_input(istep,:) /)  ; fill temporary structure with forcing
  vartmp@units = "W/m^2"
  outfile->SWDOWN = vartmp
- 
+
  vartmp(0,0,:) = (/ lwdown_input(istep,:) /)  ; fill temporary structure with forcing
  vartmp@units = "W/m^2"
  outfile->LWDOWN = vartmp
- 
+
  delete(vartmp)
- 
+
  system("mv "+filename+".nc "+filename)  ; get rid of the .nc
- 
+
  ; now increment the time
- 
+
  if(mod(yyyy_start,4).eq.0) then  ; take care of leap years, add more if necessary
    ddinmm(1) = 29
  end if
@@ -159,19 +159,19 @@ do istep = 0, total_timesteps - 1
    dd_start = dd_start + 1
    hh_start = hh_start - 24
  end if
- 
+
  if(dd_start .gt. ddinmm(mm_start-1)) then
    mm_start = mm_start + 1
    dd_start = 1
  end if
- 
+
  if(mm_start .gt. 12) then
    yyyy_start = yyyy_start + 1
    mm_start = 1
  end if
- 
+
 end do
 
 end
 
- 
+

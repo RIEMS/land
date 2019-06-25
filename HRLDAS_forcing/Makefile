@@ -1,5 +1,5 @@
 SHELL=/bin/sh
-.SUFFIXES:	
+.SUFFIXES:
 .SUFFIXES:	.F .c .o .exe
 
 include ../user_build_options
@@ -27,7 +27,7 @@ lib/libsmda.a:
 $(CMD):	lib/libsmda.a $(OBJS)
 	(cd lib; make)
 	$(COMPILERF90) -o $(@) -I./lib $(F90FLAGS) -I./lib $(OBJS) \
-		-L./lib -lsmda $(NETCDFLIB) $(BZIP2_LIB) $(LIBJASPER)
+                -L./lib -lsmda $(NETCDFLIB) $(BZIP2_LIB) $(LIBJASPER)
 
 clean:
 	$(RM) *.o *~ *.exe *.mod *.f90

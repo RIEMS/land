@@ -3,7 +3,7 @@
  STARTDATE        = "2001-01-01_00"
  ENDDATE          = "2002-07-01_00"
  DataDir          = "/d2/hrldas/raw"
- 
+
  RAINFALL_INTERP  = 0
 
  geo_em_flnm      = "/home/kmanning/grids/geo_em.d01.nc"
@@ -25,20 +25,20 @@
                       "<DataDir>/NAM/<init-12>/NAM.V.<date>.grb",
                       "<DataDir>/NAM/<init-24>/NAM.V.<date>.grb",
                       "<DataDir>/NAM/<init-36>/NAM.V.<date>.grb",
-                      
+
  Pfile_template     = "<DataDir>/NDAS/<init+12>/NDAS.P.<date>.grb",
                       "<DataDir>/NAM/<init-12>/NAM.P.<date>.grb",
                       "<DataDir>/NAM/<init-24>/NAM.P.<date>.grb",
                       "<DataDir>/NAM/<init-36>/NAM.P.<date>.grb",
-	              
+
  Qfile_template     = "<DataDir>/NDAS/<init+12>/NDAS.Q.<date>.grb",
                       "<DataDir>/NAM/<init-12>/NAM.Q.<date>.grb",
                       "<DataDir>/NAM/<init-24>/NAM.Q.<date>.grb",
                       "<DataDir>/NAM/<init-36>/NAM.Q.<date>.grb",
 
  LWfile_template    = "<DataDir>/NAM/<init-12>/NAM.LW.<date>.grb",
-	              "<DataDir>/NAM/<init-24>/NAM.LW.<date>.grb",
-	              "<DataDir>/NAM/<init-36>/NAM.LW.<date>.grb",
+                      "<DataDir>/NAM/<init-24>/NAM.LW.<date>.grb",
+                      "<DataDir>/NAM/<init-36>/NAM.LW.<date>.grb",
 
  WEASDfile_template = "<DataDir>/NAM/<init-12>/NAM.WEASD.<date>.grb",
                       "<DataDir>/NAM/<init-24>/NAM.WEASD.<date>.grb",

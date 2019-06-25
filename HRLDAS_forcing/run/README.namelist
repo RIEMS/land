@@ -75,53 +75,53 @@ FULL_IC_FRQ
 RESCALE_SHORTWAVE
 
     Specifies whether the program will attempt to correct a half-hour time offset
-    that has been noted in the GCIP shortwave radiation analyses.  Set this to 
+    that has been noted in the GCIP shortwave radiation analyses.  Set this to
     .FALSE. if the time offset does not exist, or if you are using a different
     source of shortwave radiation analyses.
 
     Type:     logical
     Default:  .FALSE. (do not apply offset)
-    Example:  RESCALE_SHORTWAVE = .FALSE. 
+    Example:  RESCALE_SHORTWAVE = .FALSE.
 
 UPDATE_SNOW
 
     Specifies whether the program will replace snow at 00Z of every day. If set to
-    .TRUE. an input dataset must be provided at 00Z of each day. If set to .FALSE. 
-    snow in only an initialized field. 
-    
+    .TRUE. an input dataset must be provided at 00Z of each day. If set to .FALSE.
+    snow in only an initialized field.
+
     Type:     logical
-    Default:  .FALSE. 
-    Example:  UPDATE_SNOW = .FALSE. 
+    Default:  .FALSE.
+    Example:  UPDATE_SNOW = .FALSE.
 
 FORCING_HEIGHT_2D
 
     Used when one has time-varying 2D fields of forcing height, e.g., dynamic model-level forcing.
 
     Type:     logical
-    Default:  .FALSE. 
-    Example:  FORCING_HEIGHT_2D = .FALSE. 
+    Default:  .FALSE.
+    Example:  FORCING_HEIGHT_2D = .FALSE.
 
-TRUNCATE_SW 
+TRUNCATE_SW
 
-    Used when one is concerned about the temporal consistency of shortwave forcing, 
+    Used when one is concerned about the temporal consistency of shortwave forcing,
     e.g., potentially with GOES solar forcing. Calculates the cosine of zenith angle
     and sets shortwave forcing to zero if cos(Z) < 0.
 
     Type:     logical
-    Default:  .FALSE. 
-    Example:  TRUNCATE_SW = .FALSE. 
+    Default:  .FALSE.
+    Example:  TRUNCATE_SW = .FALSE.
 
 EXPAND_LOOP
- 
+
     Used to expand the input data to fill in missing values. This is useful primarily near coastlines.
     Set EXPAND_LOOP to determine the number of 9pt expansions are done. Only missing data are filled.
     For example, some input data sets soil temperature or moisture to missing over ocean. Expanding
-    will use the coastline values to extrapolate. Additionally, if your domain has islands that are 
-    unresolved by the input data, you may need to expand many loops to fill all land. The number of 
+    will use the coastline values to extrapolate. Additionally, if your domain has islands that are
+    unresolved by the input data, you may need to expand many loops to fill all land. The number of
     loops needed generally depends on the spatial resolution of both the input data and WRF grid.
 
     Type:     integer
-    Default:  1 
+    Default:  1
     Example:  EXPAND_LOOP = 1 (For input data like NARR, this is usually sufficient unless there
                                are isolated islands)
 
@@ -129,7 +129,7 @@ GEO_EM_FLNM
 
     Specifies the full path name to the file defining the setup of the
     HRLDAS grid.  This will be a "geo_em_d##.nc" file as created by
-    the WPS program geogrid. Enterprising users might create their own 
+    the WPS program geogrid. Enterprising users might create their own
     substitute files.
 
     Type:     character string
@@ -238,7 +238,7 @@ SWFILE_PRIMARY
 
 SWFILE_SECONDARY
 
-    A file name template for building the full path name of the GRIB 
+    A file name template for building the full path name of the GRIB
     file which contains the downwelling short-wave radiation field
     that will be used to fill in missing values from the file specified
     by SWFILE_PRIMARY.  Multiple templates may be defined; the file
@@ -263,7 +263,7 @@ PCPFILE_PRIMARY
 
 PCPFILE_SECONDARY
 
-    A file name template for building the full path name of the GRIB 
+    A file name template for building the full path name of the GRIB
     file which contains the precipitation field that will be used to
     fill in missing values from the file specified by PCPFILE_PRIMARY.
     Multiple templates may be defined; the file that gets used will be
@@ -276,7 +276,7 @@ PCPFILE_SECONDARY
 HFILE_TEMPLATE
 
     A file name template for building the full path name of the GRIB
-    file which contains the time-varying 2D forcing height field associated 
+    file which contains the time-varying 2D forcing height field associated
     with the source data.
 
     Type:     character string
@@ -390,7 +390,7 @@ SMFILE_TEMPLATES
     Example:  SMFILE_TEMPLATE = "<DataDir>/<YYYY>/<MM>/<DD>/SOIL_M_000-010.<date>",
                                 "<DataDir>/<YYYY>/<MM>/<DD>/SOIL_M_010-040.<date>",
                                 "<DataDir>/<YYYY>/<MM>/<DD>/SOIL_M_040-100.<date>",
-	                        "<DataDir>/<YYYY>/<MM>/<DD>/SOIL_M_100-200.<date>",
+                                "<DataDir>/<YYYY>/<MM>/<DD>/SOIL_M_100-200.<date>",
               SMFILE_TEMPLATE = "CONSTANT:0.25",
                                 "CONSTANT:0.30",
                                 "CONSTANT:0.32",

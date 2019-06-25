@@ -4,7 +4,7 @@ Steps for running a HRLDAS simulation using user-provided single- or multiple-po
 
 1. Compile HRLDAS
 
-Place the HRLDAS tar file where you will be running the model. 
+Place the HRLDAS tar file where you will be running the model.
 
 tar xvf HRLDAS-v3.x.tar
 
@@ -26,7 +26,7 @@ If successful, there should be two executables created
 
 HRLDAS_forcing/create_forcing.exe  (you won't need this for point-based forcing)
 
-and 
+and
 
 run/hrldas.exe
 
@@ -34,7 +34,7 @@ run/hrldas.exe
 
 3. Prepare point-based forcing data.
 
-This step can be confusing for a first-time user. It involves converting text files to HRLDAS forcing files in NetCDF format. The scripts provided for you are in the /root_path/HRLDAS-v3.x/HRLDAS_forcing/run/examples/vector/ directory. 
+This step can be confusing for a first-time user. It involves converting text files to HRLDAS forcing files in NetCDF format. The scripts provided for you are in the /root_path/HRLDAS-v3.x/HRLDAS_forcing/run/examples/vector/ directory.
 Required programs and libraries:
 
 - ncl
@@ -46,20 +46,20 @@ Required programs and libraries:
 There are three example files included here (location*.dat). The structure of these files is:
 
 - one time per line
-- each line contains: 
-	 1. year
-	 2. month
-	 3. day
-	 4. hour
-	 5. minute
-	 6. wind speed [m/s]
-	 7. wind direction (not used but it was in the original files)
-	 8. temperature [K]
-	 9. relative humidty (will need to be converted to specific humidity later)
-	10. surface pressure [hPa]
-	11. downward solar radiation [W/m^2]
-	12. downward longwave radiation [W/m^2]
-	13. precipitation [mm/s]
+- each line contains:
+   1. year
+   2. month
+   3. day
+   4. hour
+   5. minute
+   6. wind speed [m/s]
+   7. wind direction (not used but it was in the original files)
+   8. temperature [K]
+   9. relative humidty (will need to be converted to specific humidity later)
+  10. surface pressure [hPa]
+  11. downward solar radiation [W/m^2]
+  12. downward longwave radiation [W/m^2]
+  13. precipitation [mm/s]
 
 Note that you can use the NCL script to convert units or convert fields (the script converts RH to specific humidity. You do not have to follow this structure exactly; you can adjust the script accordingly.
 
@@ -108,8 +108,8 @@ You will need to specify their location in the HRLDAS namelist later.
 1. Set the date of the simulation start and the number of stations
 
 2. Go to the section titled "Set up the location-specific information"
-     
-     Here you will need to set the 
+
+     Here you will need to set the
        - latitude
        - longitude
        - deep soil temperature (annual average air temperature will work)
@@ -123,8 +123,8 @@ You will need to specify their location in the HRLDAS namelist later.
        - soil texture type (check SOILPARM.TBL if you don't know the texture types)
 
 2. Go to the section titled "State initialization here"
-     
-     Here you will need to set the 
+
+     Here you will need to set the
        - snow water equivalent [kg/m^2]
        - canopy water storage [kg/m^2]
        - initial surface temperature [K] (has very little thermal inertia so can be approximate)
@@ -132,11 +132,11 @@ You will need to specify their location in the HRLDAS namelist later.
        - soil layer calculation nodes [m]
        - soil temperature in each layer [K]
        - soil moisture in each layer [m^3/m^3]
-       
+
 3. Go to the section titled "Global attributes"
 
-     Here you will need to set the 
-       - land cover specific attributes (ISWATER,ISURBAN,ISICE,MMINLU) 
+     Here you will need to set the
+       - land cover specific attributes (ISWATER,ISURBAN,ISICE,MMINLU)
 
 Running the script will produce a file named:
 
@@ -177,17 +177,17 @@ See the full documentation for a complete description of items, but these are th
  KDAY  = length of simulation in days
 
  DYNAMIC_VEG_OPTION                = Noah-MP options
- CANOPY_STOMATAL_RESISTANCE_OPTION = 
- BTR_OPTION                        = 
- RUNOFF_OPTION                     = 
- SURFACE_DRAG_OPTION               = 
- FROZEN_SOIL_OPTION                = 
- SUPERCOOLED_WATER_OPTION          = 
- RADIATIVE_TRANSFER_OPTION         = 
- SNOW_ALBEDO_OPTION                = 
- PCP_PARTITION_OPTION              = 
- TBOT_OPTION                       = 
- TEMP_TIME_SCHEME_OPTION           = 
+ CANOPY_STOMATAL_RESISTANCE_OPTION =
+ BTR_OPTION                        =
+ RUNOFF_OPTION                     =
+ SURFACE_DRAG_OPTION               =
+ FROZEN_SOIL_OPTION                =
+ SUPERCOOLED_WATER_OPTION          =
+ RADIATIVE_TRANSFER_OPTION         =
+ SNOW_ALBEDO_OPTION                =
+ PCP_PARTITION_OPTION              =
+ TBOT_OPTION                       =
+ TEMP_TIME_SCHEME_OPTION           =
 
 
  FORCING_TIMESTEP = time increment of available forcing (3600 for NARR)
@@ -197,10 +197,10 @@ See the full documentation for a complete description of items, but these are th
  SPLIT_OUTPUT_COUNT = split output after this many writes, 0 = all in one file
  RESTART_FREQUENCY_HOURS = write restart files after this many hours
 
- XSTART = uncomment and set if you want to run a subset of your domain 
- XEND   = 
- YSTART = 
- YEND   = 
+ XSTART = uncomment and set if you want to run a subset of your domain
+ XEND   =
+ YSTART =
+ YEND   =
 
  ZLVL = forcing height (set to your wind forcing height)
 

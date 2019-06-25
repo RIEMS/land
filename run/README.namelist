@@ -23,8 +23,8 @@
  SPINUP_LOOPS = 0                                            !    Number of spinup loops of khour/kday
                                                              !     before simulation starts               [default = 0   ]
 
-                                                             !*** Note: NOAH_TIMESTEP must evenly divide both 
-							     !           FORCING_TIMESTEP and OUTPUT_TIMESTEP
+                                                             !*** Note: NOAH_TIMESTEP must evenly divide both
+                                                             !           FORCING_TIMESTEP and OUTPUT_TIMESTEP
  FORCING_TIMESTEP = 3600                                     !    Seconds between forcing files           [default = none]
  NOAH_TIMESTEP    = 3600                                     !    Seconds between model timesteps         [default = none]
  OUTPUT_TIMESTEP  = 86400                                    !    Seconds between output times            [default = none]
@@ -58,7 +58,7 @@
 
  URBAN_ATMOSPHERE_THICKNESS = 2.0                            !    Thickness of urban atmosphere layers
                                                              !     only needed for urban options 2 and 3  [default = 2.0 ]
-							     !     must be less than zlvl/3
+                                                             !     must be less than zlvl/3
 
  NUM_URBAN_LAYERS = 360                                      !    Number of urban building layers
                                                              !     only needed for urban options 2 and 3  [default = 360 ]
@@ -76,8 +76,8 @@
  FORCING_NAME_PR                                             !    Forcing variable name for total precip  [default = "RAINRATE"]
  FORCING_NAME_SN                                             !    Forcing variable name for snow component[default = ""]
                                                              !      if FORCING_NAME_SN is present, it is assumed to be
-							     !       <= total precipitation
-							     !      must set PCP_PARTITION_OPTION = 4
+                                                             !       <= total precipitation
+                                                             !      must set PCP_PARTITION_OPTION = 4
 
  EXTERNAL_VEG_FILENAME_TEMPLATE                              ! defunct
  EXTERNAL_LAI_FILENAME_TEMPLATE                              ! defunct
@@ -106,12 +106,12 @@
  CANOPY_STOMATAL_RESISTANCE_OPTION = 2                       ! options for canopy stomatal resistance  [default = none]
 
                                                              ! **1 -> Ball-Berry
-		                                             !   2 -> Jarvis
+                                                             !   2 -> Jarvis
 
- BTR_OPTION                        = 2                       ! options for soil moisture factor for 
+ BTR_OPTION                        = 2                       ! options for soil moisture factor for
                                                                    stomatal resistance                    [default = none]
 
-                                                             ! **1 -> Noah (soil moisture) 
+                                                             ! **1 -> Noah (soil moisture)
                                                              !   2 -> CLM  (matric potential)
                                                              !   3 -> SSiB (matric potential)
 
@@ -126,13 +126,13 @@
  SURFACE_DRAG_OPTION               = 1                       ! options for surface layer drag coeff    [default = none]
 
                                                              ! **1 -> M-O
-		                                             !   2 -> original Noah (Chen97)
+                                                             !   2 -> original Noah (Chen97)
 
- SUPERCOOLED_WATER_OPTION          = 1                       ! options for supercooled liquid water 
+ SUPERCOOLED_WATER_OPTION          = 1                       ! options for supercooled liquid water
                                                                    (or ice fraction)                      [default = none]
 
                                                              ! **1 -> no iteration (Niu and Yang, 2006 JHM)
-		                                             !   2 -> Koren's iteration 
+                                                             !   2 -> Koren's iteration
 
  FROZEN_SOIL_OPTION                = 1                       ! options for frozen soil permeability    [default = none]
 
@@ -148,41 +148,41 @@
  SNOW_ALBEDO_OPTION                = 2                       ! options for ground snow surface albedo  [default = none]
 
                                                              !   1 -> BATS
-		                                             ! **2 -> CLASS
+                                                             ! **2 -> CLASS
 
- PCP_PARTITION_OPTION              = 2                       ! options for partitioning  precipitation 
+ PCP_PARTITION_OPTION              = 2                       ! options for partitioning  precipitation
                                                                    into rainfall & snowfall               [default = none]
 
                                                              ! **1 -> Jordan (1991)
-		                                             !   2 -> BATS: when SFCTMP<TFRZ+2.2 
-		                                             !   3 -> SFCTMP < TFRZ
-		                                             !   4 -> Use WRF microphysics output
+                                                             !   2 -> BATS: when SFCTMP<TFRZ+2.2
+                                                             !   3 -> SFCTMP < TFRZ
+                                                             !   4 -> Use WRF microphysics output
 
- TBOT_OPTION                       = 2                       ! options for lower boundary condition 
+ TBOT_OPTION                       = 2                       ! options for lower boundary condition
                                                                    of soil temperature                    [default = none]
 
                                                              !   1 -> zero heat flux from bottom (ZBOT and TBOT not used)
                                                              ! **2 -> TBOT at ZBOT (8m) read from a file (original Noah)
 
- TEMP_TIME_SCHEME_OPTION           = 2                       ! options for snow/soil temperature 
+ TEMP_TIME_SCHEME_OPTION           = 2                       ! options for snow/soil temperature
                                                                    time scheme (only layer 1)             [default = none]
 
                                                              ! **1 -> semi-implicit; flux top boundary condition
-		                                             !   2 -> full implicit (original Noah); temperature top boundary condition
+                                                             !   2 -> full implicit (original Noah); temperature top boundary condition
                                                              !   3 -> same as 1, but FSNO for TS calculation (generally improves snow; v3.7)
 
- SURFACE_RESISTANCE_OPTION         = 1                       ! options for surface resistent to 
+ SURFACE_RESISTANCE_OPTION         = 1                       ! options for surface resistent to
                                                                    evaporation/sublimation                [default = none]
 
                                                              ! **1 -> Sakaguchi and Zeng, 2009
-		                                             !   2 -> Sellers (1992)
+                                                             !   2 -> Sellers (1992)
                                                              !   3 -> adjusted Sellers to decrease RSURF for wet soil
-		                                             !   4 -> option 1 for non-snow; rsurf = rsurf_snow for snow (set in MPTABLE); AD v3.8
+                                                             !   4 -> option 1 for non-snow; rsurf = rsurf_snow for snow (set in MPTABLE); AD v3.8
 
  GLACIER_OPTION                    = 1                       ! options for glacier treatment           [default = none]
 
                                                              ! **1 -> include phase change of ice
-							     !   2 -> ice treatment more like original Noah
+                                                             !   2 -> ice treatment more like original Noah
 
 
 /

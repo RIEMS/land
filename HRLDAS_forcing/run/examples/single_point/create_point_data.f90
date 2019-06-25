@@ -22,7 +22,7 @@ real                            :: snow_depth              ! snow depth [m]
 real                            :: snow_water_equivalent   ! snow water equivalent [m]
 real                            :: canopy_water            ! canopy water [mm]
 real                            :: skin_temperature        ! skin temperature [K]
-real                            :: leaf_area_index         ! leaf area index [m2/m2] 
+real                            :: leaf_area_index         ! leaf area index [m2/m2]
 real, allocatable, dimension(:) :: soil_layer_thickness    ! layer thicknesses [m]
 real, allocatable, dimension(:) :: soil_layer_nodes        ! layer centroids from surface [m]
 real, allocatable, dimension(:) :: soil_temperature        ! layer soil temperature [K]
@@ -68,15 +68,15 @@ integer :: iret
 integer :: dim_id_time, dim_id_sn, dim_id_we, dim_id_soil
 integer :: var_id_xlat   , var_id_xlong , var_id_hgt    , var_id_tmn    ,  &
            var_id_veg    , var_id_soil  , var_id_seaice , var_id_vegmax ,  &
-	   var_id_vegmin , var_id_mask
+           var_id_vegmin , var_id_mask
 integer :: var_id_depth  , var_id_swe   , var_id_canwat , var_id_tsk    ,  &
            var_id_thick  , var_id_nodes , var_id_stemp  , var_id_smois  ,  &
-	   var_id_sliq   , var_id_lai
+           var_id_sliq   , var_id_lai
 integer :: var_id_grid   , var_id_water , var_id_urban  , var_id_ice    ,  &
-           var_id_source    
+           var_id_source
 integer :: var_id_force_temp  , var_id_force_humid , var_id_force_pres   , &
            var_id_force_uwind , var_id_force_vwind ,                       &
-	   var_id_force_sw    , var_id_force_lw    , var_id_force_precip    
+           var_id_force_sw    , var_id_force_lw    , var_id_force_precip
 
 ! Misc variables
 
@@ -87,14 +87,14 @@ real              :: e, svp     ! for relative humidity conversion
 namelist / location / latitude, longitude, vegetation_category, soil_category, &
   deep_soil_temperature, elevation, sea_ice, maximum_vegetation_pct, &
   minimum_vegetation_pct, land_mask, nsoil
-  
+
 namelist / initial / snow_depth, snow_water_equivalent, canopy_water, &
   skin_temperature, soil_layer_thickness, soil_layer_nodes, &
   soil_temperature, soil_moisture, soil_liquid, leaf_area_index
 
-namelist / metadata / grid_id, water_classification, urban_classification, & 
+namelist / metadata / grid_id, water_classification, urban_classification, &
   ice_classification, land_cover_source
-  
+
 namelist / conversion / have_relative_humidity, temperature_offset, &
   temperature_scale, pressure_scale, precipitation_scale
 
@@ -240,7 +240,7 @@ close(30)
   iret = nf90_put_var(ncid, var_id_nodes , soil_layer_nodes      )
   iret = nf90_put_var(ncid, var_id_stemp , soil_temperature      , count = (/1,1,4,1/))
   iret = nf90_put_var(ncid, var_id_smois , soil_moisture         , count = (/1,1,4,1/))
-  
+
   iret = nf90_close(ncid)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -254,11 +254,11 @@ do itime = 1, 54
   read(30,*)
 end do
 
-forcing: do 
+forcing: do
 
 read(30,*,end=1000) yyyy, mm, dd, hh, nn, uwind_speed, &
            temperature, humidity, pressure, &
-	   solar_radiation, longwave_radiation, precipitation
+           solar_radiation, longwave_radiation, precipitation
 
 ! Do some conversions
 
