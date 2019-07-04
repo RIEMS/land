@@ -1,50 +1,33 @@
-#!/usr/bin/perl
+#!/usr/bin/env bash
 
-  if($#ARGV == 0) {
-     $response = shift(@ARGV) ;
-     print("Configure HRLDAS: $response \n");
-  }else {
-     print "Please select from following supported architectures: \n\n";
+BUILDOPTIONS='user_build_options'
 
-     print "   1. Linux PGI compiler serial \n";
-     print "   2. Linux PGI compiler MPI \n";
-     print "   3. Linux ifort compiler serial \n";
-     print "   4. Linux ifort compiler MPI      \n";
-     print "   5. Linux gfortran compiler serial \n";
-     print "   0. exit only \n";
+finish () {
+    rm -f $BUILDOPTIONS
+    exit 0
+}
 
-     printf "\nEnter selection [%d-%d] : ",1,5 ;
 
-     $response = <STDIN> ;
-     chop($response);
-  }
+# Compiling Options
+echo "Please select from following supported options."
+echo "   1. Linux PGI seq"
+echo "   2. Linux PGI dmpar"
+echo "   3. Linux Intel seq"
+echo "   4. Linux Intel dmpar"
+echo "   5. Linux GCC seq"
+echo "   0. exit only"
+echo ""
+echo -n "Enter selection: "
+read option
 
-  use Switch;
-  switch ($response) {
-     case 1 { 
-              # serial PGI 
-              system "cp arch/user_build_options.pgf90.serial user_build_options"; 
-            }
 
-     case 2 {
-              # MPI PGI 
-              system "cp arch/user_build_options.pgf90.mpi user_build_options"; 
-            }
-
-     case 3 {
-              # serial ifort
-              system "cp arch/user_build_options.ifort.serial user_build_options"; 
-            }
-
-     case 4 {
-              # MPI ifort
-              system "cp arch/user_build_options.ifort.mpi user_build_options"; 
-            }
-
-     case 5 {
-              # serial GFORTRAN
-              system "cp arch/user_build_options.gfortran.serial user_build_options"; 
-            }
-
-     else   {print "no selection $response\n"; last} 
-  }
+# Compiling Configurations
+case $option in
+    1 ) cp arch/user_build_options.pgf90.serial $BUILDOPTIONS ;;
+    2 ) cp arch/user_build_options.pgf90.mpi $BUILDOPTIONS ;;
+    3 ) cp arch/user_build_options.ifort.serial $BUILDOPTIONS ;;
+    4 ) cp arch/user_build_options.ifort.mpi $BUILDOPTIONS ;;
+    5 ) cp arch/user_build_options.gfortran.serial $BUILDOPTIONS ;;
+    0 ) exit ;;
+    * ) echo 'ERROR: Unknown option!' ; exit 1 ;;
+esac
