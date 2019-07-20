@@ -35,3 +35,4 @@ case $option in
     0 ) exit ;;
     * ) echo 'ERROR: Unknown option!' ; exit 1 ;;
 esac
+

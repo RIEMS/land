@@ -10119,4 +10119,3 @@ RSURF_SNOW_TABLE     = RSURF_SNOW
   end subroutine read_mp_optional_parameters
 
 END MODULE NOAHMP_TABLES
-
