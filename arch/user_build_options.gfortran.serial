@@ -3,21 +3,21 @@
 #  Options for Linux with gfortran (not fully tested)
 #=============================================================================================
 
- COMPILERF90    =       /opt/local/bin/gfortran-mp-4.8
+ COMPILERF90    =       /usr/bin/gfortran
  FREESOURCE     =       -ffree-form  -ffree-line-length-none
  F90FLAGS       =       -g -fconvert=big-endian -fbounds-check -fno-range-check -fno-underscoring
  MODFLAG        =       -I
  LDFLAGS        =       
- CPP            =       /opt/local/bin/cpp-mp-4.8
+ CPP            =       /usr/bin/cpp
  CPPFLAGS       =       -P -traditional -D_GFORTRAN_
  LIBS           =       
- LIBJASPER      =       -ljpeg -L/opt/local/lib -ljasper
- INCJASPER      =       -I/opt/local/include/jasper
- NETCDFMOD      =       -I/opt/local/include
- NETCDFLIB      =       -L/opt/local/lib -lnetcdf -lnetcdff
+ LIBJASPER      =       -ljpeg -L/usr/lib -ljasper
+ INCJASPER      =       -I/usr/include/jasper
+ NETCDFMOD      =       -I/usr/include
+ NETCDFLIB      =       -L/usr/lib -lnetcdf -lnetcdff
  BZIP2          =       NO
  BZIP2_LIB      =       -lbz2
- BZIP2_INCLUDE  =       -I/opt/local/include
+ BZIP2_INCLUDE  =       -I/usr/include
  RM             =       rm -f
- CC             =       /opt/local/bin/gcc-mp-4.8
+ CC             =       /usr/bin/gcc
 
