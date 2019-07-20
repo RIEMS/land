@@ -31,5 +31,6 @@
 *.out
 *.app
 
-# user build options
+# temporary files
 user_build_options
+run/namelist.hrldas
