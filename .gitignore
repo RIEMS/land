@@ -34,3 +34,4 @@
 # temporary files
 user_build_options
 run/namelist.hrldas
+*.f90
