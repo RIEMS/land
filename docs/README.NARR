@@ -14,14 +14,14 @@ tar xvf HRLDAS-v3.x.tar
 
 I will refer to this location as /root_path/HRLDAS-v3.x
 
-In /root_path/HRLDAS-v3.x, modify user_build_options to link to the proper compilers and paths.
+In /root_path/HRLDAS-v3.x, modify makefile.in to link to the proper compilers and paths.
 
  To compile with parallel version
-  edit the file 'user_build_options'
+  edit the file 'makefile.in'
   uncommment the compiler section with MPI (available for pgf90 and ifort compilers)
 
  To compile with sequential version
-  edit the file 'user_build_options'
+  edit the file 'makefile.in'
   uncommment the compiler section without MPI
 
 type 'make'

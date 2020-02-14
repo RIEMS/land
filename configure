@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUILDOPTIONS='user_build_options'
+BUILDOPTIONS='makefile.in'
 
 finish () {
     rm -f $BUILDOPTIONS

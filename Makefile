@@ -1,7 +1,7 @@
 
-include ./user_build_options
+include ./makefile.in
 
-all: user_build_options
+all: makefile.in
 ifdef MPPFLAG
 	(cd MPP; make -f Makefile.NoahMP)
 endif
@@ -20,7 +20,7 @@ ifdef MPPFLAG
 endif
 
 ### explicitly point to other land model options
-NoahMP: user_build_options
+NoahMP: makefile.in
 ifdef MPPFLAG
 	(cd MPP; make -f Makefile.NoahMP)
 endif

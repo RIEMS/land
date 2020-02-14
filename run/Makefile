@@ -5,7 +5,7 @@ ifeq ($(WRF_HYDRO_RAPID),1)
 include ${TAO_DIR}/bmake/tao_common
 endif
 
-include ../user_build_options
+include ../makefile.in
 
 ifeq ($(WRF_HYDRO_RAPID),1)
 PHDF5_INC=-I ${TACC_HDF5_INC}

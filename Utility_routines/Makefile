@@ -3,7 +3,7 @@
 .SUFFIXES:
 .SUFFIXES: .o .F
 
-include ../user_build_options
+include ../makefile.in
 
 OBJS = \
 	module_date_utilities.o \
