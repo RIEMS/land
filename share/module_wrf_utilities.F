@@ -1,6 +1,11 @@
 !WRF:DRIVER_LAYER:UTIL
 !
 
+module module_wrf_error
+  INTEGER           :: wrf_debug_level = 0
+  CHARACTER*256     :: wrf_err_message
+
+contains
 SUBROUTINE wrf_message( str )
   IMPLICIT NONE
 
@@ -30,6 +35,15 @@ SUBROUTINE wrf_debug( level , str )
   CALL wrf_message( str ) 
   RETURN 
 END SUBROUTINE wrf_debug 
+
+end module module_wrf_error
+
+module module_configure
+
+contains
+        subroutine module_configure_init()
+        end subroutine module_configure_init
+end module module_configure
 
 subroutine wrf_dm_bcast_real(rval, ival)
   implicit none

@@ -31,11 +31,11 @@ OBJS = \
 	../phys/module_sf_bep.o \
 	../phys/module_sf_bem.o \
 	../phys/module_sf_bep_bem.o \
-	../Utility_routines/module_wrf_utilities.o \
-	../Utility_routines/module_model_constants.o \
-	../Utility_routines/module_date_time.o \
-	../Utility_routines/kwm_string_utilities.o \
-	../Utility_routines/module_ra_gfdleta.o
+	../share/module_wrf_utilities.o \
+	../share/module_model_constants.o \
+	../share/module_date_time.o \
+	../share/kwm_string_utilities.o \
+	../share/module_ra_gfdleta.o
 
 CMD = hrldas.exe
 all:	$(CMD)
