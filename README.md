@@ -8,7 +8,7 @@ Model developers can also find information about the development workflow and te
 
 Normally you can build the model in three steps: 1) run `configure`, 2) check and modify `makefile.in` if necessary, and 3) `make`. A successful build will produce an execuable named `run/noahmp.exe`.
 
-1. Run `configure`
+### Run `configure`
 
 Run `configure` to select a option that matches your operating system (Linux, Mac OS X Darwin), compiler (GCC/Gfortran, Intel, PGI), and parallel environment (seq for sequential and dm for MPI).
 
@@ -18,7 +18,7 @@ Run `configure` to select a option that matches your operating system (Linux, Ma
 
 The script will generate a file named `makefile.in`.
 
-2. Check and edit `makefile.in`
+### Check and edit `makefile.in`
 
 The `makefile.in` details the configurations of the compiler and libraries. Check whether they fit you well.
 
@@ -37,7 +37,7 @@ Notes: If you are going to create model output file that is more than 2Gb,
 export WRFIO_NCD_LARGE_FILE_SUPPORT=1
 ```
 
-3. Make
+### Make
 
 If `makefile.in` fits you, type `make` at the command prompt:
 
@@ -58,25 +58,31 @@ For running NoahMP from restart file, the user needs to switch on the flag `from
 
 ## Model Development
 
-This repository adopt the Git Flow [https://nvie.com/posts/a-successful-git-branching-model] branching convention and workflow.
+This repository adopt the Git Flow [<https://nvie.com/posts/a-successful-git-branching-model>] branching convention and workflow.
 
-Normally you should follow the instructions as bellow.
-1. `git clone https://github.com/esmwg/hrldas.git -o esmwg -b develop` to clone this repository.
+Normally you should follow the instructions as below.
+
+1. `git clone https://github.com/esmwg/hrldas.git -o esmwg -b develop` to clone this repository. The `-o` flag sets the name of the reference that points to this GitHub repository. The `-b` flag create a local branch named `develop` that trackes the `develop` branch on GitHub.
 2. `git checkout -b <your_own_branch_name> develop` to create and checkout your own branch based on the `develop` branch.
 3. Edit and commit on your own branch.
 4. `git fetch esmwg` checks whether updates are available on GitHub.
 5. `git merge develop` merges the updates into your own branch.
-6. `git push eswmg <your_own_branch_name>:feature-<your_branch_on_GitHub>` pushes your work to GitHub. Note the branch name on GitHub is prefixed by "feature-".
+6. `git push eswmg <your_own_branch_name>:feature-<your_branch_on_GitHub>` pushes your work to GitHub. Note the branch name on GitHub is prefixed by "feature-". Please indicate yourself in the GitHub branch name, such as "feature-zh-*".
 7. Create a Pull Request to merge your own branch to the `develop` branch.
-8. `git branch -d <your_own_branch_name>` deletes your own branch if the Pull Request is accepted.
+8. If your local branch is edited after the Pull Request. Push your edits to the same branch on GitHub will automatically update the Pull Request.
+9. If the Pull Request is accepted, delete your own branch using `git branch -d <your_own_branch_name>`.
 
-Please indicate yourself in the name of your own branch on GitHub (e.g., prefixed by "feature-zh-").
+Common Git settings are below for your reference.
 
-## Debug the model
+- `git config user.name <your_name>`
+- `git config user.email <your_email>`
+- `git config credential.helper cache`
+
+## Model Debugging
 
 There are two debugging methods shown as follow. You can combine the two methods or use separately. Both methods require recompiling.
 
-1. Print diagnostic information at run time.
+### Print diagnostic information at run time
 
 Set the environment variable `HYDRO_D=1` and rebuild the model.
 
@@ -88,13 +94,13 @@ A "1" for `HYDRO_D` results in NoahMP producing some run-time diagnostic informa
 When `HYDRO_D` is set to "0 "or not defined, the diagnostic information will not be produced
 during run-time.
 
-2. Compile a debugable executable for use by debuggers.
+### Compile a debugable executable for use by debuggers
 
 Edit "`makefile.in`", and append the compiler debug options "`-g`" to the fortran compiler "`F90`".
 
 ## Example
 
-An example can be found in [https://github.com/esmwg/NoahMP-Example].
+An example can be found in [<https://github.com/esmwg/NoahMP-Example>].
 
 The example helps you run your first NoahMP simulation. Use the example as an template of your own simulations.
 
@@ -116,6 +122,6 @@ If there is no error, then users can compile  NoahMP on the new platform.
 
 Please cite the following papers in your publications:
 
-- Niu, G.-Y., Yang, Z.-L., Mitchell, K. E., Chen, F., Ek, M. B., Barlage, M., Kumar, A., Manning, K., Niyogi, D., Rosero, E., Tewari, M., & Xia, Y. (2011). The community Noah land surface model with multiparameterization options (Noah-MP): 1. Model description and evaluation with local-scale measurements. _Journal of Geophysical Research: Atmospheres_, _116_(12), D12109. https://doi.org/10.1029/2010JD015139
-- Yang, Z.-L., Niu, G.-Y., Mitchell, K. E., Chen, F., Ek, M. B., Barlage, M., M., Lounguevergne, L., Manning, K., Niyogi, D., Tewari, M, & Xia, Y. (2011). The community Noah land surface model with multiparameterization options (Noah-MP): 2. Evaluation over global river basins. _Journal of Geophysical Research: Atmospheres_, _116_(D12), D12110. https://doi.org/10.1029/2010JD015140
-- Zheng, H., Yang, Z.-L., Lin, P., Wei, J., Wu, W.-Y., Li, L., Zhao, L., & Wang, S. (2019). On the sensitivity of the precipitation partitioning into evapotranspiration and runoff in land surface parameterizations. _Water Resources Research_, _55_(1), 95–111. https://doi.org/10.1029/2017WR022236
+- Niu, G.-Y., Yang, Z.-L., Mitchell, K. E., Chen, F., Ek, M. B., Barlage, M., Kumar, A., Manning, K., Niyogi, D., Rosero, E., Tewari, M., & Xia, Y. (2011). The community Noah land surface model with multiparameterization options (Noah-MP): 1. Model description and evaluation with local-scale measurements. _Journal of Geophysical Research: Atmospheres_, _116_(12), D12109. <https://doi.org/10.1029/2010JD015139>
+- Yang, Z.-L., Niu, G.-Y., Mitchell, K. E., Chen, F., Ek, M. B., Barlage, M., M., Lounguevergne, L., Manning, K., Niyogi, D., Tewari, M, & Xia, Y. (2011). The community Noah land surface model with multiparameterization options (Noah-MP): 2. Evaluation over global river basins. _Journal of Geophysical Research: Atmospheres_, _116_(D12), D12110. <https://doi.org/10.1029/2010JD015140>
+- Zheng, H., Yang, Z.-L., Lin, P., Wei, J., Wu, W.-Y., Li, L., Zhao, L., & Wang, S. (2019). On the sensitivity of the precipitation partitioning into evapotranspiration and runoff in land surface parameterizations. _Water Resources Research_, _55_(1), 95–111. <https://doi.org/10.1029/2017WR022236>
