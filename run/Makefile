@@ -37,11 +37,11 @@ OBJS = \
 	../share/kwm_string_utilities.o \
 	../share/module_ra_gfdleta.o
 
-CMD = hrldas.exe
+CMD = noahmp.exe
 all:	$(CMD)
 
 ### default we create the exe based on NoahMP
-hrldas.exe: $(OBJS)
+$(CMD) : $(OBJS)
 	@echo ""
 	echo "${TAO_FORTRAN_LIB} ${TAO_LIB} ${PETSC_LIB} ${PHDF5_INC} -Wl,-rpath,${TACC_HDF5_LIB} -L${TACC_HDF5_LIB} -lhdf5 -lz"
 # We have to include the modules built in ../hrldas
@@ -52,7 +52,7 @@ hrldas.exe: $(OBJS)
 # Template to create the exe file based on different land model. Such as NoahMP
 NoahMP: $(OBJS)
 	@echo ""
-	$(COMPILERF90) -o hrldas.exe -I../hrldas -I../phys $(OBJS) $(OBJS_NoahMP)  $(HYDRO_LIB) $(NETCDFLIB)
+	$(COMPILERF90) -o $(CMD) -I../hrldas -I../phys $(OBJS) $(OBJS_NoahMP)  $(HYDRO_LIB) $(NETCDFLIB)
 	@echo ""
 
 # This command cleans up
