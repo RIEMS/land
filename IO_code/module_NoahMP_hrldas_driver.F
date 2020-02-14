@@ -4,7 +4,7 @@ module module_NoahMP_hrldas_driver
   USE module_sf_noahmp_groundwater
   USE module_sf_noahmpdrv, only: noahmp_init, noahmplsm, noahmp_urban, groundwater_init
   USE module_sf_urban, only: urban_param_init, urban_var_init
-  USE module_date_utilities
+  USE module_date_time
   USE noahmp_tables, ONLY:  LOW_DENSITY_RESIDENTIAL_TABLE, HIGH_DENSITY_RESIDENTIAL_TABLE, &
                             HIGH_INTENSITY_INDUSTRIAL_TABLE
 #ifdef MPP_LAND
@@ -2575,7 +2575,7 @@ end subroutine lsm_restart
 SUBROUTINE CALC_DECLIN ( NOWDATE, LATITUDE, LONGITUDE, COSZ, JULIAN, &
                          HRANG_OUT, DECLIN_OUT, GMT_OUT, JULDAY_OUT )
 
-  USE MODULE_DATE_UTILITIES
+  USE module_date_time
 !---------------------------------------------------------------------
    IMPLICIT NONE
 !---------------------------------------------------------------------

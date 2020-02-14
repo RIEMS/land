@@ -1,5 +1,5 @@
 module module_hrldas_netcdf_io
-  use module_date_utilities
+  use module_date_time
   use netcdf
 
 #ifdef MPP_LAND

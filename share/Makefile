@@ -1,4 +1,4 @@
-# Makefile 
+# Makefile
 #
 .SUFFIXES:
 .SUFFIXES: .o .F
@@ -6,12 +6,12 @@
 include ../makefile.in
 
 OBJS = \
-	module_date_utilities.o \
+	module_date_time.o \
 	module_model_constants.o \
 	module_ra_gfdleta.o \
 	module_wrf_utilities.o \
 	kwm_string_utilities.o
-	
+
 CPPHRLDAS = -D_HRLDAS_OFFLINE_
 
 
