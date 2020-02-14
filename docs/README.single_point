@@ -9,7 +9,7 @@ git clone https://github.com/NCAR/hrldas-release.git
 
 In the following, hrldas_root = /root_path/hrldas-release/HRLDAS
 
-In hrldas_root, run configure to get a sample user_build_options for your system.
+In hrldas_root, run configure to get a sample makefile.in for your system.
 
 For this single point example, use a serial compile option.
 
@@ -39,7 +39,7 @@ create_point_data.f90 : Fortran code to create the required setup file and forci
 bondville.dat         : The location information and forcing data in text format
 Makefile              : Makefile for compiling and cleaning
 
-The Fortran source code should compile using the user_build_options from Step 1 above:
+The Fortran source code should compile using the makefile.in from Step 1 above:
 
 type 'make'
 

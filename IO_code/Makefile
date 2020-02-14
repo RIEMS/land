@@ -3,7 +3,7 @@
 .SUFFIXES:
 .SUFFIXES: .o .F
 
-include ../user_build_options
+include ../makefile.in
 
 OBJS_NoahMP = module_NoahMP_hrldas_driver.o
 

@@ -3,7 +3,7 @@
 .SUFFIXES:
 .SUFFIXES: .o .F
 
-include ../user_build_options
+include ../makefile.in
 
 OBJS =  CPL_WRF.o mpp_land.o 
 
