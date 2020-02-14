@@ -58,17 +58,17 @@ For running NoahMP from restart file, the user needs to switch on the flag `from
 
 ## Model Development
 
-This repository adopt the Git Flow [<https://nvie.com/posts/a-successful-git-branching-model>] branching convention and workflow.
+This repository adopts the Git Flow [<https://nvie.com/posts/a-successful-git-branching-model>] branching convention and workflow.
 
-Normally you should follow the instructions as below.
+Normally you should follow the instructions below.
 
 1. `git clone https://github.com/esmwg/hrldas.git -o esmwg -b develop` to clone this repository. The `-o` flag sets the name of the reference that points to this GitHub repository. The `-b` flag create a local branch named `develop` that trackes the `develop` branch on GitHub.
 2. `git checkout -b <your_own_branch_name> develop` to create and checkout your own branch based on the `develop` branch.
 3. Edit and commit on your own branch.
-4. `git fetch esmwg` checks whether updates are available on GitHub.
+4. `git fetch esmwg` fetches updates from GitHub. Updates may be available since the clone or last fetch.
 5. `git merge develop` merges the updates into your own branch.
-6. `git push eswmg <your_own_branch_name>:feature-<your_branch_on_GitHub>` pushes your work to GitHub. Note the branch name on GitHub is prefixed by "feature-". Please indicate yourself in the GitHub branch name, such as "feature-zh-*".
-7. Create a Pull Request to merge your own branch to the `develop` branch.
+6. `git push eswmg <your_own_branch_name>:feature-<your_branch_on_GitHub>` pushes your work to a GitHub branch prefixed by "feature-". The "feature-" prefix is mandatory. It is also much easier to identify yourself in the branch name, such as "feature-zh-correct-a-bug".
+7. Open the GitHub website, create a Pull Request to merge your own branch into the `develop` branch.
 8. If your local branch is edited after the Pull Request. Push your edits to the same branch on GitHub will automatically update the Pull Request.
 9. If the Pull Request is accepted, delete your own branch using `git branch -d <your_own_branch_name>`.
 
