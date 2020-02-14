@@ -63,7 +63,7 @@ This repository adopt the Git Flow [https://nvie.com/posts/a-successful-git-bran
 Normally you should follow the instructions as bellow.
 1. `git clone https://github.com/esmwg/hrldas.git -o esmwg -b develop` to clone this repository.
 2. `git checkout -b <your_own_branch_name> develop` to create and checkout your own branch based on the `develop` branch.
-3. Edit the code on your own branch.
+3. Edit and commit on your own branch.
 4. `git fetch esmwg` checks whether updates are available on GitHub.
 5. `git merge develop` merges the updates into your own branch.
 6. `git push eswmg <your_own_branch_name>:feature-<your_branch_on_GitHub>` pushes your work to GitHub. Note the branch name on GitHub is prefixed by "feature-".
