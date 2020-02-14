@@ -33,7 +33,7 @@ OBJS = \
 	../phys/module_sf_bep_bem.o \
 	../share/module_wrf_utilities.o \
 	../share/module_model_constants.o \
-	../share/module_date_time.o \
+	../share/module_date_utilities.o \
 	../share/kwm_string_utilities.o \
 	../share/module_ra_gfdleta.o
 

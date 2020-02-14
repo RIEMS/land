@@ -5,6 +5,7 @@ MODULE module_sf_urban
 !     Original Version: 2002/11/06 by Hiroyuki Kusaka
 !     Last Update:      2006/08/24 by Fei Chen and Mukul Tewari (NCAR/RAL)
 !===============================================================================
+   use module_wrf_error
 
    CHARACTER(LEN=4)                :: LU_DATA_TYPE
 

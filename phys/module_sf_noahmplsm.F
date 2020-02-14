@@ -20,6 +20,8 @@
 
 MODULE MODULE_SF_NOAHMPLSM
 
+  use module_wrf_error
+
   use module_sf_gecros, only : gecros
 
   IMPLICIT NONE
@@ -9147,6 +9149,8 @@ END SUBROUTINE EMERG
 END MODULE MODULE_SF_NOAHMPLSM
 
 MODULE NOAHMP_TABLES
+
+    use module_wrf_error
 
     IMPLICIT NONE
 

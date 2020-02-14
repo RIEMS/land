@@ -65,6 +65,7 @@ END MODULE NOAHMP_GLACIER_GLOBALS
 !------------------------------------------------------------------------------------------!
 
 MODULE NOAHMP_GLACIER_ROUTINES
+  use module_wrf_error
   USE NOAHMP_GLACIER_GLOBALS
   IMPLICIT NONE
 

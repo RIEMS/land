@@ -1,4 +1,5 @@
 MODULE module_sf_noahmpdrv
+  use module_wrf_error
 
 !-------------------------------
 #if ( WRF_CHEM == 1 )
