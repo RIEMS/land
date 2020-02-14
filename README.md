@@ -2,6 +2,8 @@
 
 This README file describes how to build and run the NoahMP land surface model.
 
+Model developers can also find information about the development workflow and technical documents.
+
 ## Build
 
 Normally you can build the model in three steps: 1) run `configure`, 2) check and modify `makefile.in` if necessary, and 3) `make`. A successful build will produce an execuable named `run/noahmp.exe`.
@@ -54,6 +56,22 @@ For a NoahMP cold start run (i.e. not from a restart file), the user needs to tu
 For running NoahMP from restart file, the user needs to switch on the flag `from_restart=.true.` in `noahmp.namelist` and provide an existing restart file to the option `RESTART_FILE`. Running from a restart condition is common when the land surface has been
 'spun-up' by running NoahMP in an offline or 'uncoupled' capacity.
 
+## Model Development
+
+This repository adopt the Git Flow [https://nvie.com/posts/a-successful-git-branching-model] branching convention and workflow.
+
+Normally you should follow the instructions as bellow.
+1. `git clone https://github.com/esmwg/hrldas.git -o esmwg -b develop` to clone this repository.
+2. `git checkout -b <your_own_branch_name> develop` to create and checkout your own branch based on the `develop` branch.
+3. Edit the code on your own branch.
+4. `git fetch esmwg` checks whether updates are available on GitHub.
+5. `git merge develop` merges the updates into your own branch.
+6. `git push eswmg <your_own_branch_name>:feature-<your_branch_on_GitHub>` pushes your work to GitHub. Note the branch name on GitHub is prefixed by "feature-".
+7. Create a Pull Request to merge your own branch to the `develop` branch.
+8. `git branch -d <your_own_branch_name>` deletes your own branch if the Pull Request is accepted.
+
+Please indicate yourself in the name of your own branch on GitHub (e.g., prefixed by "feature-zh-").
+
 ## Debug the model
 
 There are two debugging methods shown as follow. You can combine the two methods or use separately. Both methods require recompiling.
@@ -93,12 +111,6 @@ The basic steps to do so are as follows:
 5. `make`
 
 If there is no error, then users can compile  NoahMP on the new platform.
-
-## Contribution
-
-Fork this repository, code, and submit a pull request.
-
-Read the GitHub help page [https://help.github.com/articles/fork-a-repo] for more information.
 
 ## References
 
