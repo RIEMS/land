@@ -1,8 +1,8 @@
 # The Noah with Multi-Physics options (NoahMP) land surface model
 
-This README file describes how to build and run the NoahMP land surface model.
+This README describes how to build and run the NoahMP land surface model.
 
-Model developers can also find information about the development workflow and technical documents.
+Model developers can also find information about the development instructions and technical documents.
 
 ## Build
 
@@ -45,7 +45,7 @@ If `makefile.in` fits you, type `make` at the command prompt:
 make
 ```
 
-If compiling is successful, an executable named `ldas.exe` will be created under the `run` directory.
+If compilation is successful, an executable named `ldas.exe` will be created under the `run` directory.
 
 ## Run
 
@@ -58,19 +58,20 @@ For running NoahMP from restart file, the user needs to switch on the flag `from
 
 ## Model Development
 
-This repository adopts the Git Flow [<https://nvie.com/posts/a-successful-git-branching-model>] branching convention and workflow.
+This repository adopts the Git Flow [<https://nvie.com/posts/a-successful-git-branching-model>] branching convention and workflow. You should base your work on the `develop` or `module-*` branches and pushes your work back to the `feature-*` branches.
 
 Normally you should follow the instructions below.
 
-1. `git clone https://github.com/esmwg/hrldas.git -o esmwg -b develop` to clone this repository. The `-o` flag sets the name of the reference that points to this GitHub repository. The `-b` flag create a local branch, `develop`, which trackes the `develop` branch on GitHub (remote branch).
-2. `git checkout -b <your_own_branch> develop` to create and checkout your own branch based on the local `develop` branch.
-3. Edit and commit on your own branch.
-4. `git fetch esmwg` fetches updates from GitHub. Updates may be available since the clone or last fetch.
-5. `git merge develop` merges the updates into your own branch.
-6. `git push eswmg <your_own_branch>:feature-<your_branch_on_GitHub>` pushes your work to a GitHub branch prefixed by "feature-". The "feature-" prefix is mandatory. It is also much easier to identify yourself in the branch name, such as "feature-zh-correct-a-bug".
-7. Open the GitHub website, create a Pull Request to merge your own branch into the `develop` branch.
-8. If your local branch is edited after the Pull Request. Push your edits to the same branch on GitHub will automatically update the Pull Request.
-9. If the Pull Request is accepted, delete your own branch using `git branch -d <your_own_branch>`.
+1. `git clone https://github.com/esmwg/ldas.git -o esmwg` to clone this repository. The `-o` flag sets `esmwg` as the remote name of this GitHub repository.
+2. Optionally, `git checkout -b develop esmwg/develop` to create a local `develop` branch that tracks the remote `develop` branch on GitHub. You may replace `develop` to `module-*` as the branch that you would like to base your work on.
+3. `git checkout -b <your_own_branch> develop` to create your own branch based on the local `develop` branch. Replace `develop` to `module-*` if neccessary.
+4. Edit and commit on your own branch.
+5. `git fetch esmwg` fetches updates from GitHub. Others may have updated the GitHub repository during your work.
+6. `git merge develop` merges the updates into your own branch.
+7. `git push eswmg <your_own_branch>:feature-<your_branch_on_GitHub>` pushes your work to a GitHub branch prefixed by "feature-". The "feature-" prefix is mandatory. It is also much easier to identify yourself in the branch name, such as "feature-zh-correct-a-bug".
+8. Open the GitHub website, create a Pull Request to merge your own branch into the `develop` branch or a `module-` branch.
+9. If your local branch is edited after the Pull Request. Push again will automatically update the Pull Request.
+10. If the Pull Request is accepted, delete your own branch using `git branch -d <your_own_branch>`. If the Pull Request is rebased or squashed remotely, you should force the delete: `git branch -D <your_own_branch>`.
 
 Common Git settings are below for your reference.
 
