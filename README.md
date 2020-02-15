@@ -63,10 +63,10 @@ This repository adopts the Git Flow [<https://nvie.com/posts/a-successful-git-br
 Normally you should follow the instructions below.
 
 1. `git clone https://github.com/esmwg/ldas.git -o esmwg` to clone this repository. The `-o` flag sets `esmwg` as the remote name of this GitHub repository.
-2. Optionally, `git checkout -b develop esmwg/develop` to create a local `develop` branch that tracks the remote `develop` branch on GitHub. You may replace `develop` to `module-*` as the branch that you would like to base your work on. The same applies to the following instructions.
+2. Optionally, `git checkout -b develop esmwg/develop` to create a local `develop` branch that tracks the remote `develop` branch on GitHub. You may replace `develop` to `module-*` if it is the branch that you would like to base your work on. The same applies to the following instructions.
 3. `git checkout -b <your_own_branch> develop` to create your own branch based on the local `develop` branch.
 4. Edit and commit on your own branch.
-5. `git pull esmwg develop:develop` pulls the remote updates on the remote `develop` branch into the local `develop` branch. Others may have updated the GitHub repository during your work.
+5. `git pull esmwg develop:develop` pulls the remote `develop` updates into the local `develop` branch. During your work, others may have pushed their work to the GitHub repository.
 6. `git merge develop` merges the updates into your own branch.
 7. `git push eswmg <your_own_branch>:feature-<your_branch_on_GitHub>` pushes your work to a GitHub branch prefixed by "feature-". The "feature-" prefix is mandatory. It is also much easier to identify yourself in the branch name, such as "feature-zh-correct-a-bug".
 8. Open the GitHub website, create a Pull Request to merge your own branch into the `develop` branch or a `module-` branch.
