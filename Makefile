@@ -7,13 +7,13 @@ ifdef MPPFLAG
 endif
 	(cd share;		make)
 	(cd phys;			make)
-	(cd hrldas;			make)
+	(cd ldas;			make)
 	(cd run;			make)
 
 clean:
 	(cd share;		make clean)
 	(cd phys;			make clean)
-	(cd hrldas;			make clean)
+	(cd ldas;			make clean)
 	(cd run;			make clean)
 ifdef MPPFLAG
 	(cd MPP; make -f Makefile.NoahMP clean)
@@ -26,5 +26,5 @@ ifdef MPPFLAG
 endif
 	(cd share;		make)
 	(cd phys;			make)
-	(cd hrldas;			make NoahMP MOD_OPT="-DNoahMP")
+	(cd ldas;			make NoahMP MOD_OPT="-DNoahMP")
 	(cd run;			make -f Makefile NoahMP)
