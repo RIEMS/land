@@ -17,11 +17,11 @@ RAPID_MACRO =
 RAPID_LIB =
 endif
 
-OBJS_NoahMP = ../ldas/module_NoahMP_hrldas_driver.o
+OBJS_NoahMP = ../ldas/module_ldas_noahmp.o
 
 OBJS = \
-	../ldas/main_hrldas_driver.o \
-	../ldas/module_hrldas_netcdf_io.o \
+	../ldas/main_ldas.o \
+	../ldas/module_ldas_io_netcdf.o \
 	../phys/module_sf_noahmpdrv.o \
 	../phys/module_sf_noahmplsm.o \
 	../phys/module_sf_noahmp_glacier.o \
@@ -57,5 +57,5 @@ NoahMP: $(OBJS)
 
 # This command cleans up
 clean:
-	$(RM) *~ $(CMD)
+	$(RM) $(CMD) *~
 

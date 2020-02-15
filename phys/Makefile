@@ -1,7 +1,7 @@
 # Makefile
 #
 .SUFFIXES:
-.SUFFIXES: .o .F
+.SUFFIXES: .o .F90
 
 include ../makefile.in
 
@@ -20,11 +20,9 @@ CPPHRLDAS = -D_HRLDAS_OFFLINE_
 
 all:	$(OBJS)
 
-.F.o:
-	@echo ""
-	$(RM) $(*).f90
-	$(CPP) $(CPPFLAGS) $(CPPHRLDAS) $(*).F > $(*).f90
-	$(COMPILERF90) -o $(@) -c -I../share $(F90FLAGS) $(FREESOURCE) $(*).f90
+.F90.o:
+	$(COMPILERF90) -o $(@) -c $(CPPFLAGS) $(CPPHRLDAS) $(F90FLAGS) $(FREESOURCE) \
+	       -I../share $(*).F90
 	@echo ""
 
 #
@@ -42,5 +40,5 @@ module_sf_bep_bem.o:	module_sf_urban.o module_sf_bem.o
 #
 
 clean:
-	$(RM) *.o *.mod *.stb *~ *.f90
+	$(RM) *.o *.mod *.smod *.stb *~
 

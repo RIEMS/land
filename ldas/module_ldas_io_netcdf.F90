@@ -1,4 +1,4 @@
-module module_hrldas_netcdf_io
+module module_ldas_io_netcdf
   use module_date_utilities
   use netcdf
 
@@ -565,7 +565,7 @@ contains
 
     ! Close the NetCDF file
     ierr = nf90_close(ncid)
-    if (ierr /= 0) stop "MODULE_HRLDAS_NETCDF_IO:  READ_MMF_RUNOFF:  NF90_CLOSE"
+    if (ierr /= 0) stop "MODULE_LDAS_IO_NETCDF:  READ_MMF_RUNOFF:  NF90_CLOSE"
 
 
   end subroutine read_mmf_runoff
@@ -623,7 +623,7 @@ contains
         croptype(:,icrop,:) = xdum(:,:,icrop)
       end do
     else
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
     endif
 
 ! Get planting date (PLANTING)
@@ -632,7 +632,7 @@ contains
     if (iret == 0) then
       ierr = nf90_get_var(ncid, varid, planting, start=(/xstart,ystart/), count=(/xend-xstart+1,yend-ystart+1/))
     else
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
     endif
 
 ! Get harvest date (HARVEST)
@@ -641,7 +641,7 @@ contains
     if (iret == 0) then
       ierr = nf90_get_var(ncid, varid, harvest, start=(/xstart,ystart/), count=(/xend-xstart+1,yend-ystart+1/))
     else
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
     endif
 
 ! Get seasonal growing degree days (SEASON_GDD)
@@ -650,7 +650,7 @@ contains
     if (iret == 0) then
       ierr = nf90_get_var(ncid, varid, season_gdd, start=(/xstart,ystart/), count=(/xend-xstart+1,yend-ystart+1/))
     else
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file. Using default values."
     endif
 
 ! Close the NetCDF file
@@ -697,7 +697,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -711,7 +711,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -725,7 +725,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -739,7 +739,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -753,7 +753,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -767,7 +767,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -781,7 +781,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -795,7 +795,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -809,7 +809,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -823,7 +823,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -833,7 +833,7 @@ contains
     iret = nf90_inq_varid(ncid,  trim(name),  varid)
     if (iret /= 0) then
       print*, 'ncid = ', ncid
-      write(*,*) "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file."
+      write(*,*) "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file."
       stop
     endif
 
@@ -1092,7 +1092,7 @@ contains
     if (iret /= 0) then
        if (FATAL_IF_ERROR) then
           print*, 'ncid = ', ncid
-          call error_handler(iret, "MODULE_HRLDAS_NETCDF_IO:  Problem finding variable '"//trim(name)//"' in NetCDF file.")
+          call error_handler(iret, "MODULE_LDAS_IO_NETCDF:  Problem finding variable '"//trim(name)//"' in NetCDF file.")
        else
           ierr = iret
 #ifdef MPP_LAND
@@ -1125,7 +1125,7 @@ contains
 #endif
        if (FATAL_IF_ERROR) then
           print*, 'ncid =', ncid
-          call error_handler(iret, "MODULE_HRLDAS_NETCDF_IO:  Problem retrieving variable '"//trim(name)//"' from NetCDF file.")
+          call error_handler(iret, "MODULE_LDAS_IO_NETCDF:  Problem retrieving variable '"//trim(name)//"' from NetCDF file.")
        else
           ierr = iret
           return
@@ -3565,4 +3565,4 @@ contains
 !---------------------------------------------------------------------------------------------------------
 !---------------------------------------------------------------------------------------------------------
 
- end module module_hrldas_netcdf_io
+ end module module_ldas_io_netcdf

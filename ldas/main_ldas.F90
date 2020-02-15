@@ -6,20 +6,20 @@ program Noah_hrldas_driver
    use module_noah1d_hrldas_driver, only: land_driver_ini, land_driver_exe
 #else
 ! this is used to drive NoahMP
-   use module_noahmp_hrldas_driver, only: land_driver_ini, land_driver_exe
+   use module_ldas_noahmp, only: land_driver_ini, land_driver_exe
 #endif
 
    implicit none
    integer :: ITIME, NTIME
 
    call land_driver_ini(NTIME)
-   
+
    do ITIME = 0, NTIME
        call land_driver_exe(ITIME)
    end do
 #ifdef WRF_HYDRO
-   call hydro_finish() 
+   call hydro_finish()
 #endif
 
-END 
+END
 

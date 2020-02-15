@@ -1,7 +1,7 @@
-module module_NoahMP_hrldas_driver
+module module_ldas_noahmp
 
   use module_wrf_error
-  USE module_hrldas_netcdf_io
+  USE module_ldas_io_netcdf
   USE module_sf_noahmp_groundwater
   USE module_sf_noahmpdrv, only: noahmp_init, noahmplsm, noahmp_urban, groundwater_init
   USE module_sf_urban, only: urban_param_init, urban_var_init
@@ -2646,7 +2646,7 @@ SUBROUTINE CALC_DECLIN ( NOWDATE, LATITUDE, LONGITUDE, COSZ, JULIAN, &
  END SUBROUTINE CALC_DECLIN
 
 
-end module module_NoahMP_hrldas_driver
+end module module_ldas_noahmp
 
 !subroutine wrf_message(msg)
 !  implicit none

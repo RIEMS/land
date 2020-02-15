@@ -1,7 +1,7 @@
 # Makefile
 #
 .SUFFIXES:
-.SUFFIXES: .o .F
+.SUFFIXES: .o .F90
 
 include ../makefile.in
 
@@ -17,11 +17,8 @@ CPPHRLDAS = -D_HRLDAS_OFFLINE_
 
 all:	$(OBJS)
 
-.F.o:
-	@echo ""
-	$(RM) $(*).f90
-	$(CPP) $(CPPFLAGS) $(CPPHRLDAS) $(*).F > $(*).f90
-	$(COMPILERF90) -o $(@) -c $(F90FLAGS) $(FREESOURCE) $(*).f90
+.F90.o:
+	$(COMPILERF90) -o $(@) $(CPPFLAGS) $(CPPHRLDAS) $(F90FLAGS) $(FREESOURCE) -c $(*).F90
 	@echo ""
 
 #
@@ -33,5 +30,5 @@ all:	$(OBJS)
 #
 
 clean:
-	$(RM) *.o *.mod *.stb *~ *.f90
+	$(RM) *.o *.mod *.smod *.stb *~
 

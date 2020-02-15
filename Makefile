@@ -3,7 +3,7 @@ include ./makefile.in
 
 all: makefile.in
 ifdef MPPFLAG
-	(cd MPP; make -f Makefile.NoahMP)
+	(cd mpp; make -f Makefile)
 endif
 	(cd share;		make)
 	(cd phys;			make)
@@ -16,13 +16,13 @@ clean:
 	(cd ldas;			make clean)
 	(cd run;			make clean)
 ifdef MPPFLAG
-	(cd MPP; make -f Makefile.NoahMP clean)
+	(cd mpp; make -f Makefile clean)
 endif
 
 ### explicitly point to other land model options
 NoahMP: makefile.in
 ifdef MPPFLAG
-	(cd MPP; make -f Makefile.NoahMP)
+	(cd mpp; make -f Makefile)
 endif
 	(cd share;		make)
 	(cd phys;			make)
