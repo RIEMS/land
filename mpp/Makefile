@@ -10,7 +10,7 @@ OBJS =  cpl_wrf.o mpp_land.o
 all:	$(OBJS)
 
 .F90.o:
-	$(COMPILERF90) -o $(@) $(CPPFLAGS) $(F90FLAGS) $(FREESOURCE) -c $(*).F90
+	$(F90) -o $(@) $(CPPFLAGS) $(F90FLAGS) -c $(*).F90
 	@echo ""
 
 clean:

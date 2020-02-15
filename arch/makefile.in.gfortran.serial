@@ -1,23 +1,19 @@
 
-#=============================================================================================
-#  Options for Linux with gfortran (not fully tested)
-#=============================================================================================
+#  Options for Linux with gfortran
 
- COMPILERF90    =       /usr/bin/gfortran
- FREESOURCE     =       -ffree-form  -ffree-line-length-none
- F90FLAGS       =       -g -fconvert=big-endian -fbounds-check -fno-range-check -fno-underscoring
- MODFLAG        =       -I
- LDFLAGS        =       
- CPP            =       /usr/bin/cpp
- CPPFLAGS       =       -P -traditional -D_GFORTRAN_
- LIBS           =       
- LIBJASPER      =       -ljpeg -L/usr/lib -ljasper
- INCJASPER      =       -I/usr/include/jasper
- NETCDFMOD      =       -I/usr/include
- NETCDFLIB      =       -L/usr/lib -lnetcdf -lnetcdff
- BZIP2          =       NO
- BZIP2_LIB      =       -lbz2
- BZIP2_INCLUDE  =       -I/usr/include
- RM             =       rm -f
- CC             =       /usr/bin/gcc
-
+F90            =       /usr/bin/gfortran
+F90FLAGS       =       -g -cpp -ffree-form -ffree-line-length-none -fconvert=big-endian -fbounds-check -fno-range-check -fno-underscoring
+MODFLAG        =       -I
+LDFLAGS        =
+CPP            =       /usr/bin/cpp
+CPPFLAGS       =       -P -traditional -D_GFORTRAN_
+LIBS           =
+LIBJASPER      =       -ljpeg -L/usr/lib -ljasper
+INCJASPER      =       -I/usr/include/jasper
+NETCDFMOD      =       -I/usr/include
+NETCDFLIB      =       -L/usr/lib -lnetcdf -lnetcdff
+BZIP2          =       NO
+BZIP2_LIB      =       -lbz2
+BZIP2_INCLUDE  =       -I/usr/include
+RM             =       rm -f
+CC             =       /usr/bin/gcc

@@ -1,12 +1,9 @@
 
-#=============================================================================================
 #  Options for Linux with Intel Fortran MPI
-#=============================================================================================
 
- COMPILERF90    =       mpif90
+ F90            =       mpif90
  MPPFLAG        =       YES
- FREESOURCE     =       -free
- F90FLAGS       =       -convert big_endian -g -O0 -fpe0
+ F90FLAGS       =       -g -free -convert big_endian -fpe0
  MODFLAG        =       -I ../MPP
  HYDRO_LIB      =       ../MPP/mpp_land.o ../MPP/CPL_WRF.o
  LDFLAGS        =

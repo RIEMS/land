@@ -19,7 +19,7 @@ OBJS = \
 all: $(OBJS)
 
 .F90.o:
-	$(COMPILERF90) -o $(@) -c $(CPPFLAGS) $(F90FLAGS) $(FREESOURCE) \
+	$(F90) -o $(@) -c $(CPPFLAGS) $(F90FLAGS) \
 	       -I../share $(*).F90
 	@echo ""
 
