@@ -5,15 +5,15 @@ all: makefile.in
 ifdef MPPFLAG
 	(cd MPP; make -f Makefile.NoahMP)
 endif
-	(cd Utility_routines;		make)
+	(cd share;		make)
 	(cd phys;			make)
-	(cd IO_code;			make)
+	(cd ldas;			make)
 	(cd run;			make)
 
 clean:
-	(cd Utility_routines;		make clean)
+	(cd share;		make clean)
 	(cd phys;			make clean)
-	(cd IO_code;			make clean)
+	(cd ldas;			make clean)
 	(cd run;			make clean)
 ifdef MPPFLAG
 	(cd MPP; make -f Makefile.NoahMP clean)
@@ -24,7 +24,7 @@ NoahMP: makefile.in
 ifdef MPPFLAG
 	(cd MPP; make -f Makefile.NoahMP)
 endif
-	(cd Utility_routines;		make)
+	(cd share;		make)
 	(cd phys;			make)
-	(cd IO_code;			make NoahMP MOD_OPT="-DNoahMP")
+	(cd ldas;			make NoahMP MOD_OPT="-DNoahMP")
 	(cd run;			make -f Makefile NoahMP)

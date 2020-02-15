@@ -1,4 +1,5 @@
 MODULE module_sf_bem
+  use module_wrf_error
 ! -----------------------------------------------------------------------
 !  Variables and constants used in the BEM module
 ! -----------------------------------------------------------------------

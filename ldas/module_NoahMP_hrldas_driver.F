@@ -1,5 +1,6 @@
 module module_NoahMP_hrldas_driver
 
+  use module_wrf_error
   USE module_hrldas_netcdf_io
   USE module_sf_noahmp_groundwater
   USE module_sf_noahmpdrv, only: noahmp_init, noahmplsm, noahmp_urban, groundwater_init
@@ -2575,7 +2576,7 @@ end subroutine lsm_restart
 SUBROUTINE CALC_DECLIN ( NOWDATE, LATITUDE, LONGITUDE, COSZ, JULIAN, &
                          HRANG_OUT, DECLIN_OUT, GMT_OUT, JULDAY_OUT )
 
-  USE MODULE_DATE_UTILITIES
+  USE module_date_utilities
 !---------------------------------------------------------------------
    IMPLICIT NONE
 !---------------------------------------------------------------------
