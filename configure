@@ -25,13 +25,13 @@ read option
 
 # Compiling Configurations
 case $option in
-    1 ) cp arch/user_build_options.pgf90.serial $BUILDOPTIONS ;;
-    2 ) cp arch/user_build_options.pgf90.mpi $BUILDOPTIONS ;;
-    3 ) cp arch/user_build_options.ifort.serial $BUILDOPTIONS ;;
-    4 ) cp arch/user_build_options.ifort.mpi $BUILDOPTIONS ;;
-    5 ) cp arch/user_build_options.gfortran.serial $BUILDOPTIONS ;;
-   101) cp arch/user_build_options.tacc.ls5.seq $BUILDOPTIONS ;;
-   102) cp arch/user_build_options.tacc.ls5.dmpar $BUILDOPTIONS ;;
+    1 ) cp arch/makefile.in.pgf90.serial $BUILDOPTIONS ;;
+    2 ) cp arch/makefile.in.pgf90.mpi $BUILDOPTIONS ;;
+    3 ) cp arch/makefile.in.ifort.serial $BUILDOPTIONS ;;
+    4 ) cp arch/makefile.in.ifort.mpi $BUILDOPTIONS ;;
+    5 ) cp arch/makefile.in.gfortran.serial $BUILDOPTIONS ;;
+   101) cp arch/makefile.in.tacc.ls5.seq $BUILDOPTIONS ;;
+   102) cp arch/makefile.in.tacc.ls5.dmpar $BUILDOPTIONS ;;
     0 ) exit ;;
     * ) echo 'ERROR: Unknown option!' ; exit 1 ;;
 esac
