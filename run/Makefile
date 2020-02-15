@@ -37,7 +37,7 @@ OBJS = \
 	../share/kwm_string_utilities.o \
 	../share/module_ra_gfdleta.o
 
-CMD = noahmp.exe
+CMD = ldas.exe
 all:	$(CMD)
 
 ### default we create the exe based on NoahMP

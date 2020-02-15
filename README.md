@@ -4,7 +4,7 @@ This README file describes how to build and run the NoahMP land surface model.
 
 ## Build
 
-Normally you can build the model in three steps: 1) run `configure`, 2) check and modify `makefile.in` if necessary, and 3) `make`. A successful build will produce an execuable named `run/noahmp.exe`.
+Normally you can build the model in three steps: 1) run `configure`, 2) check and modify `makefile.in` if necessary, and 3) `make`. A successful build will produce an execuable named `run/ldas.exe`.
 
 1. Run `configure`
 
@@ -43,7 +43,7 @@ If `makefile.in` fits you, type `make` at the command prompt:
 make
 ```
 
-If compiling is successful, an executable named `noahmp.exe` will be created under the `run` directory.
+If compiling is successful, an executable named `ldas.exe` will be created under the `run` directory.
 
 ## Run
 
