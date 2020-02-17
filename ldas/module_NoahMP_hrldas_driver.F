@@ -629,7 +629,7 @@ module module_NoahMP_hrldas_driver
   spinup_loops            = 0
   restart_frequency_hours = -999
 
-  open(30, file="namelist.hrldas", form="FORMATTED")
+  open(30, file="ldas.namelist", form="FORMATTED", status="OLD", action="READ")
   read(30, NOAHLSM_OFFLINE, iostat=ierr)
   if (ierr /= 0) then
      write(*,'(/," ***** ERROR: Problem reading namelist NOAHLSM_OFFLINE",/)')
