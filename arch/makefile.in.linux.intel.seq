@@ -1,12 +1,13 @@
 
 #  Options for Linux with Intel Fortran
 
-F90            =      ifort
-F90FLAGS       =      -g -free -convert big_endian -fpe0
-MODFLAG        =      -I
-LDFLAGS        =
 CPP            =      cpp
 CPPFLAGS       =      -P -traditional
+CC             =      cc
+F90            =      ifort
+F90FLAGS       =      -g -free -convert big_endian -fpe0
+MODFLAGS       =
+LDFLAGS        =
 LIBS           =
 LIBJASPER      =      -ljasper
 INCJASPER      =      -I/usr/include/jasper
@@ -16,4 +17,3 @@ BZIP2          =      NO
 BZIP2_INCLUDE  =      -I/usr/include
 BZIP2_LIB      =      -L/usr/lib64 -lbz2
 RM             =      rm -f
-CC             =      cc

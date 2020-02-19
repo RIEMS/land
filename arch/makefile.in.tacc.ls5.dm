@@ -1,11 +1,12 @@
 
 #  Options for Linux with Intel Fortran MPI
 
-F90            =       mpif90
 MPPFLAG        =       YES
+CC             =       icc
+F90            =       mpif90
 F90FLAGS       =       -g -free -convert big_endian -fpe0
-MODFLAG        =       -I ../MPP
-HYDRO_LIB      =       ../MPP/mpp_land.o ../MPP/CPL_WRF.o
+MODFLAGS       =       -I../mpp
+HYDRO_LIB      =       ../mpp/mpp_land.o ../mpp/cpl_wrf.o
 LDFLAGS        =
 CPP            =       cpp
 CPPFLAGS       =       -P -traditional -DMPP_LAND # -DSPATIAL_SOIL
@@ -18,4 +19,3 @@ BZIP2          =       NO
 BZIP2_INCLUDE  =       -I/usr/include
 BZIP2_LIB      =       -L/usr/lib64 -lbz2
 RM             =       rm -f
-CC             =       icc

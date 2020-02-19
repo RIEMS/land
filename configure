@@ -11,12 +11,13 @@ finish () {
 # Compiling Options
 echo "Please select from following supported options."
 echo "   1. Linux PGI seq"
-echo "   2. Linux PGI dmpar"
+echo "   2. Linux PGI dm"
 echo "   3. Linux Intel seq"
-echo "   4. Linux Intel dmpar"
+echo "   4. Linux Intel dm"
 echo "   5. Linux GCC seq"
+echo "   6. Linux GCC dm"
 echo " 101. Lonestar 5 @ Texas Advanced Computing Center, seq"
-echo " 102. Lonestar 5 @ Texas Advanced Computing Center, dmpar"
+echo " 102. Lonestar 5 @ Texas Advanced Computing Center, dm"
 echo "   0. exit only"
 echo ""
 echo -n "Enter selection: "
@@ -25,13 +26,14 @@ read option
 
 # Compiling Configurations
 case $option in
-    1 ) cp arch/makefile.in.pgf90.serial $BUILDOPTIONS ;;
-    2 ) cp arch/makefile.in.pgf90.mpi $BUILDOPTIONS ;;
-    3 ) cp arch/makefile.in.ifort.serial $BUILDOPTIONS ;;
-    4 ) cp arch/makefile.in.ifort.mpi $BUILDOPTIONS ;;
-    5 ) cp arch/makefile.in.gfortran.serial $BUILDOPTIONS ;;
+    1 ) cp arch/makefile.in.linux.pgi.seq $BUILDOPTIONS ;;
+    2 ) cp arch/makefile.in.linux.pgi.dm $BUILDOPTIONS ;;
+    3 ) cp arch/makefile.in.linux.intel.seq $BUILDOPTIONS ;;
+    4 ) cp arch/makefile.in.linux.intel.dm $BUILDOPTIONS ;;
+    5 ) cp arch/makefile.in.linux.gnu.seq $BUILDOPTIONS ;;
+    6 ) cp arch/makefile.in.linux.gnu.dm $BUILDOPTIONS ;;
    101) cp arch/makefile.in.tacc.ls5.seq $BUILDOPTIONS ;;
-   102) cp arch/makefile.in.tacc.ls5.dmpar $BUILDOPTIONS ;;
+   102) cp arch/makefile.in.tacc.ls5.dm $BUILDOPTIONS ;;
     0 ) exit ;;
     * ) echo 'ERROR: Unknown option!' ; exit 1 ;;
 esac

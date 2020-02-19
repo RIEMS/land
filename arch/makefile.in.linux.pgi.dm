@@ -1,14 +1,15 @@
 
 #  Options for Linux with pgf90 MPI
 
-F90            =	mpif90
 MPPFLAG        =       YES
+CPP            = cpp
+CPPFLAGS       = -P -traditional -DMPP_LAND
+CC             =      cc
+F90            = mpif90
 F90FLAGS       =      -g -Mfree -byteswapio -Kieee
-MODFLAG        =	-I ../MPP
-HYDRO_LIB      =       ../MPP/mpp_land.o ../MPP/CPL_WRF.o
+MODFLAGS       = -I../mpp
+HYDRO_LIB      =       ../mpp/mpp_land.o ../mpp/cpl_wrf.o
 LDFLAGS        =
-CPP            =	cpp
-CPPFLAGS       =	-P -traditional -DMPP_LAND
 LIBS           =
 LIBJASPER      =      -ljpeg -L/usr/lib -ljasper
 INCJASPER      =      -I/usr/include
@@ -18,5 +19,4 @@ BZIP2          =      NO
 BZIP2_LIB      =      -lbz2
 BZIP2_INCLUDE  =      -I/usr/include
 RM             =      rm -f
-CC             =      cc
 
