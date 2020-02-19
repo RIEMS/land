@@ -12,13 +12,10 @@ OBJS = \
 	module_date_utilities.o \
 	module_ra_gfdleta.o
 
-CPPHRLDAS = -D_HRLDAS_OFFLINE_
-
-
-all:	$(OBJS)
+all: $(OBJS)
 
 .F90.o:
-	$(COMPILERF90) -o $(@) $(CPPFLAGS) $(CPPHRLDAS) $(F90FLAGS) $(FREESOURCE) -c $(*).F90
+	$(COMPILERF90) -o $(@) $(CPPFLAGS) $(F90FLAGS) $(FREESOURCE) -c $(*).F90
 	@echo ""
 
 #

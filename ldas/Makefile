@@ -11,14 +11,12 @@ OBJS = \
 	main_ldas.o \
 	module_ldas_io_netcdf.o
 
-CPPHRLDAS = -D_HRLDAS_OFFLINE_ $(MOD_OPT)
-
-all:	$(OBJS_NoahMP) $(OBJS)
+all: $(OBJS_NoahMP) $(OBJS)
 
 NoahMP : $(OBJS_NoahMP) $(OBJS)
 
 .F90.o:
-	$(COMPILERF90) -o $(@) -c $(CPPFLAGS) $(CPPHRLDAS) $(NETCDFMOD) $(F90FLAGS) $(FREESOURCE) \
+	$(COMPILERF90) -o $(@) -c $(CPPFLAGS) $(NETCDFMOD) $(F90FLAGS) $(FREESOURCE) \
 	       -I../mpp -I. -I../phys -I../share $(*).F90
 	@echo ""
 
@@ -26,7 +24,7 @@ NoahMP : $(OBJS_NoahMP) $(OBJS)
 # Dependencies:
 #
 
-main_ldas.o:	$(OBJS_NoahMP)
+main_ldas.o: $(OBJS_NoahMP)
 $(OBJS_NoahMP):	module_ldas_io_netcdf.o
 
 # This command cleans up object files, etc.
