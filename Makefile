@@ -1,30 +1,23 @@
 
 include ./makefile.in
 
+ifeq ($(MPPFLAG), YES)
+	SUBDIRS := share mpp phys ldas run
+else
+	SUBDIRS := share phys ldas run
+endif
+
+define submake
+	for d in $(SUBDIRS); \
+	do \
+		$(MAKE) $(1) --directory=$$d; \
+	done
+endef
+
 all: makefile.in
-ifdef MPPFLAG
-	(cd mpp; make -f Makefile)
-endif
-	(cd share;		make)
-	(cd phys;			make)
-	(cd ldas;			make)
-	(cd run;			make)
+	$(call submake, $@)
 
-clean:
-	(cd share;		make clean)
-	(cd phys;			make clean)
-	(cd ldas;			make clean)
-	(cd run;			make clean)
-ifdef MPPFLAG
-	(cd mpp; make -f Makefile clean)
-endif
+clean: makefile.in
+	$(call submake, $@)
 
-### explicitly point to other land model options
-NoahMP: makefile.in
-ifdef MPPFLAG
-	(cd mpp; make -f Makefile)
-endif
-	(cd share;		make)
-	(cd phys;			make)
-	(cd ldas;			make NoahMP MOD_OPT="-DNoahMP")
-	(cd run;			make -f Makefile NoahMP)
+.PHONY: all clean
