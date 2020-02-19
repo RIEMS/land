@@ -17,7 +17,7 @@ RAPID_MACRO =
 RAPID_LIB =
 endif
 
-OBJS_NoahMP = ../ldas/module_ldas_noahmp.o
+OBJS_NOAHMP = ../ldas/module_ldas_noahmp.o
 
 OBJS = \
 	../ldas/main_ldas.o \
@@ -38,21 +38,21 @@ OBJS = \
 	../share/module_ra_gfdleta.o
 
 CMD = ldas.exe
-all:	$(CMD)
+all: $(CMD)
 
 ### default we create the exe based on NoahMP
-$(CMD) : $(OBJS)
+$(CMD): $(OBJS)
 	@echo ""
 	echo "${TAO_FORTRAN_LIB} ${TAO_LIB} ${PETSC_LIB} ${PHDF5_INC} -Wl,-rpath,${TACC_HDF5_LIB} -L${TACC_HDF5_LIB} -lhdf5 -lz"
 # We have to include the modules built in ../ldas
-	$(F90) -o $(@) -I../ldas -I../phys $(OBJS) $(OBJS_NoahMP) $(MPP_LIB) $(RAPID_LIB) $(NETCDF_LIB) $(RAPID_MACRO)
+	$(F90) -o $(@) -I../ldas -I../phys $(OBJS) $(OBJS_NOAHMP) $(MPP_LIB) $(RAPID_LIB) $(NETCDF_LIB) $(RAPID_MACRO)
 
 	@echo ""
 
 # Template to create the exe file based on different land model. Such as NoahMP
-NoahMP: $(OBJS)
+NOAHMP: $(OBJS)
 	@echo ""
-	$(F90) -o $(CMD) -I../ldas -I../phys $(OBJS) $(OBJS_NoahMP)  $(MPP_LIB) $(NETCDF_LIB)
+	$(F90) -o $(CMD) -I../ldas -I../phys $(OBJS) $(OBJS_NOAHMP) $(MPP_LIB) $(NETCDF_LIB)
 	@echo ""
 
 # This command cleans up

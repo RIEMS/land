@@ -1,13 +1,13 @@
-# Makefile 
+# Makefile
 #
 .SUFFIXES:
 .SUFFIXES: .o .F90
 
 include ../makefile.in
 
-OBJS =  cpl_wrf.o mpp_land.o 
+OBJS =  cpl_wrf.o mpp_land.o
 
-all:	$(OBJS)
+all: $(OBJS)
 
 .F90.o:
 	$(F90) -o $(@) $(CPPFLAGS) $(F90FLAGS) -c $(*).F90

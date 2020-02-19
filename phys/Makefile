@@ -19,8 +19,7 @@ OBJS = \
 all: $(OBJS)
 
 .F90.o:
-	$(F90) -o $(@) -c $(CPPFLAGS) $(F90FLAGS) \
-	       -I../share $(*).F90
+	$(F90) -o $(@) -c $(CPPFLAGS) $(F90FLAGS) -I../share $(*).F90
 	@echo ""
 
 #
