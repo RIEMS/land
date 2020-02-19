@@ -22,10 +22,10 @@ The script will generate a file named `makefile.in`.
 
 The `makefile.in` details the configurations of the compiler and libraries. Check whether they fit you well.
 
-Normally you have to modify the `NETCDFMOD` and `NETCDFLIB` variables to speficy the locations of the NetCDF Fortran 90 headers and libraries, respectively.
+Normally you have to modify the `NETCDF_INC` and `NETCDF_LIB` variables to speficy the locations of the NetCDF Fortran 90 headers and libraries, respectively.
 
 NoahMP uses two NetCDF libraries for Fortran and C respectively:
-`libnetcdff` and `libnetcdf`. Make sure that the two files are all located under `NETCDFLIB`. If the user's NetCDF library combined them together (only has one), the user will need to manually change this part in order to successfully compile NoahMP.
+`libnetcdff` and `libnetcdf`. Make sure that the two files are all located under `NETCDF_LIB`. If the user's NetCDF library combined them together (only has one), the user will need to manually change this part in order to successfully compile NoahMP.
 See the section below on porting about how to change this.
 
 Notes: If you are going to create model output file that is more than 2Gb,

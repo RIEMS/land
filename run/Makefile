@@ -45,14 +45,14 @@ $(CMD) : $(OBJS)
 	@echo ""
 	echo "${TAO_FORTRAN_LIB} ${TAO_LIB} ${PETSC_LIB} ${PHDF5_INC} -Wl,-rpath,${TACC_HDF5_LIB} -L${TACC_HDF5_LIB} -lhdf5 -lz"
 # We have to include the modules built in ../ldas
-	$(F90) -o $(@) -I../ldas -I../phys $(OBJS) $(OBJS_NoahMP) $(HYDRO_LIB) $(RAPID_LIB) $(NETCDFLIB) $(RAPID_MACRO)
+	$(F90) -o $(@) -I../ldas -I../phys $(OBJS) $(OBJS_NoahMP) $(MPP_LIB) $(RAPID_LIB) $(NETCDF_LIB) $(RAPID_MACRO)
 
 	@echo ""
 
 # Template to create the exe file based on different land model. Such as NoahMP
 NoahMP: $(OBJS)
 	@echo ""
-	$(F90) -o $(CMD) -I../ldas -I../phys $(OBJS) $(OBJS_NoahMP)  $(HYDRO_LIB) $(NETCDFLIB)
+	$(F90) -o $(CMD) -I../ldas -I../phys $(OBJS) $(OBJS_NoahMP)  $(MPP_LIB) $(NETCDF_LIB)
 	@echo ""
 
 # This command cleans up

@@ -16,7 +16,7 @@ all: $(OBJS_NoahMP) $(OBJS)
 NoahMP : $(OBJS_NoahMP) $(OBJS)
 
 .F90.o:
-	$(F90) -o $(@) -c $(CPPFLAGS) $(NETCDFMOD) $(F90FLAGS) \
+	$(F90) -o $(@) -c $(CPPFLAGS) $(NETCDF_INC) $(F90FLAGS) \
 	       -I../mpp -I. -I../phys -I../share $(*).F90
 	@echo ""
 

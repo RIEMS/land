@@ -1,7 +1,7 @@
 
 include ./makefile.in
 
-ifeq ($(MPPFLAG), YES)
+ifeq ($(MPP_BUILD), YES)
 	SUBDIRS := share mpp phys ldas run
 else
 	SUBDIRS := share phys ldas run
