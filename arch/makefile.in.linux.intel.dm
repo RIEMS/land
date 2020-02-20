@@ -2,15 +2,16 @@
 #  Options for Linux with Intel Fortran MPI
 
 CPP = cpp
-CPPFLAGS = -P -traditional -DMPP_LAND # -DSPATIAL_SOIL
+CPPFLAGS = -P -traditional
 CC = cc
 F90 = mpif90
-F90FLAGS = -g -free -convert big_endian -fpe0
+F90FLAGS = -g -fpp -free -convert big_endian -fpe0
 LDFLAGS =
 LIBS =
 RM = rm -f
 
 MPP_BUILD = YES
+CPPFLAGS += -DMPP_LAND
 MPP_INC = -I../mpp
 MPP_LIB = ../mpp/mpp_land.o ../mpp/cpl_wrf.o
 

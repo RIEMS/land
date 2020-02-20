@@ -2,7 +2,7 @@
 #  Options for Linux with pgf90 MPI
 
 CPP = cpp
-CPPFLAGS = -P -traditional -DMPP_LAND
+CPPFLAGS = -P -traditional
 CC = cc
 F90 = mpif90
 F90FLAGS = -g -Mfree -byteswapio -Kieee
@@ -11,6 +11,7 @@ LIBS =
 RM = rm -f
 
 MPP_BUILD = YES
+CPPFLAGS += -DMPP_LAND
 MPP_INC = -I../mpp
 MPP_LIB = ../mpp/mpp_land.o ../mpp/cpl_wrf.o
 

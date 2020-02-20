@@ -11,6 +11,7 @@ LIBS =
 RM = rm -f
 
 MPP_BUILD = YES
+CPPFLAGS += -DMPP_LAND
 MPP_INC = -I../mpp
 MPP_LIB = ../mpp/mpp_land.o ../mpp/cpl_wrf.o
 

@@ -1,11 +1,11 @@
 
-#  Options for Linux with Intel Fortran
+#  Options for TACC Lonestar 5
 
 CPP = cpp
 CPPFLAGS = -P -traditional
 CC = cc
 F90 = ifort
-F90FLAGS = -g -free -convert big_endian -fpe0
+F90FLAGS = -g -fpp -free -convert big_endian -fpe0
 MPP_INC =
 LDFLAGS =
 LIBS =
