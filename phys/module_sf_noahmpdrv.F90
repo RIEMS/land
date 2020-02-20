@@ -1957,6 +1957,12 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
   USE NOAHMP_TABLES, ONLY : BEXP_TABLE,SMCMAX_TABLE,PSISAT_TABLE,SMCWLT_TABLE,DWSAT_TABLE,DKSAT_TABLE, &
                                 ISURBAN_TABLE, ISICE_TABLE ,ISWATER_TABLE
   USE module_sf_noahmp_groundwater, ONLY : LATERALFLOW
+#if (EM_CORE == 1)
+#ifdef DM_PARALLEL
+    USE module_dm        , ONLY : ntasks_x,ntasks_y,local_communicator,mytask,ntasks
+    USE module_comm_dm , ONLY : halo_em_hydro_noahmp_sub
+#endif
+#endif
 
 ! ----------------------------------------------------------------------
   IMPLICIT NONE
@@ -2026,6 +2032,12 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
 
  DO NITER=1,500
 
+#if (EM_CORE == 1)
+#ifdef DM_PARALLEL
+#     include "HALO_EM_HYDRO_NOAHMP.inc"
+#endif
+#endif
+
 !Calculate lateral flow
 
 IF(NCOUNT.GT.0.OR.NITER.eq.1)THEN
@@ -2049,6 +2061,12 @@ IF(NCOUNT.GT.0.OR.NITER.eq.1)THEN
 ENDIF
 
  ENDDO
+
+#if (EM_CORE == 1)
+#ifdef DM_PARALLEL
+#     include "HALO_EM_HYDRO_NOAHMP.inc"
+#endif
+#endif
 
 EQWTD=WTD
 
