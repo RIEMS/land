@@ -16,6 +16,7 @@ echo "   3. Linux Intel seq"
 echo "   4. Linux Intel dm"
 echo "   5. Linux GCC seq"
 echo "   6. Linux GCC dm"
+echo "   7. Darwin GCC seq"
 echo " 101. Lonestar 5 @ Texas Advanced Computing Center, seq"
 echo " 102. Lonestar 5 @ Texas Advanced Computing Center, dm"
 echo "   0. exit only"
@@ -32,6 +33,7 @@ case $option in
     4 ) cp arch/makefile.in.linux.intel.dm $BUILDOPTIONS ;;
     5 ) cp arch/makefile.in.linux.gnu.seq $BUILDOPTIONS ;;
     6 ) cp arch/makefile.in.linux.gnu.dm $BUILDOPTIONS ;;
+    7 ) cp arch/makefile.in.darwin.gnu.seq $BUILDOPTIONS ;;
    101) cp arch/makefile.in.tacc.ls5.seq $BUILDOPTIONS ;;
    102) cp arch/makefile.in.tacc.ls5.dm $BUILDOPTIONS ;;
     0 ) exit ;;
