@@ -1,10 +1,10 @@
 !#### This is a module for parallel Land model.
 MODULE MODULE_MPP_LAND
 
+  use mpi
   use MODULE_CPL_LAND 
 
   IMPLICIT NONE
-  include "mpif.h"
   integer, public :: left_id,right_id,up_id,down_id,my_id
   integer, public :: left_right_np,up_down_np ! define total process in two dimensions.
   integer, public :: left_right_p ,up_down_p ! the position of the current process in the logical topography.

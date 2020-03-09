@@ -5,7 +5,7 @@ MODULE MODULE_CPL_LAND
   IMPLICIT NONE
 
   integer my_global_id
- 
+
   integer total_pe_num
   integer global_ix,global_jx
 
@@ -20,11 +20,11 @@ MODULE MODULE_CPL_LAND
   contains
 
   subroutine CPL_LAND_INIT(istart,iend,jstart,jend)
+      use mpi
       implicit none
-   include "mpif.h"
       integer  ierr
       logical mpi_inited
-      integer istart,iend,jstart,jend 
+      integer istart,iend,jstart,jend
 
       CALL mpi_initialized( mpi_inited, ierr )
       if ( .NOT. mpi_inited ) then
@@ -54,7 +54,7 @@ MODULE MODULE_CPL_LAND
 
       call send_info()
 
-      initialized = .false.  ! land model need to be initialized. 
+      initialized = .false.  ! land model need to be initialized.
       return
   END subroutine CPL_LAND_INIT
 
@@ -64,18 +64,18 @@ MODULE MODULE_CPL_LAND
         integer,allocatable,dimension(:,:) :: tmp_info
         integer  ierr, i,size, tag
         integer mpp_status(MPI_STATUS_SIZE)
-        tag  = 9 
+        tag  = 9
         size =  9
 
         if(my_global_id .eq. 0) then
-           do i = 1, total_pe_num-1 
+           do i = 1, total_pe_num-1
              call mpi_recv(node_info(:,i+1),size,MPI_INTEGER,  &
-                i,tag,MPI_COMM_WORLD,mpp_status,ierr) 
+                i,tag,MPI_COMM_WORLD,mpp_status,ierr)
            enddo
         else
            call mpi_send(node_info(:,my_global_id+1),size,   &
-               MPI_INTEGER,0,tag,MPI_COMM_WORLD,ierr) 
-        endif 
+               MPI_INTEGER,0,tag,MPI_COMM_WORLD,ierr)
+        endif
 
         call MPI_barrier( MPI_COMM_WORLD ,ierr)
 
@@ -91,16 +91,16 @@ MODULE MODULE_CPL_LAND
      subroutine find_left()
           implicit none
           integer i
-          
+
           node_info(2,my_global_id+1) = -1
 
-          do i = 1, total_pe_num 
+          do i = 1, total_pe_num
                if( (node_info(8,i).eq.node_info(8,my_global_id+1)) .and. &
                    (node_info(9,i).eq.node_info(9,my_global_id+1)) .and. &
                    ((node_info(7,i)+1).eq.node_info(6,my_global_id+1)) ) then
                    node_info(2,my_global_id+1) = i - 1
                    return
-               endif 
+               endif
           end do
      return
      end subroutine find_left
@@ -108,16 +108,16 @@ MODULE MODULE_CPL_LAND
      subroutine find_right()
           implicit none
           integer i
-          
+
           node_info(3,my_global_id+1) = -1
 
-          do i = 1, total_pe_num 
+          do i = 1, total_pe_num
                if( (node_info(8,i).eq.node_info(8,my_global_id+1)) .and. &
                    (node_info(9,i).eq.node_info(9,my_global_id+1)) .and. &
                    ((node_info(6,i)-1).eq.node_info(7,my_global_id+1)) ) then
                    node_info(3,my_global_id+1) = i - 1
                    return
-               endif 
+               endif
           end do
      return
      end subroutine find_right
@@ -125,16 +125,16 @@ MODULE MODULE_CPL_LAND
      subroutine find_up()
           implicit none
           integer i
-          
+
           node_info(4,my_global_id+1) = -1
 
-          do i = 1, total_pe_num 
+          do i = 1, total_pe_num
                if( (node_info(6,i).eq.node_info(6,my_global_id+1)) .and. &
                    (node_info(7,i).eq.node_info(7,my_global_id+1)) .and. &
                    ((node_info(8,i)-1).eq.node_info(9,my_global_id+1)) ) then
                    node_info(4,my_global_id+1) = i - 1
                    return
-               endif 
+               endif
           end do
      return
      end subroutine find_up
@@ -142,16 +142,16 @@ MODULE MODULE_CPL_LAND
      subroutine find_down()
           implicit none
           integer i
-          
+
           node_info(5,my_global_id+1) = -1
 
-          do i = 1, total_pe_num 
+          do i = 1, total_pe_num
                if( (node_info(6,i).eq.node_info(6,my_global_id+1)) .and. &
                    (node_info(7,i).eq.node_info(7,my_global_id+1)) .and. &
                    ((node_info(9,i)+1).eq.node_info(8,my_global_id+1)) ) then
                    node_info(5,my_global_id+1) = i - 1
                    return
-               endif 
+               endif
           end do
      return
      end subroutine find_down
