@@ -2,9 +2,9 @@
 #  Options for Linux with Intel Fortran MPI
 
 CPP = cpp
-CPPFLAGS = -P -traditional
-CC = cc
-F90 = mpif90
+CPPFLAGS = 
+CC = icc
+F90 = mpif90 -f90=ifort
 F90FLAGS = -g -fpp -free -convert big_endian -fpe0
 LDFLAGS =
 LIBS =
@@ -18,8 +18,8 @@ MPP_LIB = ../mpp/mpp_land.o ../mpp/cpl_wrf.o
 JASPER_INC = -I/usr/include/jasper
 JASPER_LIB = -L/usr/lib -ljpeg -ljasper
 
-NETCDF_INC = -I/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/17.0.1/include
-NETCDF_LIB = -L/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/17.0.1/lib -lnetcdf -lnetcdff
+NETCDF_INC = -I/$(NETCDF)/include
+NETCDF_LIB = -L/$(NETCDF)/lib -lnetcdf -lnetcdff
 
 BZIP2_USE = NO
 BZIP2_INC  = -I/usr/include
