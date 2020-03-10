@@ -285,7 +285,7 @@ contains
 
 
     ! Open the NetCDF file.
-    if (rank == 0) write(*,'("wrfinput_flnm: ''", A, "''")') trim(wrfinput_flnm)
+    if (rank == 0) write(*,'("READ_HRLDAS_HDRINFO from file: ''", A, "''")') trim(wrfinput_flnm)
 
 !KWM#ifdef _PARALLEL_
 !KWM    ierr = nf90_open_par(wrfinput_flnm, NF90_NOWRITE, MPI_COMM_WORLD, MPI_INFO_NULL, ncid)
@@ -436,7 +436,7 @@ contains
 
 
     ! Open the NetCDF file.
-    if (rank == 0) write(*,'("wrfinput_flnm: ''", A, "''")') trim(wrfinput_flnm)
+    if (rank == 0) write(*,'("READLAND_HRLDAS from file: ''", A, "''")') trim(wrfinput_flnm)
 #ifdef _PARALLEL_
     ierr = nf90_open_par(wrfinput_flnm, NF90_NOWRITE, MPI_COMM_WORLD, MPI_INFO_NULL, ncid)
 #else
@@ -1280,9 +1280,9 @@ contains
     rank = 0
     ierr = nf90_open(netcdf_flnm, NF90_NOWRITE, ncid)
 #endif
-    if (rank == 0) write(*,'("netcdf_flnm: ''", A, "''")') trim(netcdf_flnm)
+    if (rank == 0) write(*,'("READINIT_HRLDAS from file: ''", A, "''")') trim(netcdf_flnm)
     if (ierr /= 0) then
-       if (rank == 0) write(*,'("Problem opening netcdf file: ''", A, "''")') trim(netcdf_flnm)
+       if (rank == 0) write(*,'(" Problem opening netcdf file: ''", A, "''")') trim(netcdf_flnm)
 #ifdef _PARALLEL_
        call mpi_finalize(ierr)
 #endif
@@ -1295,37 +1295,37 @@ contains
 
     ierr = nf90_get_att(ncid, NF90_GLOBAL, "TITLE", titlestr)
     if (ierr /= 0) then
-       write(*,'("WARNING:  LDASIN file does not have TITLE attribute.")')
-       write(*,'("          This probably means that LDASIN files are from an older release.")')
-       write(*,'("          I assume you know what you are doing.")')
+       write(*,'(" WARNING:  LDASIN file does not have TITLE attribute.")')
+       write(*,'("           This probably means that LDASIN files are from an older release.")')
+       write(*,'("           I assume you know what you are doing.")')
        ldasin_version = 0
     else
-       write(*,'("LDASIN TITLE attribute: ", A)') trim(titlestr)
+       write(*,'(" LDASIN TITLE attribute: ", A)') trim(titlestr)
        ! Pull out the version number, assuming that the version is identified by vYYYYMMDD, and
        ! based on a search for the string "v20".
        idx = index(trim(titlestr), "v20")
        if (idx <= 0) then
-          write(*,'("WARNING:  LDASIN file has a perverse version identifier")')
+          write(*,'(" WARNING:  LDASIN file has a perverse version identifier")')
           !  write(*,'("          I assume you know what you are doing.")')
           ! stop
        else
           read(titlestr(idx+1:), '(I8)', iostat=ierr) ldasin_version
           if (ierr /= 0) then
-             write(*,'("WARNING:  LDASIN file has a perverse version identifier")')
+             write(*,'(" WARNING:  LDASIN file has a perverse version identifier")')
              !  write(*,'("          I assume you know what you are doing.")')
              ! stop
           endif
        endif
     endif
-    write(*, '("ldasin_version = ", I8)') ldasin_version
+    write(*, '(" ldasin_version = ", I8)') ldasin_version
 
     ierr = nf90_get_att(ncid, NF90_GLOBAL, "MMINLU", ldasin_llanduse)
     if (ierr /= 0) then
-       write(*,'("WARNING:  LDASIN file does not have MMINLU attribute.")')
-       write(*,'("          This probably means that LDASIN files are from an older release.")')
-       write(*,'("          I assume you know what you are doing.")')
+       write(*,'(" WARNING:  LDASIN file does not have MMINLU attribute.")')
+       write(*,'("           This probably means that LDASIN files are from an older release.")')
+       write(*,'("           I assume you know what you are doing.")')
     else
-       write(*,'("LDASIN MMNINLU attribute: ", A)') ldasin_llanduse
+       write(*,'(" LDASIN MMNINLU attribute: ", A)') ldasin_llanduse
     endif
 
     call get_2d_netcdf("CANWAT", ncid, cmc,     units, xstart, xend, ystart, yend, FATAL, ierr)
@@ -1370,9 +1370,9 @@ contains
 
     call get_netcdf_soillevel("TSLB", ncid, soildummy, units,  xstart, xend, ystart, yend, FATAL, ierr)
 
-    write(*, '("layer_bottom(1:4) = ", 4F9.4)') layer_bottom(1:4)
-    write(*, '("layer_top(1:4)    = ", 4F9.4)') layer_top(1:4)
-    write(*, '("Soil depth = ", 10F12.6)') sldpth
+    write(*, '(" layer_bottom(1:4) = ", 4F9.4)') layer_bottom(1:4)
+    write(*, '(" layer_top(1:4)    = ", 4F9.4)') layer_top(1:4)
+    write(*, '(" Soil depth = ", 10F12.6)') sldpth
 
     call init_interp(xstart, xend, ystart, yend, nsoil, sldpth, stc, 4, soildummy, layer_bottom(1:4), layer_top(1:4))
 
@@ -1529,14 +1529,19 @@ contains
 
     integer :: i, j
     integer :: iret, ncid
+    integer :: rank
 
     ! Open the NetCDF file.
 !KWM    write(*,'("flnm: ''", A, "''")') trim(flnm)
 #ifdef _PARALLEL_
+    call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierr)
+    if (ierr /= MPI_SUCCESS) stop "MPI_COMM_RANK"
     iret = nf90_open_par(flnm, NF90_NOWRITE, MPI_COMM_WORLD, MPI_INFO_NULL, ncid)
 #else
+    rank = 0
     iret = nf90_open(flnm, NF90_NOWRITE, ncid)
 #endif
+    if (rank == 0) write(*,'("READVEG_HRLDAS from file: ''", A, "''")') trim(flnm)
     if (iret /= 0) then
        write(*,'("READVEG_HRLDAS:  Problem opening netcdf file: ''", A, "''")') trim(flnm)
        stop
