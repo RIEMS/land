@@ -1726,7 +1726,7 @@ ENDIF
 
      inflnm = trim(indir)//"/"//"LDASIN."//&
           startdate(1:4)//startdate(6:7)//startdate(9:10)//"T"// &
-          startdate(12:13)//startdate(15:16)//startdate(18:19)
+          startdate(12:13)//startdate(15:16)//startdate(18:19)//".nc"
 #endif
 
      CALL READINIT_HRLDAS(HRLDAS_SETUP_FILE, xstart, xend, ystart, yend,  &
@@ -1919,10 +1919,10 @@ end subroutine land_driver_ini
 
      inflnm = trim(indir)//"/"//"LDASIN."//&
           startdate(1:4)//startdate(6:7)//startdate(9:10)//"T"// &
-          startdate(12:13)//startdate(15:16)//startdate(18:19)
+          startdate(12:13)//startdate(15:16)//startdate(18:19)//".nc"
 
      ! Build a filename template
-     inflnm_template = trim(indir)//"/LDASIN.<date>"
+     inflnm_template = trim(indir)//"/LDASIN.<date>.nc"
 
 #ifdef MPP_LAND
      call mpp_land_bcast_char(19,OLDDATE(1:19))

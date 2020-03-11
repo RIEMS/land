@@ -2175,7 +2175,7 @@ contains
        ! If this is a new output file:
        !   We have to create a new file, do dimension initializations, and write global attributes to the file.
        !   Then we get out of define mode.
-       write(output_flnm, '(A,"/LDASOUT.",A4,A2,A2,"T",A2,A2,A2)') outdir, date(1:4), date(6:7), date(9:10), date(12:13), date(15:16), date(18:19)
+       write(output_flnm, '(A,"/LDASOUT.",A4,A2,A2,"T",A2,A2,A2,".nc")') outdir, date(1:4), date(6:7), date(9:10), date(12:13), date(15:16), date(18:19)
        if(spinup_loops > 0) then
          write(output_flnm, '(A,".loop",i4.4)') trim(output_flnm), spinup_loop
        end if
@@ -2725,7 +2725,7 @@ contains
 #endif
 
 
-    write(output_flnm, '(A,"/RESTART.",A4,A2,A2,"T",A2,A2,A2)') trim(resdir), olddate(1:4), olddate(6:7), olddate(9:10), olddate(12:13), olddate(15:16), olddate(18:19)
+    write(output_flnm, '(A,"/RESTART.",A4,A2,A2,"T",A2,A2,A2,".nc")') trim(resdir), olddate(1:4), olddate(6:7), olddate(9:10), olddate(12:13), olddate(15:16), olddate(18:19)
     if (rank==0) print*, 'output_flnm = "'//trim(output_flnm)//'"'
 
     restart_filename_remember = output_flnm
