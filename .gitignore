@@ -33,6 +33,3 @@
 
 # temporary files
 makefile.in
-user_build_options
-run/namelist.hrldas
-*.f90
