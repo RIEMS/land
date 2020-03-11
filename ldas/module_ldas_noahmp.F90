@@ -2171,7 +2171,8 @@ end subroutine land_driver_ini
 
          ENDIF
 
-  IF(RUNOFF_OPTION.EQ.5.AND.MOD(ITIME,STEPWTD).EQ.0)THEN
+  IF(RUNOFF_OPTION == 5) then
+    if (MOD(ITIME, STEPWTD) == 0)THEN
            CALL wrf_message('calling WTABLE' )
 
 !gmm update wtable from lateral flow and shed water to rivers
@@ -2225,6 +2226,7 @@ end subroutine land_driver_ini
 !         ENDIF
 
  ENDIF
+endif
 
 !------------------------------------------------------------------------
 ! END of surface_driver consistent code
@@ -2378,16 +2380,16 @@ end subroutine land_driver_ini
 ! Write Restart - timestamp equal to output will have same states
 !------------------------------------------------------------------------
 
-      if ( (restart_frequency_hours .gt. 0) .and. &
-           (mod(ITIME, int(restart_frequency_hours*3600./nint(dtbl))) == 0)) then
-       call lsm_restart()
-      else
-       if (restart_frequency_hours <= 0) then
+      if (restart_frequency_hours > 0) then
+         if (mod(ITIME, int(restart_frequency_hours * 3600. / nint(dtbl))) == 0) then
+            call lsm_restart()
+         endif
+      elseif (restart_frequency_hours < 0) then
           if ( (olddate( 9:10) == "01") .and. (olddate(12:13) == "00") .and. &
                (olddate(15:16) == "00") .and. (olddate(18:19) == "00") ) then
                 call lsm_restart()  ! jlm - i moved all the restart code to a subroutine.
           endif
-       endif
+      else ! do not write restart files if it is zero
       endif
 
 !------------------------------------------------------------------------
