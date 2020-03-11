@@ -2175,13 +2175,7 @@ contains
        ! If this is a new output file:
        !   We have to create a new file, do dimension initializations, and write global attributes to the file.
        !   Then we get out of define mode.
-       if (mod(output_timestep,3600) == 0) then
-          write(output_flnm, '(A,"/",A10,".LDASOUT_DOMAIN",I1)') outdir, date(1:4)//date(6:7)//date(9:10)//date(12:13), igrid
-       elseif (mod(output_timestep,60) == 0) then
-          write(output_flnm, '(A,"/",A12,".LDASOUT_DOMAIN",I1)') outdir, date(1:4)//date(6:7)//date(9:10)//date(12:13)//date(15:16), igrid
-       else
-          write(output_flnm, '(A,"/",A14,".LDASOUT_DOMAIN",I1)') outdir, date(1:4)//date(6:7)//date(9:10)//date(12:13)//date(15:16)//date(18:19), igrid
-       endif
+       write(output_flnm, '(A,"/LDASOUT.",A4,A2,A2,"T",A2,A2,A2)') outdir, date(1:4), date(6:7), date(9:10), date(12:13), date(15:16), date(18:19)
        if(spinup_loops > 0) then
          write(output_flnm, '(A,".loop",i4.4)') trim(output_flnm), spinup_loop
        end if
