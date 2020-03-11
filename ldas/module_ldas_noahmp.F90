@@ -1723,9 +1723,9 @@ ENDIF
 
 #else
 
-     inflnm = trim(indir)//"/"//&
-          startdate(1:4)//startdate(6:7)//startdate(9:10)//startdate(12:13)//&
-          ".LDASIN_DOMAIN"//hgrid
+     inflnm = trim(indir)//"/"//"LDASIN."//&
+          startdate(1:4)//startdate(6:7)//startdate(9:10)//"T"// &
+          startdate(12:13)//startdate(15:16)//startdate(18:19)
 #endif
 
      CALL READINIT_HRLDAS(HRLDAS_SETUP_FILE, xstart, xend, ystart, yend,  &
@@ -1916,12 +1916,12 @@ end subroutine land_driver_ini
 ! For HRLDAS, we're assuming (for now) that each time period is in a
 ! separate file.  So we can open a new one right now.
 
-     inflnm = trim(indir)//"/"//&
-          olddate(1:4)//olddate(6:7)//olddate(9:10)//olddate(12:13)//&
-          ".LDASIN_DOMAIN"//hgrid
+     inflnm = trim(indir)//"/"//"LDASIN."//&
+          startdate(1:4)//startdate(6:7)//startdate(9:10)//"T"// &
+          startdate(12:13)//startdate(15:16)//startdate(18:19)
 
      ! Build a filename template
-     inflnm_template = trim(indir)//"/<date>.LDASIN_DOMAIN"//hgrid
+     inflnm_template = trim(indir)//"/LDASIN.<date>"
 
 #ifdef MPP_LAND
      call mpp_land_bcast_char(19,OLDDATE(1:19))
@@ -2660,4 +2660,3 @@ logical function wrf_dm_on_monitor() result(l)
   l = .TRUE.
   return
 end function wrf_dm_on_monitor
-

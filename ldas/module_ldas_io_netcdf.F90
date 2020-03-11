@@ -1677,13 +1677,7 @@ contains
        if(my_id .eq. IO_id) then
 #endif
 
-       if(mod(forcing_timestep,3600) == 0) then
-         call strrep(flnm, "<date>", nextread%read_date(1:4)//nextread%read_date(6:7)//nextread%read_date(9:10)//nextread%read_date(12:13))
-       elseif(mod(forcing_timestep,60) == 0) then
-         call strrep(flnm, "<date>", nextread%read_date(1:4)//nextread%read_date(6:7)//nextread%read_date(9:10)//nextread%read_date(12:13)//nextread%read_date(15:16))
-       else
-         call strrep(flnm, "<date>", nextread%read_date(1:4)//nextread%read_date(6:7)//nextread%read_date(9:10)//nextread%read_date(12:13)//nextread%read_date(15:16)//nextread%read_date(18:19))
-       endif
+       call strrep(flnm, "<date>", nextread%read_date(1:4)//nextread%read_date(6:7)//nextread%read_date(9:10)//'T'//nextread%read_date(12:13)//nextread%read_date(15:16)//nextread%read_date(18:19))
 
        !print*, 'read file:  ', trim(flnm)
        ! Open the NetCDF file.
