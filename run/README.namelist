@@ -7,6 +7,7 @@
  HRLDAS_SETUP_FILE = "/path/HRLDAS_setup_2010010100_d1"      !*** Path to wrfinput or HRLDAS setup file   [default = none]
  INDIR             = "/path/LDASIN/"                         !*** Path to LDASIN files                    [default = none]
  OUTDIR            = "/path/LDASOUT/"                        !    Path to output directory                [default = "." ]
+ RESDIR = "/path/RESTART" ! path to restart directory
 
  START_YEAR  = 2010                                          !*** Year to start simulation                [default = none]
  START_MONTH = 01                                            !*** Month to start simulation               [default = none]

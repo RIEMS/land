@@ -2631,14 +2631,14 @@ contains
 !---------------------------------------------------------------------------------------------------------
 
 #ifdef MPP_LAND
-      subroutine prepare_restart_file_mpp(outdir, version, igrid, llanduse, olddate, startdate,  &
+      subroutine prepare_restart_file_mpp(resdir, version, igrid, llanduse, olddate, startdate,  &
        ixfull, jxfull, ixpar, jxpar, xstartpar, ystartpar,                                    &
        nsoil, nsnow, num_urban_layers, dx, dy, truelat1, truelat2, mapproj, lat1, lon1, cen_lon,                       &
        iswater, vegtyp)
 
     implicit none
 
-    character(len=*),                      intent(in) :: outdir
+    character(len=*),                      intent(in) :: resdir
     character(len=*),                      intent(in) :: version
     integer,                               intent(in) :: igrid
     character(len=*),                      intent(in) :: llanduse
@@ -2663,7 +2663,7 @@ contains
 
     call write_io_int(vegtyp, gvegtyp)
     if(my_id .eq. io_id) then
-      call prepare_restart_file_seq(outdir, version, igrid, llanduse, olddate, startdate,  &
+      call prepare_restart_file_seq(resdir, version, igrid, llanduse, olddate, startdate,  &
        global_nx, global_ny, global_nx, global_ny, xstartpar, ystartpar,               &
        nsoil, nsnow, num_urban_layers, dx, dy, truelat1, truelat2, mapproj, lat1, lon1, cen_lon,         &
        iswater, gvegtyp)
@@ -2674,7 +2674,7 @@ contains
     end subroutine prepare_restart_file_mpp
 #endif
 
-  subroutine prepare_restart_file_seq(outdir, version, igrid, llanduse, olddate, startdate,  &
+  subroutine prepare_restart_file_seq(resdir, version, igrid, llanduse, olddate, startdate,  &
        ixfull, jxfull, ixpar, jxpar, xstartpar, ystartpar,                                    &
        nsoil, nsnow, num_urban_layers, dx, dy, truelat1, truelat2, mapproj, lat1, lon1, cen_lon,                       &
        iswater, vegtyp)
@@ -2682,7 +2682,7 @@ contains
     implicit none
 #include <netcdf.inc>
 
-    character(len=*),                      intent(in) :: outdir
+    character(len=*),                      intent(in) :: resdir
     character(len=*),                      intent(in) :: version
     integer,                               intent(in) :: igrid
     character(len=*),                      intent(in) :: llanduse
@@ -2725,7 +2725,7 @@ contains
 #endif
 
 
-    write(output_flnm, '(A,"/RESTART.",A10,"_DOMAIN",I1)') trim(outdir), olddate(1:4)//olddate(6:7)//olddate(9:10)//olddate(12:13), igrid
+    write(output_flnm, '(A,"/RESTART.",A4,A2,A2,"T",A2,A2,A2)') trim(resdir), olddate(1:4), olddate(6:7), olddate(9:10), olddate(12:13), olddate(15:16), olddate(18:19)
     if (rank==0) print*, 'output_flnm = "'//trim(output_flnm)//'"'
 
     restart_filename_remember = output_flnm

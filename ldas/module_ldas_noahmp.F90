@@ -492,6 +492,7 @@ module module_ldas_noahmp
   integer            :: start_hour
   integer            :: start_min
   character(len=256) :: outdir = "."
+  character(len=256) :: resdir = "."
   character(len=256) :: restart_filename_requested = " "
   integer            :: restart_frequency_hours
   integer            :: output_timestep
@@ -572,7 +573,7 @@ module module_ldas_noahmp
        indir, nsoil, soil_thick_input, forcing_timestep, noah_timestep, &
        start_year, start_month, start_day, start_hour, start_min, &
        outdir, skip_first_output, &
-       restart_filename_requested, restart_frequency_hours, output_timestep, &
+       resdir, restart_filename_requested, restart_frequency_hours, output_timestep, &
        spinup_loops, &
        forcing_name_T,forcing_name_Q,forcing_name_U,forcing_name_V,forcing_name_P, &
        forcing_name_LW,forcing_name_SW,forcing_name_PR,forcing_name_SN, &
@@ -2425,7 +2426,7 @@ subroutine lsm_restart()
 
   print*, 'Write restart at '//olddate(1:13)
 
-  call prepare_restart_file (trim(outdir), version, igrid, llanduse, olddate, startdate, &
+  call prepare_restart_file (trim(resdir), version, igrid, llanduse, olddate, startdate, &
        ixfull, jxfull, ixpar, jxpar, xstartpar, ystartpar,                               &
        nsoil, nsnow, num_urban_hi, dx, dy, truelat1, truelat2, mapproj, lat1, lon1,   &
        cen_lon, iswater, ivgtyp)
