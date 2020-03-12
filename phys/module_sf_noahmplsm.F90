@@ -537,10 +537,10 @@ contains
                    ILOC    , JLOC    , LAT     , YEARLEN , JULIAN  , COSZ    , & ! IN : Time/Space-related
                    DT      , DX      , DZ8W    , NSOIL   , ZSOIL   , NSNOW   , & ! IN : Model configuration
                    SHDFAC  , SHDMAX  , VEGTYP  , ICE     , IST     , CROPTYPE, & ! IN : Vegetation/Soil characteristics
-                   SMCEQ   ,                                                   & ! IN : Vegetation/Soil characteristics
+                   SMCEQ   , DAYLEN  , DAYLTH  ,                               & ! IN : Vegetation/Soil characteristics
                    SFCTMP  , SFCPRS  , PSFC    , UU      , VV      , Q2      , & ! IN : Forcing
                    QC      , SOLDN   , LWDN    ,                               & ! IN : Forcing
-                   PRCPCONV, PRCPNONC, PRCPSHCV, PRCPSNOW, PRCPGRPL, PRCPHAIL, & ! IN : Forcing
+	           PRCPCONV, PRCPNONC, PRCPSHCV, PRCPSNOW, PRCPGRPL, PRCPHAIL, & ! IN : Forcing
                    TBOT    , CO2AIR  , O2AIR   , FOLN    , FICEOLD , ZLVL    , & ! IN : Forcing
                    ALBOLD  , SNEQVO  ,                                         & ! IN/OUT :
                    STC     , SH2O    , SMC     , TAH     , EAH     , FWET    , & ! IN/OUT :
@@ -552,19 +552,27 @@ contains
                    GRAIN   , GDD     , PGS     ,                               & ! IN/OUT
                    SMCWTD  ,DEEPRECH , RECH    ,                               & ! IN/OUT :
                    GECROS1D,                                                   & ! IN/OUT :
-                   Z0WRF   , &
+		   Z0WRF   , &
                    FSA     , FSR     , FIRA    , FSH     , SSOIL   , FCEV    , & ! OUT :
                    FGEV    , FCTR    , ECAN    , ETRAN   , EDIR    , TRAD    , & ! OUT :
                    TGB     , TGV     , T2MV    , T2MB    , Q2V     , Q2B     , & ! OUT :
                    RUNSRF  , RUNSUB  , APAR    , PSN     , SAV     , SAG     , & ! OUT :
                    FSNO    , NEE     , GPP     , NPP     , FVEG    , ALBEDO  , & ! OUT :
                    QSNBOT  , PONDING , PONDING1, PONDING2, RSSUN   , RSSHA   , & ! OUT :
-                   ALBSND  , ALBSNI  ,                                         & ! OUT :
+		   ALBSND  , ALBSNI  ,                                         & ! OUT :
                    BGAP    , WGAP    , CHV     , CHB     , EMISSI  ,           & ! OUT :
-                   SHG     , SHC     , SHB     , EVG     , EVB     , GHV     , & ! OUT :
-                   GHB     , IRG     , IRC     , IRB     , TR      , EVC     , & ! OUT :
-                   CHLEAF  , CHUC    , CHV2    , CHB2    , FPICE   , PAHV    , &
-                   PAHG    , PAHB    , PAH     , LAISUN  , LAISHA  , RB        & ! OUT
+		   SHG     , SHC     , SHB     , EVG     , EVB     , GHV     , & ! OUT :
+		   GHB     , IRG     , IRC     , IRB     , TR      , EVC     , & ! OUT :
+		   CHLEAF  , CHUC    , CHV2    , CHB2    , FPICE   , PAHV    , &
+                   PAHG    , PAHB    , PAH     , LAISUN  , LAISHA  , RB       ,& ! OUT
+				   SOL_AON , SOL_FON , SOL_NH3 , SOL_RSD , SOL_NO3 , SOL_SON , & ! IN/OUT :
+				   NPP0    , GAP, ERRWAT, DIELF   , LFTOVR  , & ! OUT :
+				   RESP    , NDEM0   , NH4up   , NO3up   , Npassiv , Nactive , & ! OUT :
+				   Nfix    , Nretrans, Nuptake , NPPactv , NPPfix  , NPPretr , & ! OUT :
+				   NPPup   , CNlitlf , NLIMIT  , LATNO3  , NO3PCP  , PERCN   , & ! OUT :
+				   SEDORGN , SEDYLD  , SURQNO3 , HMN     , RMN     , RWN     , & ! OUT :
+				   WDN     , CNO3    , SUMNO3  , SUMORGN , WFLUX   , RNIT    , & ! OUT :
+				   RVOL    , LON     , ITIMESTEP                    &
 #ifdef WRF_HYDRO
                    ,SFCHEADRT                                                  & ! IN/OUT :
 #endif
@@ -573,7 +581,8 @@ contains
 ! --------------------------------------------------------------------------------------------------
 ! Initial code: Guo-Yue Niu, Oct. 2007
 ! --------------------------------------------------------------------------------------------------
-
+ USE module_sf_biogeochem
+!---------------------------------------------------------------------------------------------------
   implicit none
 ! --------------------------------------------------------------------------------------------------
 ! input
@@ -587,6 +596,7 @@ contains
   INTEGER                        , INTENT(IN)    :: NSOIL  !no. of soil layers
   INTEGER                        , INTENT(IN)    :: ILOC   !grid index
   INTEGER                        , INTENT(IN)    :: JLOC   !grid index
+  INTEGER                        , INTENT(IN)    :: ITIMESTEP !timestep number
   REAL                           , INTENT(IN)    :: DT     !time step [sec]
   REAL, DIMENSION(       1:NSOIL), INTENT(IN)    :: ZSOIL  !layer-bottom depth from soil surf (m)
   REAL                           , INTENT(IN)    :: Q2     !mixing ratio (kg/kg) lowest model layer
@@ -604,6 +614,7 @@ contains
   INTEGER                        , INTENT(IN)    :: YEARLEN!Number of days in the particular year.
   REAL                           , INTENT(IN)    :: JULIAN !Julian day of year (floating point)
   REAL                           , INTENT(IN)    :: LAT    !latitude (radians)
+  REAL                           , INTENT(IN)    :: LON    !lontitude
   REAL, DIMENSION(-NSNOW+1:    0), INTENT(IN)    :: FICEOLD!ice fraction at last timestep
   REAL, DIMENSION(       1:NSOIL), INTENT(IN)    :: SMCEQ  !equilibrium soil water  content [m3/m3]
   REAL                           , INTENT(IN)    :: PRCPCONV ! convective precipitation entering  [mm/s]    ! MB/AN : v3.7
@@ -612,6 +623,9 @@ contains
   REAL                           , INTENT(IN)    :: PRCPSNOW ! snow entering land model [mm/s]              ! MB/AN : v3.7
   REAL                           , INTENT(IN)    :: PRCPGRPL ! graupel entering land model [mm/s]           ! MB/AN : v3.7
   REAL                           , INTENT(IN)    :: PRCPHAIL ! hail entering land model [mm/s]              ! MB/AN : v3.7
+
+  REAL                           , INTENT(IN)    :: DAYLEN !day length [hr] --XTC
+  REAL                           , INTENT(IN)    :: DAYLTH !threshold daylength to initiate dormancy [hr]
 
 !jref:start; in
   REAL                           , INTENT(IN)    :: QC     !cloud water mixing ratio
@@ -797,6 +811,71 @@ contains
   REAL                        , INTENT(INOUT)    :: GDD    !growing degree days
   INTEGER                     , INTENT(INOUT)    :: PGS    !plant growing stage [-]
 
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT)    :: SOL_AON  !amount of nitrogen stored in the active
+                                                             !organic (humic) nitrogen pool [gN m-2]
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT)    :: SOL_FON  !amount of nitrogen stored in the fresh
+                                                             !organic (residue) pool [gN m-2]
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT)    :: SOL_NH3  !amount of nitrogen stored in the ammonium pool
+                                                             !in soil layer
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT)    :: SOL_RSD  !amount of organic matter in the soil
+                                                             !classified as residue [gN m-2]
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT)    :: SOL_NO3  !amount of nitrogen stored in the nitrate pool
+                                                             !in soil layer [gN m-2]
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT)    :: SOL_SON  !amount of nitrogen stored in the stable
+                                                             !organic N pool [gN m-2]
+
+! outputs
+  REAL                          , INTENT(OUT)    :: NPP0   !NPP before FUN [g/m2/s C]
+  REAL, DIMENSION(       1:NSOIL)                :: ETRANI !transpiration rate (m/s) [+]
+  REAL, DIMENSION(       1:NSOIL)                :: RUNSBZ !groundwater discharge per layer [mm/s]
+  REAL                             , INTENT(OUT) :: NDEM0  !N demand to grow plants (gN m-2 s-1).--XTC
+  REAL                             , INTENT(OUT) :: DIELF  !death of leaf mass per time step [g/m2/s]
+  REAL                             , INTENT(OUT) :: LFTOVR !stem turnover per time step [g/m2/s]
+  REAL                             , INTENT(OUT) :: RESP   !leaf respiration [umol/m2/s]
+  REAL                             , INTENT(OUT) :: NH4up(NSOIL)  !NH4 uptake [kgN m-2]
+  REAL                             , INTENT(OUT) :: NO3up(NSOIL)  !NO3 uptake [kgN m-2]
+  REAL                             , INTENT(OUT) :: CNlitlf  !C:N ratio of leaf litter [kgN/kgC]
+  REAL                             , INTENT(OUT) :: Npassiv  !N acquired by passive uptake [kgN m-2 s-1]
+  REAL                             , INTENT(OUT) :: Nactive  !N acquired by active uptake [kgN m-2 s-1]
+  REAL                             , INTENT(OUT) :: Nfix     !N acquired by fixing [kgN m-2 s-1]
+  REAL                             , INTENT(OUT) :: Nretrans !N acquired by retranslocation [kgN m-2 s-1]
+  REAL                             , INTENT(OUT) :: Nuptake  !Total N acquired by plants through passive
+                                            ! and active uptake, fixing and retranslocation [kgN m-2 s-1]
+  REAL                             , INTENT(OUT) :: NPPactv  !NPP reduction to pay for active uptake of N
+                                                             ![kgC m-2 s-1]
+  REAL                             , INTENT(OUT) :: NPPfix   !NPP reduction to pay for fixing N [kgC m-2 s-1]
+  REAL                             , INTENT(OUT) :: NPPretr  !NPP reduction to pay for retranslocation of
+                                                             !N [kgC m-2 s-1]
+  REAL                             , INTENT(OUT) :: NPPup    !Total NPP reduction to pay for N [kgC m-2 s-1]
+  REAL                             , INTENT(OUT) :: NLIMIT   !N limitation [gN m-2 s-1]
+  REAL                             , INTENT(OUT) :: LATNO3   !amount of nitrate transported with lateral flow [gN m-2]
+  REAL                             , INTENT(OUT) :: NO3PCP   !nitrate added to the soil in rainfall [[gN m-2]]
+  REAL                             , INTENT(OUT) :: PERCN    !amount of nitrate percolating past bottom
+                                                             !of soil profile [gN m-2]
+  REAL                             , INTENT(OUT) :: SEDORGN  !amount of organic nitrogen in surface runoff [gN m-2]
+  REAL                             , INTENT(OUT) :: SEDYLD   !daily soil loss caused by water erosion [kg m-2]
+  REAL                             , INTENT(OUT) :: SURQNO3  !amount of nitrate transported with surface runoff [gN m-2]
+  REAL                             , INTENT(OUT) :: HMN      !amount of nitrogen moving from active organic
+                                                             !to nitrate pool in soil profile [gN m-2]
+  REAL                             , INTENT(OUT) :: RMN      !amount of nitrogen moving from the fresh
+                                                             !organic (residue) to the nitrate(80%) and
+                                                             !active organic(20%) pools in soil profile [gN m-2]
+  REAL                             , INTENT(OUT) :: RWN      !amount of nitrogen moving from active organic
+                                                             !to stable organic pool in soil profile [gN m-2]
+  REAL                             , INTENT(OUT) :: WDN      !amount of nitrogen lost from nitrate pool
+                                                             !by denitrification in soil profile [gN m-2]
+  REAL                             , INTENT(OUT) :: SUMNO3   !amount of nitrogen stored in the nitrate pool
+                                                             !in the soil profile [gN m-2]
+  REAL                             , INTENT(OUT) :: SUMORGN  !amount of nitrogen stored in the organic N pools
+                                                             !in the soil profile [gN m-2]
+  REAL, DIMENSION(1:NSOIL  )       , INTENT(OUT) :: WFLUX    !water flux between soil layers [m/s]
+  REAL,DIMENSION(1:NSOIL+1)        , INTENT(OUT) :: CNO3     !concentration of nitrate in leached solution [g N/mm H2O]
+  REAL                             , INTENT(OUT) :: RNIT     !amount of nitrogen moving from the NH3 to the
+                                                             !NO3 pool due to nitrification [g N/m2]
+  REAL                             , INTENT(OUT) :: RVOL     !amount of nitrogen lost from the NH3 pool due
+                                                             !to volatilization [g N/m2]
+  REAL                             , INTENT(OUT) :: GAP
+
 ! outputs
   REAL                          , INTENT(OUT)    :: NEE    !net ecosys exchange (g/m2/s CO2)
   REAL                          , INTENT(OUT)    :: GPP    !net instantaneous assimilation [g/m2/s C]
@@ -904,7 +983,7 @@ contains
                      CANLIQ ,CANICE ,TV     ,SFCTMP ,TG     ,         & !in
                      QINTR  ,QDRIPR ,QTHROR ,QINTS  ,QDRIPS ,QTHROS , & !out
                      PAHV   ,PAHG   ,PAHB   ,QRAIN  ,QSNOW  ,SNOWHIN, & !out
-                     FWET   ,CMC                                    )   !out
+	             FWET   ,CMC                                    )   !out
 
 ! compute energy budget (momentum & energy fluxes and phase changes)
 
@@ -916,7 +995,7 @@ contains
                  ELAI   ,ESAI   ,FWET   ,FOLN   ,         & !in
                  FVEG   ,PAHV   ,PAHG   ,PAHB   ,                 & !in
                  QSNOW  ,DZSNSO ,LAT    ,CANLIQ ,CANICE ,iloc, jloc , & !in
-                 Z0WRF  ,                                         &
+		 Z0WRF  ,                                         &
                  IMELT  ,SNICEV ,SNLIQV ,EPORE  ,T2M    ,FSNO   , & !out
                  SAV    ,SAG    ,QMELT  ,FSA    ,FSR    ,TAUX   , & !out
                  TAUY   ,FIRA   ,FSH    ,FCEV   ,FGEV   ,FCTR   , & !out
@@ -932,7 +1011,7 @@ contains
                  FSRG   ,RSSUN   ,RSSHA ,ALBSND  ,ALBSNI, BGAP   ,WGAP,TGV,TGB,&
                  Q1     ,Q2V    ,Q2B    ,Q2E    ,CHV   ,CHB     , & !out
                  EMISSI ,PAH    ,                                 &
-                 SHG,SHC,SHB,EVG,EVB,GHV,GHB,IRG,IRC,IRB,TR,EVC,CHLEAF,CHUC,CHV2,CHB2,&
+		 SHG,SHC,SHB,EVG,EVB,GHV,GHB,IRG,IRC,IRB,TR,EVC,CHLEAF,CHUC,CHV2,CHB2,&
                  JULIAN, SWDOWN, PRCP, FB, GECROS1D )
 !jref:end
 
@@ -950,14 +1029,14 @@ contains
                  ESAI   ,SFCTMP ,QVAP   ,QDEW   ,ZSOIL  ,BTRANI , & !in
                  FICEOLD,PONDING,TG     ,IST    ,FVEG   ,iloc,jloc , SMCEQ , & !in
                  BDFALL ,FP     ,RAIN   ,SNOW   ,                 & !in  MB/AN: v3.7
-                 QSNOW  ,QRAIN  ,SNOWHIN,LATHEAV,LATHEAG,frozen_canopy,frozen_ground,  & !in  MB
+		 QSNOW  ,QRAIN  ,SNOWHIN,LATHEAV,LATHEAG,frozen_canopy,frozen_ground,  & !in  MB
                  ISNOW  ,CANLIQ ,CANICE ,TV     ,SNOWH  ,SNEQV  , & !inout
                  SNICE  ,SNLIQ  ,STC    ,ZSNSO  ,SH2O   ,SMC    , & !inout
                  SICE   ,ZWT    ,WA     ,WT     ,DZSNSO ,WSLAKE , & !inout
                  SMCWTD ,DEEPRECH,RECH                          , & !inout
                  CMC    ,ECAN   ,ETRAN  ,FWET   ,RUNSRF ,RUNSUB , & !out
                  QIN    ,QDIS   ,PONDING1       ,PONDING2,&
-                 QSNBOT                             &
+                 QSNBOT ,ETRANI ,RUNSBZ ,WFLUX    &
 #ifdef WRF_HYDRO
                         ,sfcheadrt                     &
 #endif
@@ -974,26 +1053,38 @@ contains
      crop_active = .true.
      dveg_active = .false.
    ENDIF
-
+!print *,"before carbon",SOL_NO3(1)
    IF (dveg_active) THEN
      CALL CARBON (parameters,NSNOW  ,NSOIL  ,VEGTYP ,DT     ,ZSOIL  , & !in
-                 DZSNSO ,STC    ,SMC    ,TV     ,TG     ,PSN    , & !in
+                 DZSNSO ,STC    ,SMC,ETRANI ,TV     ,TG     ,PSN    , & !in
                  FOLN   ,BTRAN  ,APAR   ,FVEG   ,IGS    , & !in
                  TROOT  ,IST    ,LAT    ,iloc   ,jloc   , & !in
                  LFMASS ,RTMASS ,STMASS ,WOOD   ,STBLCP ,FASTCP , & !inout
                  GPP    ,NPP    ,NEE    ,AUTORS ,HETERS ,TOTSC  , & !out
-                 TOTLB  ,LAI    ,SAI    )                   !out
+                 TOTLB  ,LAI    ,SAI    ,SOL_NO3,SOL_NH3,NPP0   , &
+                 DIELF  ,LFTOVR ,RESP   , & !out
+                 NDEM0  ,NH4up  ,NO3up  ,Npassiv,Nactive,Nfix   , & !out
+                 Nretrans,Nuptake,NPPactv,NPPfix,NPPretr,NPPup  , & !out
+                 CNlitlf ,NLIMIT, ITIMESTEP)                                   !out
+
+     CALL NCYCLE (ILOC, JLOC,DT,  YEARLEN,JULIAN ,DAYLEN ,DAYLTH ,NSNOW  ,NSOIL  , & ! IN
+	                VEGTYP ,PRCP   ,RUNSRF ,RUNSBZ , parameters%SMCWLT,parameters%SMCMAX,parameters%SMCREF, & ! IN
+					SNEQV  ,LFTOVR ,TOTLB  ,SMC    ,STC,ZSOIL  ,WFLUX  ,     & ! IN
+					SOL_AON,SOL_FON,SOL_NH3,SOL_NO3,SOL_RSD,SOL_SON,         & ! INOUT
+					LATNO3 ,NO3PCP ,PERCN  ,SEDORGN,SEDYLD ,SURQNO3,HMN    , & ! OUT
+					RMN    ,RWN    ,WDN    ,SUMNO3 ,SUMORGN,RNIT   ,RVOL   , & ! OUT
+					CNO3   ,LAT    ,LON                                      ) ! OUT
    END IF
 
    IF (OPT_CROP == 1 .and. crop_active) THEN
     CALL CARBON_CROP (parameters,NSNOW  ,NSOIL  ,VEGTYP ,DT     ,ZSOIL  ,JULIAN , & !in
                          DZSNSO ,STC    ,SMC    ,TV     ,PSN    ,FOLN   ,BTRAN  , & !in
-                         SOLDN  ,T2M    ,                                         & !in
+			 SOLDN  ,T2M    ,                                         & !in
                          LFMASS ,RTMASS ,STMASS ,WOOD   ,STBLCP ,FASTCP ,GRAIN  , & !inout
-                         LAI    ,SAI    ,GDD    ,                                 & !inout
+			 LAI    ,SAI    ,GDD    ,                                 & !inout
                          GPP    ,NPP    ,NEE    ,AUTORS ,HETERS ,TOTSC  ,TOTLB, PGS    ) !out
    END IF
-
+! print *,"after carbon carbon",SOL_NO3(1)
 ! water and energy balance check
 
      CALL ERROR (parameters,SWDOWN ,FSA    ,FSR    ,FIRA   ,FSH    ,FCEV   , & !in
@@ -1031,7 +1122,7 @@ contains
                   PRCPCONV,PRCPNONC ,PRCPSHCV,PRCPSNOW,PRCPGRPL,PRCPHAIL , &
                   SOLDN   ,COSZ     ,THAIR   ,QAIR    ,                    &
                   EAIR    ,RHOAIR   ,QPRECC  ,QPRECL  ,SOLAD   , SOLAI   , &
-                  SWDOWN  ,BDFALL   ,RAIN    ,SNOW    ,FP      , FPICE   ,PRCP )
+		  SWDOWN  ,BDFALL   ,RAIN    ,SNOW    ,FP      , FPICE   ,PRCP )
 ! --------------------------------------------------------------------------------------------------
 ! re-process atmospheric forcing
 ! ----------------------------------------------------------------------
@@ -1102,7 +1193,7 @@ contains
 
        IF(OPT_SNF == 4) THEN
          QPRECC = PRCPCONV + PRCPSHCV
-         QPRECL = PRCPNONC
+	 QPRECL = PRCPNONC
        ELSE
          QPRECC = 0.10 * PRCP          ! should be from the atmospheric model
          QPRECL = 0.90 * PRCP          ! should be from the atmospheric model
@@ -1155,12 +1246,12 @@ contains
      IF(OPT_SNF == 4) THEN
         PRCP_FROZEN = PRCPSNOW + PRCPGRPL + PRCPHAIL
         IF(PRCPNONC > 0. .and. PRCP_FROZEN > 0.) THEN
-          FPICE = MIN(1.0,PRCP_FROZEN/PRCPNONC)
-          FPICE = MAX(0.0,FPICE)
-          BDFALL = BDFALL*(PRCPSNOW/PRCP_FROZEN) + RHO_GRPL*(PRCPGRPL/PRCP_FROZEN) + &
-                     RHO_HAIL*(PRCPHAIL/PRCP_FROZEN)
-        ELSE
-          FPICE = 0.0
+	  FPICE = MIN(1.0,PRCP_FROZEN/PRCPNONC)
+	  FPICE = MAX(0.0,FPICE)
+	  BDFALL = BDFALL*(PRCPSNOW/PRCP_FROZEN) + RHO_GRPL*(PRCPGRPL/PRCP_FROZEN) + &
+	             RHO_HAIL*(PRCPHAIL/PRCP_FROZEN)
+	ELSE
+	  FPICE = 0.0
         ENDIF
 
      ENDIF
@@ -1286,8 +1377,8 @@ ENDIF   ! CROPTYPE == 0
                           BDFALL ,RAIN   ,SNOW   ,FP     ,                 & !in
                           CANLIQ ,CANICE ,TV     ,SFCTMP ,TG     ,         & !in
                           QINTR  ,QDRIPR ,QTHROR ,QINTS  ,QDRIPS ,QTHROS , & !out
-                          PAHV   ,PAHG   ,PAHB   ,QRAIN  ,QSNOW  ,SNOWHIN, & !out
-                          FWET   ,CMC                                    )   !out
+			  PAHV   ,PAHG   ,PAHB   ,QRAIN  ,QSNOW  ,SNOWHIN, & !out
+			  FWET   ,CMC                                    )   !out
 
 ! ------------------------ code history ------------------------------
 ! Michael Barlage: Oct 2013 - split CANWATER to calculate precip movement for
@@ -1389,10 +1480,10 @@ ENDIF   ! CROPTYPE == 0
          QINTR  = 0.
          QDRIPR = 0.
          QTHROR = RAIN
-         IF(CANLIQ > 0.) THEN             ! FOR CASE OF CANOPY GETTING BURIED
-           QDRIPR = QDRIPR + CANLIQ/DT
-           CANLIQ = 0.0
-         END IF
+	 IF(CANLIQ > 0.) THEN             ! FOR CASE OF CANOPY GETTING BURIED
+	   QDRIPR = QDRIPR + CANLIQ/DT
+	   CANLIQ = 0.0
+	 END IF
       END IF
 
 ! heat transported by liquid water
@@ -1415,8 +1506,8 @@ ENDIF   ! CROPTYPE == 0
          QINTS = MAX(QINTS, 0.)
          FT = MAX(0.0,(TV - 270.15) / 1.87E5)
          FV = SQRT(UU*UU + VV*VV) / 1.56E5
-         ! MB: changed below to reflect the rain assumption that all precip gets intercepted
-         ICEDRIP = MAX(0.,CANICE) * (FV+FT)    !MB: removed /DT
+	 ! MB: changed below to reflect the rain assumption that all precip gets intercepted
+	 ICEDRIP = MAX(0.,CANICE) * (FV+FT)    !MB: removed /DT
          QDRIPS = (FVEG * SNOW - QINTS) + ICEDRIP
          QTHROS = (1.0-FVEG) * SNOW
          CANICE= MAX(0.,CANICE + (QINTS - ICEDRIP)*DT)
@@ -1424,10 +1515,10 @@ ENDIF   ! CROPTYPE == 0
          QINTS  = 0.
          QDRIPS = 0.
          QTHROS = SNOW
-         IF(CANICE > 0.) THEN             ! FOR CASE OF CANOPY GETTING BURIED
-           QDRIPS = QDRIPS + CANICE/DT
-           CANICE = 0.0
-         END IF
+	 IF(CANICE > 0.) THEN             ! FOR CASE OF CANOPY GETTING BURIED
+	   QDRIPS = QDRIPS + CANICE/DT
+	   CANICE = 0.0
+	 END IF
       ENDIF
 !      print*, "precip_heat canopy through:",3600.0*(FVEG * SNOW - QINTS)
 !      print*, "precip_heat canopy drip:",3600.0*MAX(0.,CANICE) * (FV+FT)
@@ -1457,13 +1548,13 @@ ENDIF   ! CROPTYPE == 0
 
       IF (FVEG > 0.0 .AND. FVEG < 1.0) THEN
         PAHG = PAHG / FVEG         ! these will be multiplied by fraction later
-        PAHB = PAHB / (1.0-FVEG)
+	PAHB = PAHB / (1.0-FVEG)
       ELSEIF (FVEG <= 0.0) THEN
         PAHB = PAHG + PAHB         ! for case of canopy getting buried
         PAHG = 0.0
-        PAHV = 0.0
+	PAHV = 0.0
       ELSEIF (FVEG >= 1.0) THEN
-        PAHB = 0.0
+	PAHB = 0.0
       END IF
 
       PAHV = MAX(PAHV,-20.0)       ! Put some artificial limits here for stability
@@ -1668,7 +1759,7 @@ ENDIF   ! CROPTYPE == 0
                      ELAI   ,ESAI   ,FWET   ,FOLN   ,         & !in
                      FVEG   ,PAHV   ,PAHG   ,PAHB   ,                 & !in
                      QSNOW  ,DZSNSO ,LAT    ,CANLIQ ,CANICE ,ILOC   , JLOC, & !in
-                     Z0WRF  ,                                         &
+		     Z0WRF  ,                                         &
                      IMELT  ,SNICEV ,SNLIQV ,EPORE  ,T2M    ,FSNO   , & !out
                      SAV    ,SAG    ,QMELT  ,FSA    ,FSR    ,TAUX   , & !out
                      TAUY   ,FIRA   ,FSH    ,FCEV   ,FGEV   ,FCTR   , & !out
@@ -1683,7 +1774,7 @@ ENDIF   ! CROPTYPE == 0
                      T2MV   ,T2MB   ,FSRV   , &
                      FSRG   ,RSSUN  ,RSSHA  ,ALBSND  ,ALBSNI,BGAP   ,WGAP,TGV,TGB,&
                      Q1     ,Q2V    ,Q2B    ,Q2E    ,CHV  ,CHB, EMISSI,PAH  ,&
-                     SHG,SHC,SHB,EVG,EVB,GHV,GHB,IRG,IRC,IRB,TR,EVC,CHLEAF,CHUC,CHV2,CHB2, &
+		     SHG,SHC,SHB,EVG,EVB,GHV,GHB,IRG,IRC,IRB,TR,EVC,CHLEAF,CHUC,CHV2,CHB2, &
                      JULIAN, SWDOWN, PRCP, FB, GECROS1D )
 !jref:end
 
@@ -2122,19 +2213,19 @@ ENDIF   ! CROPTYPE == 0
 
      IF (TV .GT. TFRZ) THEN           ! Barlage: add distinction between ground and
         LATHEAV = HVAP                ! vegetation in v3.6
-        frozen_canopy = .false.
+	frozen_canopy = .false.
      ELSE
         LATHEAV = HSUB
-        frozen_canopy = .true.
+	frozen_canopy = .true.
      END IF
      GAMMAV = CPAIR*SFCPRS/(0.622*LATHEAV)
 
      IF (TG .GT. TFRZ) THEN
         LATHEAG = HVAP
-        frozen_ground = .false.
+	frozen_ground = .false.
      ELSE
         LATHEAG = HSUB
-        frozen_ground = .true.
+	frozen_ground = .true.
      END IF
      GAMMAG = CPAIR*SFCPRS/(0.622*LATHEAG)
 
@@ -2204,7 +2295,7 @@ ENDIF   ! CROPTYPE == 0
         SSOIL = FVEG * GHV       + (1.0 - FVEG) * GHB
         FCEV  = EVC
         FCTR  = TR
-        PAH   = FVEG * PAHG      + (1.0 - FVEG) * PAHB   + PAHV
+	PAH   = FVEG * PAHG      + (1.0 - FVEG) * PAHB   + PAHV
         TG    = FVEG * TGV       + (1.0 - FVEG) * TGB
         T2M   = FVEG * T2MV      + (1.0 - FVEG) * T2MB
         TS    = FVEG * TV        + (1.0 - FVEG) * TGB
@@ -2212,7 +2303,7 @@ ENDIF   ! CROPTYPE == 0
         CH    = FVEG * CHV       + (1.0 - FVEG) * CHB
         Q1    = FVEG * (EAH*0.622/(SFCPRS - 0.378*EAH)) + (1.0 - FVEG)*QSFC
         Q2E   = FVEG * Q2V       + (1.0 - FVEG) * Q2B
-        Z0WRF = Z0M
+	Z0WRF = Z0M
     ELSE
         TAUX  = TAUXB
         TAUY  = TAUYB
@@ -2224,7 +2315,7 @@ ENDIF   ! CROPTYPE == 0
         T2M   = T2MB
         FCEV  = 0.
         FCTR  = 0.
-        PAH   = PAHB
+	PAH   = PAHB
         TS    = TG
         CM    = CMB
         CH    = CHB
@@ -2234,7 +2325,7 @@ ENDIF   ! CROPTYPE == 0
         RSSHA = 0.0
         TGV   = TGB
         CHV   = CHB
-        Z0WRF = Z0MG
+	Z0WRF = Z0MG
     END IF
 
     FIRE = LWDN + FIRA
@@ -3333,7 +3424,7 @@ ENDIF   ! CROPTYPE == 0
          KOPEN   = 1.0
      ELSE
          IF(OPT_RAD == 1) THEN
-           DENFVEG = -LOG(MAX(1.0-FVEG,0.01))/(PAI*parameters%RC**2)
+	   DENFVEG = -LOG(MAX(1.0-FVEG,0.01))/(PAI*parameters%RC**2)
            HD      = parameters%HVT - parameters%HVB
            BB      = 0.5 * HD
            THETAP  = ATAN(BB/parameters%RC * TAN(ACOS(MAX(0.01,COSZ))) )
@@ -3954,11 +4045,11 @@ ENDIF   ! CROPTYPE == 0
         SHC = FVEG*RHOAIR*CPAIR*CVH * (  TV-TAH)
         EVC = FVEG*RHOAIR*CPAIR*CEW * (ESTV-EAH) / GAMMAV ! Barlage: change to v in v3.6
         TR  = FVEG*RHOAIR*CPAIR*CTW * (ESTV-EAH) / GAMMAV
-        IF (TV > TFRZ) THEN
+	IF (TV > TFRZ) THEN
           EVC = MIN(CANLIQ*LATHEAV/DT,EVC)    ! Barlage: add if block for canice in v3.6
-        ELSE
+	ELSE
           EVC = MIN(CANICE*LATHEAV/DT,EVC)
-        END IF
+	END IF
 
         B   = SAV-IRC-SHC-EVC-TR+PAHV                          !additional w/m2
         A   = FVEG*(4.*CIR*TV**3 + CSH + (CEV+CTR)*DESTV) !volumetric heat capacity
@@ -5858,14 +5949,14 @@ ENDIF   ! CROPTYPE == 0
                     ESAI   ,SFCTMP ,QVAP   ,QDEW   ,ZSOIL  ,BTRANI , & !in
                     FICEOLD,PONDING,TG     ,IST    ,FVEG   ,ILOC   ,JLOC ,SMCEQ , & !in
                     BDFALL ,FP     ,RAIN   ,SNOW,                    & !in  MB/AN: v3.7
-                    QSNOW  ,QRAIN  ,SNOWHIN,LATHEAV,LATHEAG,frozen_canopy,frozen_ground,    & !in  MB
+		    QSNOW  ,QRAIN  ,SNOWHIN,LATHEAV,LATHEAG,frozen_canopy,frozen_ground,    & !in  MB
                     ISNOW  ,CANLIQ ,CANICE ,TV     ,SNOWH  ,SNEQV  , & !inout
                     SNICE  ,SNLIQ  ,STC    ,ZSNSO  ,SH2O   ,SMC    , & !inout
                     SICE   ,ZWT    ,WA     ,WT     ,DZSNSO ,WSLAKE , & !inout
                     SMCWTD ,DEEPRECH,RECH                          , & !inout
                     CMC    ,ECAN   ,ETRAN  ,FWET   ,RUNSRF ,RUNSUB , & !out
                     QIN    ,QDIS   ,PONDING1       ,PONDING2,        &
-                    QSNBOT                                           &
+                    QSNBOT ,ETRANI ,RUNSBZ ,WFLUX                                  &
 #ifdef WRF_HYDRO
                         ,sfcheadrt                     &
 #endif
@@ -5953,7 +6044,10 @@ ENDIF   ! CROPTYPE == 0
   REAL                              , INTENT(IN)   :: LATHEAG !latent heat vap./sublimation (j/kg)
   LOGICAL                           , INTENT(IN)   :: FROZEN_GROUND ! used to define latent heat pathway
   LOGICAL                           , INTENT(IN)   :: FROZEN_CANOPY ! used to define latent heat pathway
-
+  REAL                                           :: WTSUB   !sum of WCND(K)*DZSNSO(K)
+  REAL, DIMENSION(       1:NSOIL)                :: WFLUX   !water flux between soil layers [m/s]
+  REAL, DIMENSION(       1:NSOIL), INTENT(OUT)   :: RUNSBZ  !groundwater discharge per layer [mm/s]
+  REAL, DIMENSION(       1:NSOIL)                :: ETRANI  !transpiration rate (m/s) [+]
 
 ! local
   INTEGER                                        :: IZ
@@ -5962,7 +6056,7 @@ ENDIF   ! CROPTYPE == 0
   REAL                                           :: QSDEW   !soil surface dew rate [mm/s]
   REAL                                           :: QSNFRO  !snow surface frost rate[mm/s]
   REAL                                           :: QSNSUB  !snow surface sublimation rate [mm/s]
-  REAL, DIMENSION(       1:NSOIL)                :: ETRANI  !transpiration rate (mm/s) [+]
+!  REAL, DIMENSION(       1:NSOIL)                :: ETRANI  !transpiration rate (mm/s) [+]
   REAL, DIMENSION(       1:NSOIL)                :: WCND   !hydraulic conductivity (m/s)
   REAL                                           :: QDRAIN  !soil-bottom free drainage [mm/s]
   REAL                                           :: SNOFLOW !glacier flow [mm/s]
@@ -6056,7 +6150,7 @@ ENDIF   ! CROPTYPE == 0
                             QINSUR ,QSEVA  ,ETRANI ,SICE   ,ILOC   , JLOC , & !in
                             SH2O   ,SMC    ,ZWT    ,VEGTYP , & !inout
                            SMCWTD, DEEPRECH                       , & !inout
-                            RUNSRF ,QDRAIN ,RUNSUB ,WCND   ,FCRMAX )   !out
+                            RUNSRF ,QDRAIN ,RUNSUB ,WCND   ,FCRMAX,WFLUX )   !out
 
        IF(OPT_RUN == 1) THEN
           CALL GROUNDWATER (parameters,NSNOW  ,NSOIL  ,DT     ,SICE   ,ZSOIL  , & !in
@@ -6087,6 +6181,17 @@ ENDIF   ! CROPTYPE == 0
     ENDIF
 
     RUNSUB       = RUNSUB + SNOFLOW         !mm/s
+
+	!   Distribute RUNSUB (no SNOFLOW) to each soil layer, as needed by soil nitrogen.
+    IF(OPT_RUN == 1 .or. OPT_RUN == 2) THEN
+       WTSUB = 0.
+       DO IZ = 1, NSOIL
+          WTSUB = WTSUB + WCND(IZ)*ZSOIL(IZ)
+       END DO
+       DO IZ = 1, NSOIL
+          RUNSBZ(IZ) = RUNSUB*(WCND(IZ)*ZSOIL(IZ))/WTSUB       ! mm
+       END DO
+    ENDIF
 
   END SUBROUTINE WATER
 
@@ -6482,19 +6587,19 @@ ENDIF   ! CROPTYPE == 0
                 SNLIQ(J-1) = SNLIQ(J-1) + SNLIQ(J)
                 SNICE(J-1) = SNICE(J-1) + SNICE(J)
                ELSE
-                 IF(SNICE(J) >= 0.) THEN
+	         IF(SNICE(J) >= 0.) THEN
                   PONDING1 = SNLIQ(J)    ! ISNOW WILL GET SET TO ZERO BELOW; PONDING1 WILL GET
                   SNEQV = SNICE(J)       ! ADDED TO PONDING FROM PHASECHANGE PONDING SHOULD BE
                   SNOWH = DZSNSO(J)      ! ZERO HERE BECAUSE IT WAS CALCULATED FOR THIN SNOW
-                 ELSE   ! SNICE OVER-SUBLIMATED EARLIER
-                  PONDING1 = SNLIQ(J) + SNICE(J)
-                  IF(PONDING1 < 0.) THEN  ! IF SNICE AND SNLIQ SUBLIMATES REMOVE FROM SOIL
-                   SICE(1) = MAX(0.0,SICE(1)+PONDING1/(DZSNSO(1)*1000.))
+		 ELSE   ! SNICE OVER-SUBLIMATED EARLIER
+		  PONDING1 = SNLIQ(J) + SNICE(J)
+		  IF(PONDING1 < 0.) THEN  ! IF SNICE AND SNLIQ SUBLIMATES REMOVE FROM SOIL
+		   SICE(1) = MAX(0.0,SICE(1)+PONDING1/(DZSNSO(1)*1000.))
                    PONDING1 = 0.0
-                  END IF
+		  END IF
                   SNEQV = 0.0
                   SNOWH = 0.0
-                 END IF
+		 END IF
                  SNLIQ(J) = 0.0
                  SNICE(J) = 0.0
                  DZSNSO(J) = 0.0
@@ -7040,7 +7145,7 @@ ENDIF   ! CROPTYPE == 0
                         QINSUR ,QSEVA  ,ETRANI ,SICE   ,ILOC   , JLOC, & !in
                         SH2O   ,SMC    ,ZWT    ,VEGTYP ,& !inout
                         SMCWTD, DEEPRECH                       ,& !inout
-                        RUNSRF ,QDRAIN ,RUNSUB ,WCND   ,FCRMAX )   !out
+                        RUNSRF ,QDRAIN ,RUNSUB ,WCND   ,FCRMAX, WFLUX )   !out
 
 ! ----------------------------------------------------------------------
 ! calculate surface runoff and soil moisture.
@@ -7109,6 +7214,7 @@ ENDIF   ! CROPTYPE == 0
   REAL                                    :: SMCTOT !2-m averaged soil moisture (m3/m3)
   REAL                                    :: DZTOT  !2-m soil depth (m)
   REAL, PARAMETER :: A = 4.0
+  REAL, DIMENSION(1:NSOIL)                :: WFLUX  !water flux between soil layers [m/s]
 ! ----------------------------------------------------------------------
     RUNSRF = 0.0
     PDDUM  = 0.0
@@ -7233,7 +7339,7 @@ ENDIF   ! CROPTYPE == 0
                    QSEVA  ,SH2O   ,SMC    ,ZWT    ,FCR    , & !in
                    SICEMAX,FCRMAX ,ILOC   ,JLOC   ,SMCWTD ,         & !in
                    RHSTT  ,AI     ,BI     ,CI     ,QDRAIN , & !out
-                   WCND   )                                   !out
+                   WCND   ,WFLUX)                                   !out
 
        CALL SSTEP (parameters,NSOIL  ,NSNOW  ,DTFINE ,ZSOIL  ,DZSNSO , & !in
                    SICE   ,ILOC   ,JLOC   ,ZWT            ,                 & !in
@@ -7466,7 +7572,7 @@ ENDIF   ! CROPTYPE == 0
                   QSEVA  ,SH2O   ,SMC    ,ZWT    ,FCR    , & !in
                   SICEMAX,FCRMAX ,ILOC   ,JLOC   ,SMCWTD ,         & !in
                   RHSTT  ,AI     ,BI     ,CI     ,QDRAIN , & !out
-                  WCND   )                                   !out
+                  WCND   ,WFLUX)                                   !out
 ! ----------------------------------------------------------------------
 ! calculate the right hand side of the time tendency term of the soil
 ! water diffusion equation.  also to compute ( prepare ) the matrix
@@ -8136,18 +8242,23 @@ END  SUBROUTINE SHALLOWWATERTABLE
 !== begin carbon ===================================================================================
 
   SUBROUTINE CARBON (parameters,NSNOW  ,NSOIL  ,VEGTYP ,DT     ,ZSOIL  , & !in
-                     DZSNSO ,STC    ,SMC    ,TV     ,TG     ,PSN    , & !in
+                     DZSNSO ,STC    ,SMC,ETRANI    ,TV     ,TG     ,PSN    , & !in
                      FOLN   ,BTRAN  ,APAR   ,FVEG   ,IGS    , & !in
                      TROOT  ,IST    ,LAT    ,ILOC   ,JLOC   , & !in
                      LFMASS ,RTMASS ,STMASS ,WOOD   ,STBLCP ,FASTCP , & !inout
                      GPP    ,NPP    ,NEE    ,AUTORS ,HETERS ,TOTSC  , & !out
-                     TOTLB  ,XLAI   ,XSAI   )                   !out
+                     TOTLB  ,XLAI   ,XSAI   ,SOL_NO3,SOL_NH3,NPP0   , &
+                     DIELF  ,LFTOVR ,RESP   , & !out
+                     NDEM0  ,NH4up  ,NO3up  ,Npassiv,Nactive,Nfix   , & !out
+                     Nretrans,Nuptake,NPPactv,NPPfix,NPPretr,NPPup  , & !out
+                     CNlitlf ,NLIMIT,ITIMESTEP)                         !out
 ! ------------------------------------------------------------------------------------------
       IMPLICIT NONE
 ! ------------------------------------------------------------------------------------------
 ! inputs (carbon)
 
   type (noahmp_parameters), intent(in) :: parameters
+  INTEGER                        , INTENT(IN) :: ITIMESTEP !TIMESTEP NUMBER
   INTEGER                        , INTENT(IN) :: ILOC   !grid index
   INTEGER                        , INTENT(IN) :: JLOC   !grid index
   INTEGER                        , INTENT(IN) :: VEGTYP !vegetation type
@@ -8159,6 +8270,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL, DIMENSION(-NSNOW+1:NSOIL), INTENT(IN) :: DZSNSO !snow/soil layer thickness [m]
   REAL, DIMENSION(-NSNOW+1:NSOIL), INTENT(IN) :: STC    !snow/soil temperature [k]
   REAL, DIMENSION(       1:NSOIL), INTENT(IN) :: SMC    !soil moisture (ice + liq.) [m3/m3]
+  REAL, DIMENSION(       1:NSOIL), INTENT(IN) :: ETRANI !transpiration rate (m/s) [+]
   REAL                           , INTENT(IN) :: TV     !vegetation temperature (k)
   REAL                           , INTENT(IN) :: TG     !ground temperature (k)
   REAL                           , INTENT(IN) :: FOLN   !foliage nitrogen (%)
@@ -8179,9 +8291,15 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                        , INTENT(INOUT) :: STBLCP !stable carbon in deep soil [g/m2]
   REAL                        , INTENT(INOUT) :: FASTCP !short-lived carbon in shallow soil [g/m2]
 
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT) :: SOL_NH3!amount of nitrogen stored in the ammonium pool
+                                                        !in soil layer [gN m-2]
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT) :: SOL_NO3!amount of nitrogen stored in the nitrate pool
+                                                        !in soil layer [gN m-2]
+
 ! outputs: (carbon)
 
   REAL                          , INTENT(OUT) :: GPP    !net instantaneous assimilation [g/m2/s C]
+  REAL                          , INTENT(OUT) :: NPP0   !NPP before FUN [g/m2/s C]
   REAL                          , INTENT(OUT) :: NPP    !net primary productivity [g/m2/s C]
   REAL                          , INTENT(OUT) :: NEE    !net ecosystem exchange [g/m2/s CO2]
   REAL                          , INTENT(OUT) :: AUTORS !net ecosystem respiration [g/m2/s C]
@@ -8190,6 +8308,27 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                          , INTENT(OUT) :: TOTLB  !total living carbon ([g/m2 C]
   REAL                          , INTENT(OUT) :: XLAI   !leaf area index [-]
   REAL                          , INTENT(OUT) :: XSAI   !stem area index [-]
+
+  REAL                          , INTENT(OUT) :: NDEM0  !N demand to grow plants (gN m-2 s-1).--XTC
+  REAL                          , INTENT(OUT) :: DIELF  !death of leaf mass per time step [g/m2/s]
+  REAL                          , INTENT(OUT) :: LFTOVR !stem turnover per time step [g/m2/s]
+  REAL                          , INTENT(OUT) :: RESP   !leaf respiration [umol/m2/s]
+  REAL                          , INTENT(OUT) :: NH4up(NSOIL) ! NH4 uptake [kgN m-2]
+  REAL                          , INTENT(OUT) :: NO3up(NSOIL) ! NO3 uptake [kgN m-2]
+  REAL                          , INTENT(OUT) :: CNlitlf  ! C:N ratio of leaf litter [kgN/kgC]
+  REAL                          , INTENT(OUT) :: Npassiv  ! N acquired by passive uptake [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nactive  ! N acquired by active uptake [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nfix     ! N acquired by fixing [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nretrans ! N acquired by retranslocation [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nuptake  ! Total N acquired by plants through passive
+                                           ! and active uptake, fixing and retranslocation [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPactv  ! NPP reduction to pay for active uptake of N
+                                                          ! [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPfix   ! NPP reduction to pay for fixing N [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPretr  ! NPP reduction to pay for retranslocation of
+                                                          ! N [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPup    ! Total NPP reduction to pay for N [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NLIMIT   ! N limitation [gN m-2 s-1]
 !  REAL                          , INTENT(OUT) :: VOCFLX(5) ! voc fluxes [ug C m-2 h-1]
 
 ! local variables
@@ -8232,14 +8371,18 @@ END  SUBROUTINE SHALLOWWATERTABLE
         WROOT = WROOT + SMC(J)/parameters%SMCMAX(J) *  DZSNSO(J) / (-ZSOIL(parameters%NROOT))
       ENDDO
 
-  CALL CO2FLUX (parameters,NSNOW  ,NSOIL  ,VEGTYP ,IGS    ,DT     , & !in
-                DZSNSO ,STC    ,PSN    ,TROOT  ,TV     , & !in
+  CALL CO2FLUX (parameters,NSNOW  ,NSOIL  ,VEGTYP ,IGS    ,DT,ZSOIL     , & !in
+                DZSNSO ,STC    ,PSN    ,TROOT  ,TV,SMC,ETRANI     , & !in
                 WROOT  ,WSTRES ,FOLN   ,LAPM   ,         & !in
                 LAT    ,ILOC   ,JLOC   ,FVEG   ,         & !in
                 XLAI   ,XSAI   ,LFMASS ,RTMASS ,STMASS , & !inout
                 FASTCP ,STBLCP ,WOOD   ,                 & !inout
                 GPP    ,NPP    ,NEE    ,AUTORS ,HETERS , & !out
-                TOTSC  ,TOTLB  )                           !out
+                TOTSC  ,TOTLB  ,SOL_NH3,SOL_NO3,NPP0   , & !inout
+                DIELF  ,LFTOVR ,RESP   ,CNlitlf ,NLIMIT, & !out
+                NDEM0  ,NH4up  ,NO3up  ,Npassiv,Nactive,Nfix   , & !out
+                Nretrans,Nuptake,NPPactv,NPPfix,NPPretr,NPPup, ITIMESTEP ) !out
+
 
 !   CALL BVOC (parameters,VOCFLX,  VEGTYP,  VEGFAC,   APAR,   TV)
 !   CALL CH4
@@ -8248,16 +8391,21 @@ END  SUBROUTINE SHALLOWWATERTABLE
 
 !== begin co2flux ==================================================================================
 
-  SUBROUTINE CO2FLUX (parameters,NSNOW  ,NSOIL  ,VEGTYP ,IGS    ,DT     , & !in
-                      DZSNSO ,STC    ,PSN    ,TROOT  ,TV     , & !in
+  SUBROUTINE CO2FLUX (parameters,NSNOW  ,NSOIL  ,VEGTYP ,IGS    ,DT,ZSOIL     , & !in
+                      DZSNSO ,STC    ,PSN    ,TROOT  ,TV,SMC,ETRANI, & !in
                       WROOT  ,WSTRES ,FOLN   ,LAPM   ,         & !in
                       LAT    ,ILOC   ,JLOC   ,FVEG   ,         & !in
                       XLAI   ,XSAI   ,LFMASS ,RTMASS ,STMASS , & !inout
                       FASTCP ,STBLCP ,WOOD   ,                 & !inout
                       GPP    ,NPP    ,NEE    ,AUTORS ,HETERS , & !out
-                      TOTSC  ,TOTLB  )                           !out
+                      TOTSC  ,TOTLB  ,SOL_NH3,SOL_NO3,NPP0   , & !inout
+                      DIELF  ,LFTOVR ,RESP   ,CNlitlf ,NLIMIT, & !out
+                      NDEM0  ,NH4up  ,NO3up  ,Npassiv,Nactive,Nfix   , & !out
+                      Nretrans,Nuptake,NPPactv,NPPfix,NPPretr,NPPup,ITIMESTEP ) !out
 ! -----------------------------------------------------------------------------------------
 ! The original code is from RE Dickinson et al.(1998), modifed by Guo-Yue Niu, 2004
+! -----------------------------------------------------------------------------------------
+  USE module_sf_biogeochem
 ! -----------------------------------------------------------------------------------------
   IMPLICIT NONE
 ! -----------------------------------------------------------------------------------------
@@ -8265,16 +8413,20 @@ END  SUBROUTINE SHALLOWWATERTABLE
 ! input
 
   type (noahmp_parameters), intent(in) :: parameters
+  INTEGER                        , INTENT(IN) :: ITIMESTEP !timestep number
   INTEGER                        , INTENT(IN) :: ILOC   !grid index
   INTEGER                        , INTENT(IN) :: JLOC   !grid index
   INTEGER                        , INTENT(IN) :: VEGTYP !vegetation physiology type
   INTEGER                        , INTENT(IN) :: NSNOW  !number of snow layers
   INTEGER                        , INTENT(IN) :: NSOIL  !number of soil layers
+  REAL,DIMENSION(       1:NSOIL) , INTENT(IN) :: ZSOIL  ! Layer-bottom depth from soil surf [m]
   REAL                           , INTENT(IN) :: DT     !time step (s)
   REAL                           , INTENT(IN) :: LAT    !latitude (radians)
   REAL                           , INTENT(IN) :: IGS    !growing season index (0=off, 1=on)
   REAL, DIMENSION(-NSNOW+1:NSOIL), INTENT(IN) :: DZSNSO !snow/soil layer thickness [m]
   REAL, DIMENSION(-NSNOW+1:NSOIL), INTENT(IN) :: STC    !snow/soil temperature [k]
+  REAL, DIMENSION(       1:NSOIL), INTENT(IN) :: SMC    !soil moisture (ice + liq.) [m3/m3]
+  REAL, DIMENSION(       1:NSOIL), INTENT(IN) :: ETRANI !transpiration rate (m/s) [+]
   REAL                           , INTENT(IN) :: PSN    !total leaf photosynthesis (umolco2/m2/s)
   REAL                           , INTENT(IN) :: TROOT  !root-zone averaged temperature (k)
   REAL                           , INTENT(IN) :: TV     !leaf temperature (k)
@@ -8295,15 +8447,42 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                        , INTENT(INOUT) :: STBLCP !stable carbon pool [g/m2]
   REAL                        , INTENT(INOUT) :: WOOD   !mass of wood (incl. woody roots) [g/m2]
 
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT) :: SOL_NH3!amount of nitrogen stored in the ammonium pool
+                                                        !in soil layer [gN m-2]
+  REAL*8, DIMENSION(1:NSOIL+1), INTENT(INOUT) :: SOL_NO3!amount of nitrogen stored in the nitrate pool
+                                                        !in soil layer [gN m-2]
+
 ! output
 
   REAL                          , INTENT(OUT) :: GPP    !net instantaneous assimilation [g/m2/s]
+  REAL                          , INTENT(OUT) :: NPP0   !net primary productivity before FUN [g/m2] --XTC
   REAL                          , INTENT(OUT) :: NPP    !net primary productivity [g/m2]
   REAL                          , INTENT(OUT) :: NEE    !net ecosystem exchange (autors+heters-gpp)
   REAL                          , INTENT(OUT) :: AUTORS !net ecosystem resp. (maintance and growth)
   REAL                          , INTENT(OUT) :: HETERS !organic respiration
   REAL                          , INTENT(OUT) :: TOTSC  !total soil carbon (g/m2)
   REAL                          , INTENT(OUT) :: TOTLB  !total living carbon (g/m2)
+
+  REAL                          , INTENT(OUT) :: DIELF  !death of leaf mass per time step [g/m2/s]
+  REAL                          , INTENT(OUT) :: LFTOVR !stem turnover per time step [g/m2/s]
+  REAL                          , INTENT(OUT) :: RESP   !leaf respiration [umol/m2/s]
+  REAL                          , INTENT(OUT) :: NDEM0  !N demand to grow plants (gN m-2 s-1).--XTC
+  REAL                          , INTENT(OUT) :: NH4up(NSOIL) ! NH4 uptake [kgN m-2]
+  REAL                          , INTENT(OUT) :: NO3up(NSOIL) ! NO3 uptake [kgN m-2]
+  REAL                          , INTENT(OUT) :: CNlitlf  ! C:N ratio of leaf litter [kgN/kgC]
+  REAL                          , INTENT(OUT) :: Npassiv  ! N acquired by passive uptake [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nactive  ! N acquired by active uptake [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nfix     ! N acquired by fixing [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nretrans ! N acquired by retranslocation [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: Nuptake  ! Total N acquired by plants through passive
+                                           ! and active uptake, fixing and retranslocation [kgN m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPactv  ! NPP reduction to pay for active uptake of N
+                                                          ! [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPfix   ! NPP reduction to pay for fixing N [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPretr  ! NPP reduction to pay for retranslocation of
+                                                          ! N [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NPPup    ! Total NPP reduction to pay for N [kgC m-2 s-1]
+  REAL                          , INTENT(OUT) :: NLIMIT   ! N limitation [gN m-2 s-1]
 
 ! local
 
@@ -8316,7 +8495,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                   :: NPPR     !root net primary productivity [g/m2/s]
   REAL                   :: NPPW     !wood net primary productivity [g/m2/s]
   REAL                   :: NPPS     !wood net primary productivity [g/m2/s]
-  REAL                   :: DIELF    !death of leaf mass per time step [g/m2]
+!  REAL                   :: DIELF    !death of leaf mass per time step [g/m2]
 
   REAL                   :: ADDNPPLF !leaf assimil after resp. losses removed [g/m2]
   REAL                   :: ADDNPPST !stem assimil after resp. losses removed [g/m2]
@@ -8327,7 +8506,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                   :: GRSTEM   !growth respiration rate for stem [g/m2/s]
   REAL                   :: LEAFPT   !fraction of carbon allocated to leaves [-]
   REAL                   :: LFDEL    !maximum  leaf mass  available to change [g/m2/s]
-  REAL                   :: LFTOVR   !stem turnover per time step [g/m2]
+!  REAL                   :: LFTOVR   !stem turnover per time step [g/m2]
   REAL                   :: STTOVR   !stem turnover per time step [g/m2]
   REAL                   :: WDTOVR   !wood turnover per time step [g/m2]
   REAL                   :: RSSOIL   !soil respiration per time step [g/m2]
@@ -8338,7 +8517,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                   :: ROOTPT   !fraction of carbon flux to roots [-]
   REAL                   :: WOODPT   !fraction of carbon flux to wood [-]
   REAL                   :: STEMPT   !fraction of carbon flux to stem [-]
-  REAL                   :: RESP     !leaf respiration [umol/m2/s]
+!  REAL                   :: RESP     !leaf respiration [umol/m2/s]
   REAL                   :: RSSTEM   !stem respiration [g/m2/s]
 
   REAL                   :: FSW      !soil water factor for microbial respiration
@@ -8350,6 +8529,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                   :: STMSMN
   REAL                   :: SAPM     !stem area per unit mass (m2/g)
   REAL                   :: DIEST
+  REAL                   :: DOWNR    !down-regulation rate by FUN model
 ! -------------------------- constants -------------------------------
   REAL                   :: BF       !parameter for present wood allocation [-]
   REAL                   :: RSWOODC  !wood respiration coeficient [1/s]
@@ -8362,6 +8542,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
   REAL                   :: SC
   REAL                   :: SD
   REAL                   :: VEGFRAC
+  REAL                   :: DT0     !time step (s)
 
 ! Respiration as a function of temperature
 
@@ -8471,6 +8652,33 @@ END  SUBROUTINE SHALLOWWATERTABLE
      NPPR   = ROOTPT*CARBFX - RSROOT - GRROOT
      NPPW   = WOODPT*CARBFX - RSWOOD - GRWOOD
 
+	 NPP    = NPPL + NPPW + NPPR                                 !g/m2/s C
+     NPP0   = NPP                                                !g/m2/s C
+! FUN model (Fisher et al. 2010, Global Biogeochem. Cy.)
+
+!    IF (mod((ITIMESTEP-1),8) .EQ. 0 .and. ITIMESTEP .GT. 1) THEN
+          CALL FUN (ILOC, JLOC, DT0  ,NSOIL  ,VEGTYP ,LFMASS ,RTMASS ,STMASS ,      & ! IN
+                  WOOD   ,DIELF  ,LFTOVR ,ZSOIL  ,SMC    ,ETRANI ,STC(1:NSOIL), & ! IN
+                  NPP    ,RESP   ,SOL_NO3,SOL_NH3, parameters%NROOT,            & ! INOUT
+                  NDEM0  ,NH4up  ,NO3up  ,Npassiv,Nactive,Nfix  ,Nretrans,      & ! OUT
+                  Nuptake,NPPactv,NPPfix ,NPPretr,NPPup  ,CNlitlf,NLIMIT)         ! OUT
+!    ENDIF
+     IF(NPP/NPP0 >= 0.2) THEN
+        DOWNR  = NPP    / NPP0        !--XTC 20150209
+        NPPL   = NPPL   * DOWNR       !--XTC 20150129
+        NPPS   = NPPS   * DOWNR       !--XTC 20150129
+        NPPR   = NPPR   * DOWNR       !--XTC 20150129
+        NPPW   = NPPW   * DOWNR       !--XTC 20150129
+        LFTOVR = LFTOVR * DOWNR       !--XTC 20150209
+        STTOVR = STTOVR * DOWNR       !--XTC 20150209
+        RTTOVR = RTTOVR * DOWNR       !--XTC 20150209
+        DIELF  = DIELF  * DOWNR       !--XTC 20150209
+        DIEST  = DIEST  * DOWNR       !--XTC 20150209
+        WDTOVR = WDTOVR * DOWNR       !--XTC 20150209
+    ELSE
+	    NPP = NPP0
+    ENDIF
+
 ! masses of plant components
 
      LFMASS = LFMASS + (NPPL-LFTOVR-DIELF)*DT
@@ -8504,6 +8712,8 @@ END  SUBROUTINE SHALLOWWATERTABLE
 
      GPP    = CARBFX                                             !g/m2/s C
      NPP    = NPPL + NPPW + NPPR +NPPS                           !g/m2/s C
+
+
      AUTORS = RSROOT + RSWOOD  + RSLEAF + RSSTEM + &             !g/m2/s C  MB: add RSSTEM, GRSTEM v3.7
               GRLEAF + GRROOT + GRWOOD + GRSTEM                  !g/m2/s C  MB: add 0.9* v3.7
      HETERS = 0.9*RSSOIL                                         !g/m2/s C
@@ -8524,7 +8734,7 @@ END  SUBROUTINE SHALLOWWATERTABLE
                             DZSNSO ,STC    ,SMC    ,TV     ,PSN    ,FOLN   ,BTRAN  , & !in
                             SOLDN  ,T2M    ,                                         & !in
                             LFMASS ,RTMASS ,STMASS ,WOOD   ,STBLCP ,FASTCP ,GRAIN  , & !inout
-                            XLAI   ,XSAI   ,GDD    ,                                 & !inout
+			    XLAI   ,XSAI   ,GDD    ,                                 & !inout
                             GPP    ,NPP    ,NEE    ,AUTORS ,HETERS ,TOTSC  ,TOTLB, PGS    ) !out
 ! ------------------------------------------------------------------------------------------
 ! Initial crop version created by Xing Liu
@@ -9247,8 +9457,6 @@ END MODULE MODULE_SF_NOAHMPLSM
 
 MODULE NOAHMP_TABLES
 
-    use module_wrf_error
-
     IMPLICIT NONE
 
     INTEGER, PRIVATE, PARAMETER :: MVT   = 27
@@ -9516,7 +9724,7 @@ CONTAINS
     REAL, DIMENSION(MVT) :: CH2OP, DLEAF, Z0MVT, HVT, HVB, DEN, RC, MFSNO, XL, CWPVT, C3PSN, KC25, AKC, KO25, AKO, &
                      AVCMX, AQE, LTOVRC,  DILEFC,  DILEFW,  RMF25 ,  SLA   ,  FRAGR ,  TMIN  ,  VCMX25,  TDLEF ,  &
                      BP, MP, QE25, RMS25, RMR25, ARM, FOLNMX, WDPOOL, WRRAT, MRP, NROOT, RGL, RS, HS, TOPT, RSMAX, &
-                     SLAREA, EPS1, EPS2, EPS3, EPS4, EPS5
+		     SLAREA, EPS1, EPS2, EPS3, EPS4, EPS5
 
     NAMELIST / noahmp_usgs_veg_categories / VEG_DATASET_DESCRIPTION, NVEG
     NAMELIST / noahmp_usgs_parameters / ISURBAN, ISWATER, ISBARREN, ISICE, ISCROP, EBLFOREST, NATURAL, &
@@ -9883,13 +10091,13 @@ CONTAINS
 
     REAL :: CO2,O2,TIMEAN,FSATMX,Z0SNO,SSI, &
             SWEMX,TAU0,GRAIN_GROWTH,EXTRA_GROWTH,DIRT_SOOT,&
-            BATS_COSZ,BATS_VIS_NEW,BATS_NIR_NEW,BATS_VIS_AGE,BATS_NIR_AGE,BATS_VIS_DIR,BATS_NIR_DIR,&
-            RSURF_SNOW,RSURF_EXP
+	    BATS_COSZ,BATS_VIS_NEW,BATS_NIR_NEW,BATS_VIS_AGE,BATS_NIR_AGE,BATS_VIS_DIR,BATS_NIR_DIR,&
+	    RSURF_SNOW,RSURF_EXP
 
     NAMELIST / noahmp_global_parameters / CO2,O2,TIMEAN,FSATMX,Z0SNO,SSI, &
             SWEMX,TAU0,GRAIN_GROWTH,EXTRA_GROWTH,DIRT_SOOT,&
-            BATS_COSZ,BATS_VIS_NEW,BATS_NIR_NEW,BATS_VIS_AGE,BATS_NIR_AGE,BATS_VIS_DIR,BATS_NIR_DIR,&
-            RSURF_SNOW,RSURF_EXP
+	    BATS_COSZ,BATS_VIS_NEW,BATS_NIR_NEW,BATS_VIS_AGE,BATS_NIR_AGE,BATS_VIS_DIR,BATS_NIR_DIR,&
+	    RSURF_SNOW,RSURF_EXP
 
 
     ! Initialize our variables to bad values, so that if the namelist read fails, we come to a screeching halt as soon as we try to use anything.

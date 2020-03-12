@@ -10,7 +10,7 @@ MODULE module_sf_noahmpdrv
 !
 CONTAINS
 !
-  SUBROUTINE noahmplsm(ITIMESTEP,        YR,   JULIAN,   COSZIN,XLAT,XLONG, & ! IN : Time/Space-related
+  SUBROUTINE noahmplsm(ITIMESTEP,        YR,   JULIAN,   COSZIN,XLAT,XLONG,hr,minute,sec, & ! IN : Time/Space-related
                   DZ8W,       DT,       DZS,    NSOIL,       DX,            & ! IN : Model configuration
                 IVGTYP,   ISLTYP,    VEGFRA,   VEGMAX,      TMN,            & ! IN : Vegetation/Soil characteristics
                  XLAND,     XICE,XICE_THRES,  CROPCAT,                      & ! IN : Vegetation/Soil characteristics
@@ -26,25 +26,30 @@ CONTAINS
                 SMSTOT,SFCRUNOFF, UDRUNOFF,    ALBEDO,    SNOWC,     SMOIS, & ! IN/OUT LSM eqv
                   SH2O,     TSLB,     SNOW,     SNOWH,   CANWAT,    ACSNOM, & ! IN/OUT LSM eqv
                 ACSNOW,    EMISS,     QSFC,                                 & ! IN/OUT LSM eqv
- 		    Z0,      ZNT,                                           & ! IN/OUT LSM eqv
+                    Z0,      ZNT,                                           & ! IN/OUT LSM eqv
                ISNOWXY,     TVXY,     TGXY,  CANICEXY, CANLIQXY,     EAHXY, & ! IN/OUT Noah MP only
                  TAHXY,     CMXY,     CHXY,    FWETXY, SNEQVOXY,  ALBOLDXY, & ! IN/OUT Noah MP only
                QSNOWXY, WSLAKEXY,    ZWTXY,      WAXY,     WTXY,    TSNOXY, & ! IN/OUT Noah MP only
                ZSNSOXY,  SNICEXY,  SNLIQXY,  LFMASSXY, RTMASSXY,  STMASSXY, & ! IN/OUT Noah MP only
                 WOODXY, STBLCPXY, FASTCPXY,    XLAIXY,   XSAIXY,   TAUSSXY, & ! IN/OUT Noah MP only
-               SMOISEQ, SMCWTDXY,DEEPRECHXY,   RECHXY,  GRAINXY,    GDDXY,PGSXY,  & ! IN/OUT Noah MP only
+         SMOISEQ, SMCWTDXY,DEEPRECHXY,   RECHXY,  GRAINXY,    GDDXY,PGSXY,  & ! IN/OUT Noah MP only
                GECROS_STATE,                                                & ! IN/OUT gecros model
-                T2MVXY,   T2MBXY,    Q2MVXY,   Q2MBXY,                      & ! OUT Noah MP only
-                TRADXY,    NEEXY,    GPPXY,     NPPXY,   FVEGXY,   RUNSFXY, & ! OUT Noah MP only
-               RUNSBXY,   ECANXY,   EDIRXY,   ETRANXY,    FSAXY,    FIRAXY, & ! OUT Noah MP only
-                APARXY,    PSNXY,    SAVXY,     SAGXY,  RSSUNXY,   RSSHAXY, & ! OUT Noah MP only
-                BGAPXY,   WGAPXY,    TGVXY,     TGBXY,    CHVXY,     CHBXY, & ! OUT Noah MP only
-                 SHGXY,    SHCXY,    SHBXY,     EVGXY,    EVBXY,     GHVXY, & ! OUT Noah MP only
-                 GHBXY,    IRGXY,    IRCXY,     IRBXY,     TRXY,     EVCXY, & ! OUT Noah MP only
-              CHLEAFXY,   CHUCXY,   CHV2XY,    CHB2XY, RS,                  & ! OUT Noah MP only
+         T2MVXY,   T2MBXY,    Q2MVXY,   Q2MBXY,                      & ! OUT Noah MP only
+         TRADXY,    NEEXY,    GPPXY,     NPPXY,   FVEGXY,   RUNSFXY, & ! OUT Noah MP only
+        RUNSBXY,   ECANXY,   EDIRXY,   ETRANXY,    FSAXY,    FIRAXY, & ! OUT Noah MP only
+         APARXY,    PSNXY,    SAVXY,     SAGXY,  RSSUNXY,   RSSHAXY, & ! OUT Noah MP only
+         BGAPXY,   WGAPXY,    TGVXY,     TGBXY,    CHVXY,     CHBXY, & ! OUT Noah MP only
+          SHGXY,    SHCXY,    SHBXY,     EVGXY,    EVBXY,     GHVXY, & ! OUT Noah MP only
+          GHBXY,    IRGXY,    IRCXY,     IRBXY,     TRXY,     EVCXY, & ! OUT Noah MP only
+               CHLEAFXY,   CHUCXY,   CHV2XY,    CHB2XY, RS,                  & ! OUT Noah MP only
+    NPP0XY,   NDEM0XY,   NUPTAKEXY, SEDORGNXY,SEDYLDXY, SUMNO3XY, SUMORGNXY, & ! OUT Noah-MP-CN
+                SURQNO3XY, LATNO3XY, PERCNXY, NPASSIVXY, NACTIVEXY, NFIXXY,    & ! OUT Noah-MP-CN
+                NRETRANSXY, NPPACTVXY, NPPFIXXY, NPPRETRXY, NPPUPXY, CNO3XY,   & ! OUT Noah-MP-CN
+                HMNXY,    RMNXY,   RWNXY,   WDNXY,   RNITXY,   RVOLXY,   SOL_RSDXY,  SOL_NO3XY,  WFLUXXY,        & ! OUT Noah-MP-CN
+        SOL_AONXY,SOL_FONXY,SOL_NH3XY,SOL_SONXY,DAYLTHXY,& !FOR BGC_PARM
 !                 BEXP_3D,SMCDRY_3D,SMCWLT_3D,SMCREF_3D,SMCMAX_3D,          & ! placeholders to activate 3D soil
-!		 DKSAT_3D,DWSAT_3D,PSISAT_3D,QUARTZ_3D,                     &
-!		 REFDK_2D,REFKDT_2D,                                        &
+!   DKSAT_3D,DWSAT_3D,PSISAT_3D,QUARTZ_3D,                     &
+!   REFDK_2D,REFKDT_2D,                                        &
 #ifdef WRF_HYDRO
                sfcheadrt,INFXSRT,soldrain,                                  &
 #endif
@@ -68,6 +73,9 @@ CONTAINS
 
     INTEGER,                                         INTENT(IN   ) ::  ITIMESTEP ! timestep number
     INTEGER,                                         INTENT(IN   ) ::  YR        ! 4-digit year
+    INTEGER,                                         INTENT(IN   ) ::  hr        ! 2-digit hour
+    INTEGER,                                         INTENT(IN   ) ::  minute    ! 2-digit min
+    INTEGER,                                         INTENT(IN   ) ::  sec       ! 2-digit second
     REAL,                                            INTENT(IN   ) ::  JULIAN    ! Julian day
     REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(IN   ) ::  COSZIN    ! cosine zenith angle
     REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(IN   ) ::  XLAT      ! latitude [rad]
@@ -263,6 +271,44 @@ CONTAINS
     REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  CHUCXY    ! under canopy exchange coefficient
     REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  CHV2XY    ! veg 2m exchange coefficient
     REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  CHB2XY    ! bare 2m exchange coefficient
+
+    !  OUT (with Noah-MP-CN)
+
+    REAL,    DIMENSION( ims:ime,1:nsoil  ,jms:jme ), INTENT(OUT  ) ::  wfluxxy   !water flux between soil layers [m/s]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(INOUT  ) ::  SOL_NO3XY !amount of N stored in the nitrate pool in soil layer [gN m-2]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(INOUT  ) ::  SOL_RSDXY !amount of organic matter in the soil classified as residue [gN m-2]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(INOUT  ) ::  SOL_AONXY !amount of N stored in the active organic (humic) N pool [gN m-2]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(INOUT  ) ::  SOL_FONXY !amount of N stored in the fresh organic (residue) pool [gN m-2]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(INOUT  ) ::  SOL_NH3XY !amount of N stored in the nitrate pool in soil layer [gN m-2]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(INOUT  ) ::  SOL_SONXY !amount of N stored in the stable organic N pool [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(IN  )  ::  DAYLTHXY  !threshold daylength to initiate dormancy [hr]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NPP0XY    ! net primary productivity [g/m2/s C]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NDEM0XY   ! N demand to grow plants (gN m-2 s-1).--XTC
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NUPTAKEXY ! Total N acquired by plants through passive
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  SEDORGNXY !amount of organic N in surface runoff [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  SEDYLDXY  !daily soil loss caused by water erosion [kg m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  SUMNO3XY  !amount of nitrogen stored in the nitrate pool in the soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  SUMORGNXY !amount of nitrogen stored in the organic N pools in the soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  SURQNO3XY !amount of nitrate transported with surface runoff [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  LATNO3XY  !amount of nitrate transported with lateral flow [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  PERCNXY   !amount of nitrate percolating past bottom of soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NPASSIVXY ! N acquired by passive uptake [kgN m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NACTIVEXY ! N acquired by active uptake [kgN m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NFIXXY    ! N acquired by fixing [kgN m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) :: NRETRANSXY ! N acquired by retranslocation [kgN m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NPPACTVXY ! NPP reduction to pay for active uptake of N [kgC m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NPPFIXXY  ! NPP reduction to pay for fixing N [kgC m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NPPRETRXY ! NPP reduction to pay for retranslocation of N [kgC m-2 s-1]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  NPPUPXY   ! Total NPP reduction to pay for N [kgC m-2 s-1]
+    REAL,    DIMENSION( ims:ime,1:nsoil+1,jms:jme ), INTENT(OUT  ) ::  CNO3XY    !concentration of nitrate in leached solution [g N/mm H2O]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  HMNXY     !amount of N moving from active organic to nitrate pool in soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  RMNXY     !amount of N moving from the fresh organic (residue) to the nitrate(80%) and
+                                                                                    !active organic(20%) pools in soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  RWNXY     !amount of N moving from active organic to stable organic pool in soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  WDNXY     !amount of N lost from nitrate pool by denitrification in soil profile [gN m-2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  RNITXY    !amount of nitrogen moving from the NH3 to the NO3 pool (nitrification) [g N/m2]
+    REAL,    DIMENSION( ims:ime,          jms:jme ), INTENT(OUT  ) ::  RVOLXY    !amount of nitrogen lost from the NH3 pool due to volatilization [g N/m2]
+
     INTEGER,  INTENT(IN   )   ::     ids,ide, jds,jde, kds,kde,  &  ! d -> domain
          &                           ims,ime, jms,jme, kms,kme,  &  ! m -> memory
          &                           its,ite, jts,jte, kts,kte      ! t -> tile
@@ -274,6 +320,7 @@ CONTAINS
 
     REAL                                :: COSZ         ! cosine zenith angle
     REAL                                :: LAT          ! latitude [rad]
+    REAL                                :: LON          ! longitude
     REAL                                :: Z_ML         ! model height [m]
     INTEGER                             :: VEGTYP       ! vegetation type
     INTEGER,    DIMENSION(NSOIL)        :: SOILTYP      ! soil type
@@ -459,6 +506,63 @@ CONTAINS
     type(noahmp_parameters) :: parameters
 
 
+    !  IN/OUT (with Noah-MP-CN)
+
+    REAL                                :: GAP          ! --CN
+    real                                :: NDEM0  !N demand to grow plants (gN m-2 s-1).--XTC
+    real                                :: DIELF  !death of leaf mass per time step [g/m2]
+    real                                :: LFTOVR !stem turnover per time step [g/m2]
+    real                                :: RESP   !leaf respiration [umol/m2/s]
+    REAL, DIMENSION(1:NSOIL)            :: NH4up  ! NH4 uptake [kgN m-2]
+    REAL, DIMENSION(1:NSOIL)            :: NO3up  ! NO3 uptake [kgN m-2]
+    real                                :: CNlitlf  ! C:N ratio of leaf litter [kgN/kgC]
+    real                                :: Npassiv  ! N acquired by passive uptake [kgN m-2 s-1]
+    real                                :: Nactive  ! N acquired by active uptake [kgN m-2 s-1]
+    real                                :: Nfix     ! N acquired by fixing [kgN m-2 s-1]
+    real                                :: Nretrans ! N acquired by retranslocation [kgN m-2 s-1]
+    real                                :: Nuptake  ! Total N acquired by plants through passive
+                                                    ! and active uptake, fixing and retranslocation [kgN m-2 s-1]
+    real                                :: NPPactv  ! NPP reduction to pay for active uptake of N [kgC m-2 s-1]
+    real                                :: NPPfix   ! NPP reduction to pay for fixing N [kgC m-2 s-1]
+    real                                :: NPPretr  ! NPP reduction to pay for retranslocation of N [kgC m-2 s-1]
+    real                                :: NPPup    ! Total NPP reduction to pay for N [kgC m-2 s-1]
+    real                                :: NLIMIT   ! N limitation [gN m-2 s-1]
+    real                                :: LATNO3   !amount of nitrate transported with lateral flow [gN m-2]
+    real                                :: NO3PCP   !nitrate added to the soil in rainfall [[gN m-2]]
+    real                                :: PERCN    !amount of nitrate percolating past bottom of soil profile [gN m-2]
+    real                                :: nlch     !amount of nitrogen leaching, sum(surqno3, percn, latno3) [gN m-2]
+    real                                :: SEDORGN  !amount of organic N in surface runoff [gN m-2]
+    real                                :: SEDYLD   !daily soil loss caused by water erosion [kg m-2]
+    real                                :: SURQNO3  !amount of nitrate transported with surface runoff [gN m-2]
+    real                                :: HMN      !amount of N moving from active organic to nitrate pool in soil profile [gN m-2]
+    real                                :: RMN      !amount of N moving from the fresh organic (residue) to the nitrate(80%) and
+                                                     !active organic(20%) pools in soil profile [gN m-2]
+    real                                :: RWN      !amount of N moving from active organic to stable organic pool in soil profile [gN m-2]
+    real                                :: WDN      !amount of N lost from nitrate pool by denitrification in soil profile [gN m-2]
+    real                                :: sumno3   !amount of nitrogen stored in the nitrate pool in the soil profile [gN m-2]
+    real                                :: sumorgn  !amount of nitrogen stored in the organic N pools in the soil profile [gN m-2]
+    real                                :: daylth   !threshold daylength to initiate dormancy [hr]
+    real,    dimension(1:nsoil+1)       :: cno3     !concentration of nitrate in leached solution [g N/mm H2O]
+    real                                :: rnit     !amount of nitrogen moving from the NH3 to the NO3 pool (nitrification) [g N/m2]
+    real                                :: rvol     !amount of nitrogen lost from the NH3 pool due to volatilization [g N/m2]
+
+    real,    dimension(1:nsoil) :: wflux    !water flux between soil layers [m/s]
+    real*8,  dimension(1:nsoil+1) :: SOL_AON !amount of N stored in the active organic (humic) N pool [gN m-2]
+    real*8,  dimension(1:nsoil+1) :: SOL_FON !amount of N stored in the fresh organic (residue) pool [gN m-2]
+    real*8,  dimension(1:nsoil+1) :: SOL_NH3 !amount of nitrogen stored in the ammonium pool in soil layer
+    real*8,  dimension(1:nsoil+1) :: SOL_RSD !amount of organic matter in the soil classified as residue [gN m-2]
+    real*8,  dimension(1:nsoil+1) :: SOL_NO3 !amount of N stored in the nitrate pool in soil layer [gN m-2]
+    real*8,  dimension(1:nsoil+1) :: SOL_SON !amount of N stored in the stable organic N pool [gN m-2]
+
+    real    :: DAYLEN
+    real    :: NPP0
+    real    :: ERRWAT
+
+    real    ::  xp(80), qq !-XTC-WRITE
+    integer ::  kk         !-XTC-WRITE
+    kk = 1
+
+
 ! ----------------------------------------------------------------------
 
     CALL noahmp_option_pack(IDVEG, IOPT_CRS, IOPT_BTR, &
@@ -531,7 +635,8 @@ CONTAINS
 ! IN only
 
        COSZ   = COSZIN  (I,J)                         ! cos zenith angle []
-       LAT    = XLAT  (I,J)                           ! latitude [rad]
+       LAT    = XLAT  (I,J)                           ! latitude
+       LON    = XLONG (I,J)                           ! longitude
        Z_ML   = 0.5*DZ8W(I,1,J)                       ! DZ8W: thickness of full levels; ZLVL forcing height [m]
        VEGTYP = IVGTYP(I,J)                           ! vegetation type
        if(iopt_soil == 1) then
@@ -636,6 +741,14 @@ CONTAINS
        RECH                  = 0.
        DEEPRECH              = 0.
 
+       SOL_AON(1:NSOIL+1)    = SOL_AONXY(I,1:NSOIL+1,J)
+       SOL_FON(1:NSOIL+1)    = SOL_FONXY(I,1:NSOIL+1,J)
+       SOL_RSD(1:NSOIL+1)    = SOL_RSDXY(I,1:NSOIL+1,J)
+       SOL_NO3(1:NSOIL+1)    = SOL_NO3XY(I,1:NSOIL+1,J)
+       SOL_NH3(1:NSOIL+1)    = SOL_NH3XY(I,1:NSOIL+1,J)
+       SOL_SON(1:NSOIL+1)    = SOL_SONXY(I,1:NSOIL+1,J)
+       DAYLTH                = DAYLTHXY(I,J)
+
        if(iopt_crop == 2) then   ! gecros crop model
 
          gecros1d(1:60)      = gecros_state(I,1:60,J)       ! Gecros variables 2D -> local
@@ -703,8 +816,8 @@ CONTAINS
 
        if(iopt_soil == 3 .and. .not. parameters%urban_flag) then
 
-        sand = 0.01 * soilcomp(i,1:4,j)
-        clay = 0.01 * soilcomp(i,5:8,j)
+	sand = 0.01 * soilcomp(i,1:4,j)
+	clay = 0.01 * soilcomp(i,5:8,j)
         orgm = 0.0
 
         if(opt_pedo == 1) call pedotransfer_sr2006(nsoil,sand,clay,orgm,parameters)
@@ -717,12 +830,12 @@ CONTAINS
 
        if(iopt_crop == 1 .and. croptype > 0) then
          parameters%PLTDAY = PLANTING(I,J)
-         parameters%HSDAY  = HARVEST (I,J)
-         parameters%GDDS1  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS1
-         parameters%GDDS2  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS2
-         parameters%GDDS3  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS3
-         parameters%GDDS4  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS4
-         parameters%GDDS5  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS5
+	 parameters%HSDAY  = HARVEST (I,J)
+	 parameters%GDDS1  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS1
+	 parameters%GDDS2  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS2
+	 parameters%GDDS3  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS3
+	 parameters%GDDS4  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS4
+	 parameters%GDDS5  = SEASON_GDD(I,J) / 1770.0 * parameters%GDDS5
        end if
 
 !=== hydrological processes for vegetation in urban model ===
@@ -732,8 +845,8 @@ CONTAINS
            IVGTYP(I,J) == HIGH_DENSITY_RESIDENTIAL_TABLE .or. IVGTYP(I,J) == HIGH_INTENSITY_INDUSTRIAL_TABLE ) THEN
 
          IF(SF_URBAN_PHYSICS > 0 .AND. IRI_SCHEME == 1 ) THEN
-             SOLAR_TIME = (JULIAN - INT(JULIAN))*24 + XLONG(I,J)/15.0
-             IF(SOLAR_TIME < 0.) SOLAR_TIME = SOLAR_TIME + 24.
+	     SOLAR_TIME = (JULIAN - INT(JULIAN))*24 + XLONG(I,J)/15.0
+	     IF(SOLAR_TIME < 0.) SOLAR_TIME = SOLAR_TIME + 24.
              CALL CAL_MON_DAY(INT(JULIAN),YR,JMONTH,JDAY)
              IF (SOLAR_TIME >= 21. .AND. SOLAR_TIME <= 23. .AND. JMONTH >= 5 .AND. JMONTH <= 9) THEN
                 SMC(1) = max(SMC(1),parameters%SMCREF(1))
@@ -762,6 +875,9 @@ CONTAINS
        IF(VEGTYP == 27) FVEG = 0.0
        IF(VEGTYP == 27) PLAI = 0.0
 
+	   !newdate = '2001-01-01_06:00:00'
+	   call calc_declin(hr,minute,sec, lat, lon, cosz, yearlen, julian, daylen)
+
        IF ( VEGTYP == ISICE_TABLE ) THEN
          ICE = -1                           ! Land-ice point
          CALL NOAHMP_OPTIONS_GLACIER(IOPT_ALB  ,IOPT_SNF  ,IOPT_TBOT, IOPT_STC, IOPT_GLA )
@@ -776,7 +892,7 @@ CONTAINS
                                 FSA,     FSR,    FIRA,     FSH,    FGEV,   SSOIL, & ! OUT :
                                TRAD,   ESOIL,   RUNSF,   RUNSB,     SAG,    SALB, & ! OUT :
                               QSNBOT,PONDING,PONDING1,PONDING2,    T2MB,    Q2MB, & ! OUT :
-                              EMISSI,  FPICE,    CHB2 &                             ! OUT :
+			      EMISSI,  FPICE,    CHB2 &                             ! OUT :
 #ifdef WRF_HYDRO
                               , sfcheadrt(i,j)                                      &
 #endif
@@ -854,10 +970,10 @@ CONTAINS
             I       , J       , LAT     , YEARLEN , JULIAN  , COSZ    , & ! IN : Time/Space-related
             DT      , DX      , DZ8W1D  , NSOIL   , ZSOIL   , NSNOW   , & ! IN : Model configuration
             FVEG    , FVGMAX  , VEGTYP  , ICE     , IST     , CROPTYPE, & ! IN : Vegetation/Soil characteristics
-            SMCEQ   ,                                                   & ! IN : Vegetation/Soil characteristics
+            SMCEQ   , DAYLEN  , DAYLTH  ,                               & ! IN : Vegetation/Soil characteristics
             T_ML    , P_ML    , PSFC    , U_ML    , V_ML    , Q_ML    , & ! IN : Forcing
             QC      , SWDN    , LWDN    ,                               & ! IN : Forcing
-            PRCPCONV, PRCPNONC, PRCPSHCV, PRCPSNOW, PRCPGRPL, PRCPHAIL, & ! IN : Forcing
+	    PRCPCONV, PRCPNONC, PRCPSHCV, PRCPSNOW, PRCPGRPL, PRCPHAIL, & ! IN : Forcing
             TBOT    , CO2PP   , O2PP    , FOLN    , FICEOLD , Z_ML    , & ! IN : Forcing
             ALBOLD  , SNEQVO  ,                                         & ! IN/OUT :
             STC     , SMH2O   , SMC     , TAH     , EAH     , FWET    , & ! IN/OUT :
@@ -879,9 +995,17 @@ CONTAINS
             ALBSND  , ALBSNI  ,                                         & ! OUT :
             BGAP    , WGAP    , CHV     , CHB     , EMISSI  ,           & ! OUT :
             SHG     , SHC     , SHB     , EVG     , EVB     , GHV     , & ! OUT :
-            GHB     , IRG     , IRC     , IRB     , TR      , EVC     , & ! OUT :
-            CHLEAF  , CHUC    , CHV2    , CHB2    , FPICE   , PAHV    , &
-            PAHG    , PAHB    , PAH     , LAISUN  , LAISHA  , RB        &
+	    GHB     , IRG     , IRC     , IRB     , TR      , EVC     , & ! OUT :
+	    CHLEAF  , CHUC    , CHV2    , CHB2    , FPICE   , PAHV    , &
+            PAHG    , PAHB    , PAH     , LAISUN  , LAISHA  , RB,        &
+			SOL_AON , SOL_FON , SOL_NH3 , SOL_RSD , SOL_NO3 , SOL_SON , & ! IN/OUT :
+			NPP0,GAP, ERRWAT, DIELF   , LFTOVR  , & ! OUT :
+            RESP    , NDEM0   , NH4up   , NO3up   , Npassiv , Nactive , & ! OUT :
+            Nfix    , Nretrans, Nuptake , NPPactv , NPPfix  , NPPretr , & ! OUT :
+            NPPup   , CNlitlf , NLIMIT  , LATNO3  , NO3PCP  , PERCN   , & ! OUT :
+            SEDORGN , SEDYLD  , SURQNO3 , HMN     , RMN     , RWN     , & ! OUT :
+            WDN     , CNO3    , SUMNO3  , SUMORGN , WFLUX   , RNIT    , & ! OUT :
+            RVOL    , LON     , ITIMESTEP                    &
 #ifdef WRF_HYDRO
             , sfcheadrt(i,j)                               &
 #endif
@@ -905,7 +1029,7 @@ CONTAINS
              TSK      (I,J)                = TRAD
              HFX      (I,J)                = FSH
              GRDFLX   (I,J)                = SSOIL
-             SMSTAV   (I,J)                = 0.0  ! [maintained as Noah consistency]
+	     SMSTAV   (I,J)                = 0.0  ! [maintained as Noah consistency]
              SMSTOT   (I,J)                = 0.0  ! [maintained as Noah consistency]
              SFCRUNOFF(I,J)                = SFCRUNOFF(I,J) + RUNSF * DT
              UDRUNOFF (I,J)                = UDRUNOFF(I,J)  + RUNSB * DT
@@ -1017,10 +1141,44 @@ CONTAINS
              RECHXY   (I,J)                = RECHXY(I,J) + RECH*1.E3 !RECHARGE TO THE WATER TABLE
              DEEPRECHXY(I,J)               = DEEPRECHXY(I,J) + DEEPRECH
              SMCWTDXY(I,J)                 = SMCWTD
+! OUTPUT  with Noah-MP-CN
+             wfluxxy    (I,1:NSOIL,J)        = wflux(1:NSOIL)
+			 SOL_NO3XY  (I,1:NSOIL+1,J)      = SOL_NO3(1:NSOIL+1)
+			 SOL_RSDXY  (I,1:NSOIL+1,J)      = SOL_RSD(1:NSOIL+1)
+			 SOL_AONXY  (I,1:NSOIL+1,J)      = SOL_AON(1:NSOIL+1)
+			 SOL_FONXY  (I,1:NSOIL+1,J)      = SOL_FON(1:NSOIL+1)
+			 SOL_NH3XY  (I,1:NSOIL+1,J)      = SOL_NH3(1:NSOIL+1)
+			 SOL_SONXY  (I,1:NSOIL+1,J)      = SOL_SON(1:NSOIL+1)
+			 NPP0XY     (I,J)                = NPP0
+             NDEM0XY    (I,J)                = NDEM0
+             NUPTAKEXY  (I,J)                = NUPTAKE
+			 SEDORGNXY  (I,J)                = SEDORGN
+             SEDYLDXY   (I,J)                = SEDYLD
+             SUMNO3XY   (I,J)                = SUMNO3
+             SUMORGNXY  (I,J)                = SUMORGN
+             SURQNO3XY  (I,J)                = SURQNO3
+             LATNO3XY   (I,J)                = LATNO3
+             PERCNXY    (I,J)                = PERCN
+             NPASSIVXY  (I,J)                = NPASSIV
+             NACTIVEXY  (I,J)                = NACTIVE
+             NFIXXY     (I,J)                = NFIX
+             NRETRANSXY (I,J)                = NRETRANS
+             NPPACTVXY  (I,J)                = NPPACTV
+             NPPFIXXY   (I,J)                = NPPFIX
+             NPPRETRXY  (I,J)                = NPPRETR
+             NPPUPXY    (I,J)                = NPPUP
+             CNO3XY     (I,1:NSOIL+1,J)      = CNO3(1:NSOIL+1)
+             HMNXY      (I,J)                = HMN
+             RMNXY      (I,J)                = RMN
+             RWNXY      (I,J)                = RWN
+             WDNXY      (I,J)                = WDN
+             RNITXY     (I,J)                = RNIT
+             RVOLXY     (I,J)                = RVOL
+!--------------------------------------------------------------------------------------------
 
              GRAINXY  (I,J) = GRAIN !GRAIN XING
              GDDXY    (I,J) = GDD   !XING
-             PGSXY    (I,J) = PGS
+	     PGSXY    (I,J) = PGS
 
              if(iopt_crop == 2) then   ! gecros crop model
 
@@ -1609,23 +1767,23 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
 
        DO J = jts , jtf
           DO I = its , itf
-            IF(IVGTYP(I,J)==ISICE_TABLE .AND. XICE(I,J) <= 0.0) THEN
+	    IF(IVGTYP(I,J)==ISICE_TABLE .AND. XICE(I,J) <= 0.0) THEN
               DO NS=1, NSOIL
-                SMOIS(I,NS,J) = 1.0                     ! glacier starts all frozen
-                SH2O(I,NS,J) = 0.0
-                TSLB(I,NS,J) = MIN(TSLB(I,NS,J),263.15) ! set glacier temp to at most -10C
+	        SMOIS(I,NS,J) = 1.0                     ! glacier starts all frozen
+	        SH2O(I,NS,J) = 0.0
+	        TSLB(I,NS,J) = MIN(TSLB(I,NS,J),263.15) ! set glacier temp to at most -10C
               END DO
-                !TMN(I,J) = MIN(TMN(I,J),263.15)         ! set deep temp to at most -10C
-                SNOW(I,J) = MAX(SNOW(I,J), 10.0)        ! set SWE to at least 10mm
+	        !TMN(I,J) = MIN(TMN(I,J),263.15)         ! set deep temp to at most -10C
+		SNOW(I,J) = MAX(SNOW(I,J), 10.0)        ! set SWE to at least 10mm
                 SNOWH(I,J)=SNOW(I,J)*0.01               ! SNOW in mm and SNOWH in m
-            ELSE
+	    ELSE
 
               BEXP   =   BEXP_TABLE(ISLTYP(I,J))
               SMCMAX = SMCMAX_TABLE(ISLTYP(I,J))
               PSISAT = PSISAT_TABLE(ISLTYP(I,J))
 
               DO NS=1, NSOIL
-                IF ( SMOIS(I,NS,J) > SMCMAX )  SMOIS(I,NS,J) = SMCMAX
+	        IF ( SMOIS(I,NS,J) > SMCMAX )  SMOIS(I,NS,J) = SMCMAX
               END DO
               IF ( ( BEXP > 0.0 ) .AND. ( SMCMAX > 0.0 ) .AND. ( PSISAT > 0.0 ) ) THEN
                 DO NS=1, NSOIL
@@ -1652,21 +1810,21 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
        DO J = jts,jtf
           DO I = its,itf
              tvxy       (I,J) = TSK(I,J)
-               if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) tvxy(I,J) = 273.15
+	       if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) tvxy(I,J) = 273.15
              tgxy       (I,J) = TSK(I,J)
-               if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) tgxy(I,J) = 273.15
+	       if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) tgxy(I,J) = 273.15
              CANWAT     (I,J) = 0.0
              canliqxy   (I,J) = CANWAT(I,J)
              canicexy   (I,J) = 0.
              eahxy      (I,J) = 2000.
              tahxy      (I,J) = TSK(I,J)
-               if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) tahxy(I,J) = 273.15
+	       if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) tahxy(I,J) = 273.15
 !             tahxy      (I,J) = 287.
 !jref:start
              t2mvxy     (I,J) = TSK(I,J)
-               if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) t2mvxy(I,J) = 273.15
+	       if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) t2mvxy(I,J) = 273.15
              t2mbxy     (I,J) = TSK(I,J)
-               if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) t2mbxy(I,J) = 273.15
+	       if(snow(i,j) > 0.0 .and. tsk(i,j) > 273.15) t2mbxy(I,J) = 273.15
              chstarxy     (I,J) = 0.1
 !jref:end
 
@@ -1689,10 +1847,10 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
              endif
 
            IF(IVGTYP(I,J) == ISBARREN_TABLE .OR. IVGTYP(I,J) == ISICE_TABLE .OR. &
-              ( SF_URBAN_PHYSICS == 0 .AND. IVGTYP(I,J) == ISURBAN_TABLE )  .OR. &
-              IVGTYP(I,J) == ISWATER_TABLE ) THEN
+	      ( SF_URBAN_PHYSICS == 0 .AND. IVGTYP(I,J) == ISURBAN_TABLE )  .OR. &
+	      IVGTYP(I,J) == ISWATER_TABLE ) THEN
 
-             lai        (I,J) = 0.0
+	     lai        (I,J) = 0.0
              xsaixy     (I,J) = 0.0
              lfmassxy   (I,J) = 0.0
              stmassxy   (I,J) = 0.0
@@ -1702,11 +1860,11 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
              fastcpxy   (I,J) = 0.0
              grainxy    (I,J) = 1E-10
              gddxy      (I,J) = 0
-             cropcat    (I,J) = 0
+	     cropcat    (I,J) = 0
 
-           ELSE
+	   ELSE
 
-             lai        (I,J) = max(lai(i,j),0.05)             ! at least start with 0.05 for arbitrary initialization (v3.7)
+	     lai        (I,J) = max(lai(i,j),0.05)             ! at least start with 0.05 for arbitrary initialization (v3.7)
              xsaixy     (I,J) = max(0.1*lai(I,J),0.05)         ! MB: arbitrarily initialize SAI using input LAI (v3.7)
              masslai = 1000. / max(SLA_TABLE(IVGTYP(I,J)),1.0) ! conversion from lai to mass  (v3.7)
              lfmassxy   (I,J) = lai(i,j)*masslai               ! use LAI to initialize (v3.7)
@@ -1721,47 +1879,47 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
 
 ! Initialize crop for Liu crop model
 
-             if(iopt_crop == 1 ) then
-               cropcat    (i,j) = default_crop_table
+	     if(iopt_crop == 1 ) then
+	       cropcat    (i,j) = default_crop_table
                if(croptype(i,5,j) >= 0.5) then
                  rtmassxy(i,j) = 0.0
                  woodxy  (i,j) = 0.0
 
-                 if(    croptype(i,1,j) > croptype(i,2,j) .and. &
-                        croptype(i,1,j) > croptype(i,3,j) .and. &
-                        croptype(i,1,j) > croptype(i,4,j) ) then   ! choose corn
+	         if(    croptype(i,1,j) > croptype(i,2,j) .and. &
+		        croptype(i,1,j) > croptype(i,3,j) .and. &
+		        croptype(i,1,j) > croptype(i,4,j) ) then   ! choose corn
 
-                   cropcat (i,j) = 1
+		   cropcat (i,j) = 1
                    lfmassxy(i,j) =    lai(i,j)/0.035
                    stmassxy(i,j) = xsaixy(i,j)/0.003
 
-                 elseif(croptype(i,2,j) > croptype(i,1,j) .and. &
-                        croptype(i,2,j) > croptype(i,3,j) .and. &
-                        croptype(i,2,j) > croptype(i,4,j) ) then   ! choose soybean
+	         elseif(croptype(i,2,j) > croptype(i,1,j) .and. &
+		        croptype(i,2,j) > croptype(i,3,j) .and. &
+		        croptype(i,2,j) > croptype(i,4,j) ) then   ! choose soybean
 
-                   cropcat (i,j) = 2
+		   cropcat (i,j) = 2
                    lfmassxy(i,j) =    lai(i,j)/0.015
                    stmassxy(i,j) = xsaixy(i,j)/0.003
 
-                 else
+	         else
 
-                   cropcat (i,j) = default_crop_table
+		   cropcat (i,j) = default_crop_table
                    lfmassxy(i,j) =    lai(i,j)/0.035
                    stmassxy(i,j) = xsaixy(i,j)/0.003
 
-                 end if
+	         end if
 
-               end if
-             end if
+	       end if
+	     end if
 
 ! Initialize cropcat for gecros crop model
 
-             if(iopt_crop == 2) then
-               cropcat    (i,j) = 0
+	     if(iopt_crop == 2) then
+	       cropcat    (i,j) = 0
                if(croptype(i,5,j) >= 0.5) then
                   if(croptype(i,3,j) > 0.0)             cropcat(i,j) = 1 ! if any wheat, set to wheat
                   if(croptype(i,1,j) > croptype(i,3,j)) cropcat(i,j) = 2 ! change to maize
-               end if
+	       end if
 
                hti    = 0.01
                rdi    = 10.
@@ -1782,7 +1940,7 @@ SUBROUTINE PEDOTRANSFER_SR2006(nsoil,sand,clay,orgm,parameters)
 
              end if
 
-           END IF
+	   END IF
 
           enddo
        enddo
@@ -2478,16 +2636,16 @@ end function checkIfHarvest
   SUBROUTINE noahmp_urban(sf_urban_physics,   NSOIL,         IVGTYP,  ITIMESTEP,            & ! IN : Model configuration
                                  DT,     COSZ_URB2D,     XLAT_URB2D,                        & ! IN : Time/Space-related
                                 T3D,           QV3D,          U_PHY,      V_PHY,   SWDOWN,  & ! IN : Forcing
-                                GLW,          P8W3D,         RAINBL,       DZ8W,      ZNT,  & ! IN : Forcing
+		                GLW,          P8W3D,         RAINBL,       DZ8W,      ZNT,  & ! IN : Forcing
                                 TSK,            HFX,            QFX,         LH,   GRDFLX,  & ! IN/OUT : LSM
-                             ALBEDO,          EMISS,           QSFC,                        & ! IN/OUT : LSM
+		             ALBEDO,          EMISS,           QSFC,                        & ! IN/OUT : LSM
                             ids,ide,        jds,jde,        kds,kde,                        &
                             ims,ime,        jms,jme,        kms,kme,                        &
                             its,ite,        jts,jte,        kts,kte,                        &
                          cmr_sfcdif,     chr_sfcdif,     cmc_sfcdif,                        &
-                         chc_sfcdif,    cmgr_sfcdif,    chgr_sfcdif,                        &
+	                 chc_sfcdif,    cmgr_sfcdif,    chgr_sfcdif,                        &
                            tr_urb2d,       tb_urb2d,       tg_urb2d,                        & !H urban
-                           tc_urb2d,       qc_urb2d,       uc_urb2d,                        & !H urban
+	                   tc_urb2d,       qc_urb2d,       uc_urb2d,                        & !H urban
                          xxxr_urb2d,     xxxb_urb2d,     xxxg_urb2d, xxxc_urb2d,            & !H urban
                           trl_urb3d,      tbl_urb3d,      tgl_urb3d,                        & !H urban
                            sh_urb2d,       lh_urb2d,        g_urb2d,   rn_urb2d,  ts_urb2d, & !H urban
@@ -3220,7 +3378,90 @@ ENDIF ! SF_URBAN_PHYSICS == 2 or 3
 
 
 END SUBROUTINE noahmp_urban
+!------------------------------------------------------------------------------------------
+SUBROUTINE calc_declin ( ihour,iminute,isecond, latitude, longitude, cosz, yearlen, &
+           & julian, daylen)
+!---------------------------------------------------------------------
+  IMPLICIT NONE
+!---------------------------------------------------------------------
 
+  REAL, PARAMETER :: DEGRAD = 3.14159265/180.
+  REAL, PARAMETER :: DPD    = 360./365.
+! !ARGUMENTS:
+!  character*50,      intent(in)  :: newdate    ! YYYY-MM-DD_HH:mm:ss
+  integer,           intent(in)  :: ihour
+  integer,           intent(in)  :: iminute
+  integer,           intent(in)  :: isecond
+  real,              intent(in)  :: latitude
+  real,              intent(in)  :: longitude
+  real,              intent(in) :: cosz
+  integer,           intent(in) :: yearlen
+  real,              intent(in) :: JULIAN
+  real,              intent(out) :: daylen     ! day length [hr]
+
+  REAL                           :: hrang
+  real                           :: DECLIN
+  real                           :: tloctim
+  REAL                           :: OBECL
+  REAL                           :: SINOB
+  REAL                           :: SXLONG
+  REAL                           :: ARG
+  REAL                           :: xx
+  real                           :: lat
+!  integer                        :: iyear
+!  integer                        :: iday
+!  integer                        :: ihour
+!  integer                        :: iminute
+!  integer                        :: isecond
+
+  !
+  ! Determine the number of days in the year
+  !
+  !lat = latitude * 57.296  !convert radians to degrees (2pi/360=1/57.296)
+   lat = latitude/57.296
+!  read(newdate(1:4), '(I4)') iyear
+
+
+!  call geth_idts(newdate(1:10), newdate(1:4)//"-01-01", iday)
+!  read(newdate(12:13), *) ihour
+!  read(newdate(15:16), *) iminute
+!  read(newdate(18:19), *) isecond
+!  julian = real(iday) + real(ihour)/24.
+
+!
+! for short wave radiation
+
+  DECLIN=0.
+
+!-----OBECL : OBLIQUITY = 23.5 DEGREE.
+
+  OBECL=23.5*DEGRAD
+  SINOB=SIN(OBECL)
+
+!-----CALCULATE LONGITUDE OF THE SUN FROM VERNAL EQUINOX:
+
+  IF(JULIAN.GE.80.)SXLONG=DPD*(JULIAN-80.)*DEGRAD
+  IF(JULIAN.LT.80.)SXLONG=DPD*(JULIAN+285.)*DEGRAD
+  ARG=SINOB*SIN(SXLONG)
+  DECLIN=ASIN(ARG)
+
+  TLOCTIM = REAL(IHOUR) + REAL(IMINUTE)/60.0 + REAL(ISECOND)/3600.0 + LONGITUDE/15.0 ! Local time in hours
+  tloctim = AMOD(tloctim+24.0, 24.0)
+  HRANG=15.*(TLOCTIM-12.)*DEGRAD
+!  COSZ=SIN(LATITUDE*DEGRAD)*SIN(DECLIN)+COS(LATITUDE*DEGRAD)*COS(DECLIN)*COS(HRANG)
+
+!-----CALCULATE DAY LENGTH:
+  xx = TAN(DECLIN) * TAN(lat) ! was "xx = - TAN(DECLIN) * TAN(latitude)", 20140814
+  if (xx > 1.) then !! xx will be >= 1. if latitude exceeds +/- 66.5 deg in winter
+     daylen = 0.
+  elseif (xx >= -1.) then
+     daylen = 7.6394 * Acos(xx)
+  else
+     daylen = 7.6394 * 3.1416 !! latitude exceeds +/- 66.5 deg in summer
+  endif
+
+
+END SUBROUTINE calc_declin
 !------------------------------------------------------------------------------------------
 !
 END MODULE module_sf_noahmpdrv
