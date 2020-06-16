@@ -2,8 +2,8 @@
 #  Options for TACC Lonestar 5
 
 CPP = cpp
-CPPFLAGS = -P -traditional
-CC = cc
+CPPFLAGS = 
+CC = icc
 F90 = mpif90
 F90FLAGS = -g -fpp -free -convert big_endian -fpe0
 LDFLAGS =
