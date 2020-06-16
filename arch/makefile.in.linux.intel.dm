@@ -5,7 +5,7 @@ CPP = cpp
 CPPFLAGS = 
 CC = icc
 F90 = mpif90 -f90=ifort
-F90FLAGS = -g -fpp -free -convert big_endian -fpe0
+F90FLAGS = -g -fpp -free -fpe0
 LDFLAGS =
 LIBS =
 RM = rm -f
