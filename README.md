@@ -10,7 +10,7 @@ Normally you can build the model in three steps: 1) run `configure`, 2) check an
 
 ### Run `configure`
 
-Run `configure` to select a option that matches your operating system (Linux, Mac OS X Darwin), compiler (GCC/Gfortran, Intel, PGI), and parallel environment (seq for sequential and dm for MPI).
+Run `configure` to select an option that matches your operating system (Linux, Mac OS X Darwin), compiler (GCC/Gfortran, Intel, PGI), and parallel environment (seq for sequential and dm for MPI).
 
 ```bash
 ./configure
@@ -22,7 +22,7 @@ The script will generate a file named `makefile.in`.
 
 The `makefile.in` details the configurations of the compiler and libraries. Check whether they fit you well.
 
-Normally you have to modify the `NETCDF_INC` and `NETCDF_LIB` variables to speficy the locations of the NetCDF Fortran 90 headers and libraries, respectively.
+Normally you have to modify the `NETCDF_INC` and `NETCDF_LIB` variables to specify the locations of the NetCDF Fortran 90 headers and libraries, respectively.
 
 NoahMP uses two NetCDF libraries for Fortran and C respectively:
 `libnetcdff` and `libnetcdf`. Make sure that the two files are all located under `NETCDF_LIB`. If the user's NetCDF library combined them together (only has one), the user will need to manually change this part in order to successfully compile NoahMP.
