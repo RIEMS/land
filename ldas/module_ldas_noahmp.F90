@@ -9,16 +9,13 @@ module module_ldas_noahmp
   USE noahmp_tables, ONLY:  LOW_DENSITY_RESIDENTIAL_TABLE, HIGH_DENSITY_RESIDENTIAL_TABLE, &
                             HIGH_INTENSITY_INDUSTRIAL_TABLE
 #ifdef MPP_LAND
+  use mpi
   use module_mpp_land, only: MPP_LAND_PAR_INI, mpp_land_init, getLocalXY, mpp_land_bcast_char
   use module_mpp_land, only: check_land, my_id , node_info
   use module_cpl_land, only: cpl_land_init
 #endif
 
   IMPLICIT NONE
-
-#ifdef MPP_LAND
-  include "mpif.h"
-#endif
 
 #ifdef WRF_HYDRO
    REAL,    allocatable, DIMENSION(:,:)   :: infxsrt,sfcheadrt, soldrain

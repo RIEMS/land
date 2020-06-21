@@ -59,8 +59,8 @@ MODULE MODULE_CPL_LAND
   END subroutine CPL_LAND_INIT
 
      subroutine send_info()
+        use mpi
         implicit none
-   include "mpif.h"
         integer,allocatable,dimension(:,:) :: tmp_info
         integer  ierr, i,size, tag
         integer mpp_status(MPI_STATUS_SIZE)
