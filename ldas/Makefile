@@ -24,7 +24,7 @@ NOAHMP : $(OBJS_NOAHMP) $(OBJS)
 #
 
 main_ldas.o: $(OBJS_NOAHMP)
-$(OBJS_NOAHMP):	module_ldas_io_netcdf.o
+$(OBJS_NOAHMP):	module_ldas_config.o module_ldas_io_netcdf.o
 
 # This command cleans up object files, etc.
 clean:

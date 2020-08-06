@@ -21,6 +21,7 @@ OBJS_NOAHMP = ../ldas/module_ldas_noahmp.o
 
 OBJS = \
 	../ldas/main_ldas.o \
+	../ldas/module_ldas_config.o \
 	../ldas/module_ldas_io_netcdf.o \
 	../phys/module_sf_noahmpdrv.o \
 	../phys/module_sf_noahmplsm.o \
@@ -58,4 +59,3 @@ NOAHMP: $(OBJS)
 # This command cleans up
 clean:
 	$(RM) $(CMD) *~
-

@@ -1,6 +1,7 @@
 module module_ldas_noahmp
 
   use module_wrf_error
+  use module_ldas_config
   USE module_ldas_io_netcdf
   USE module_sf_noahmp_groundwater
   USE module_sf_noahmpdrv, only: noahmp_init, noahmplsm, noahmp_urban, groundwater_init
@@ -44,9 +45,7 @@ module module_ldas_noahmp
   REAL,    ALLOCATABLE, DIMENSION(:,:)    ::  COSZEN    ! cosine zenith angle
   REAL,    ALLOCATABLE, DIMENSION(:,:)    ::  XLAT      ! latitude [rad]
   REAL,    ALLOCATABLE, DIMENSION(:,:,:)  ::  DZ8W      ! thickness of atmo layers [m]
-  REAL                                    ::  DTBL      ! timestep [s]
   REAL,    ALLOCATABLE, DIMENSION(:)      ::  DZS       ! thickness of soil layers [m]
-  INTEGER                                 ::  NSOIL     ! number of soil layers
   REAL                                    ::  DX        ! horizontal grid spacing [m]
   INTEGER, ALLOCATABLE, DIMENSION(:,:)    ::  IVGTYP    ! vegetation type
   INTEGER, ALLOCATABLE, DIMENSION(:,:)    ::  ISLTYP    ! soil type
@@ -59,24 +58,6 @@ module module_ldas_noahmp
   INTEGER                                 ::  ISURBAN   ! land cover category for urban
   INTEGER                                 ::  ISWATER   ! land cover category for water
   INTEGER                                 ::  ISLAKE    ! land cover category for lake
-  INTEGER                                 ::  IDVEG     ! dynamic vegetation (1 -> off ; 2 -> on) with opt_crs = 1
-  INTEGER                                 ::  IOPT_CRS  ! canopy stomatal resistance (1-> Ball-Berry; 2->Jarvis)
-  INTEGER                                 ::  IOPT_BTR  ! soil moisture factor for stomatal resistance (1-> Noah; 2-> CLM; 3-> SSiB)
-  INTEGER                                 ::  IOPT_RUN  ! runoff and groundwater (1->SIMGM; 2->SIMTOP; 3->Schaake96; 4->BATS)
-  INTEGER                                 ::  IOPT_SFC  ! surface layer drag coeff (CH & CM) (1->M-O; 2->Chen97)
-  INTEGER                                 ::  IOPT_FRZ  ! supercooled liquid water (1-> NY06; 2->Koren99)
-  INTEGER                                 ::  IOPT_INF  ! frozen soil permeability (1-> NY06; 2->Koren99)
-  INTEGER                                 ::  IOPT_RAD  ! radiation transfer (1->gap=F(3D,cosz); 2->gap=0; 3->gap=1-Fveg)
-  INTEGER                                 ::  IOPT_ALB  ! snow surface albedo (1->BATS; 2->CLASS)
-  INTEGER                                 ::  IOPT_SNF  ! rainfall & snowfall (1-Jordan91; 2->BATS; 3->Noah)
-  INTEGER                                 ::  IOPT_TBOT ! lower boundary of soil temperature (1->zero-flux; 2->Noah)
-  INTEGER                                 ::  IOPT_STC  ! snow/soil temperature time scheme
-  INTEGER                                 ::  IOPT_GLA  ! glacier option (1->phase change; 2->simple)
-  INTEGER                                 ::  IOPT_RSF  ! surface resistance option (1->Zeng; 2->simple)
-  INTEGER                                 ::  IZ0TLND   ! option of Chen adjustment of Czil (not used)
-  INTEGER                                 ::  IOPT_SOIL  ! soil configuration option
-  INTEGER                                 ::  IOPT_PEDO  ! soil pedotransfer function option
-  INTEGER                                 ::  IOPT_CROP ! crop model option (0->none; 1->Liu et al.; 2->Gecros)
   REAL,    ALLOCATABLE, DIMENSION(:,:,:)  ::  T_PHY     ! 3D atmospheric temperature valid at mid-levels [K]
   REAL,    ALLOCATABLE, DIMENSION(:,:,:)  ::  QV_CURR   ! 3D water vapor mixing ratio [kg/kg_dry]
   REAL,    ALLOCATABLE, DIMENSION(:,:,:)  ::  U_PHY     ! 3D U wind component [m/s]
@@ -242,7 +223,7 @@ module module_ldas_noahmp
   REAL,    ALLOCATABLE, DIMENSION(:,:)    ::  SEAICE      ! seaice fraction
 
 !------------------------------------------------------------------------
-! Needed for MMF_RUNOFF (IOPT_RUN = 5); not part of MP driver in WRF
+! Needed for MMF_RUNOFF (OPT_RUN = 5); not part of MP driver in WRF
 !------------------------------------------------------------------------
 
   REAL,    ALLOCATABLE, DIMENSION(:,:)    ::  MSFTX
@@ -279,7 +260,6 @@ module module_ldas_noahmp
 ! Single- and Multi-layer Urban Models
 !------------------------------------------------------------------------
 
-  INTEGER                                 ::  num_urban_atmosphere ! atmospheric levels including ZLVL for BEP/BEM models
 
   REAL,    ALLOCATABLE                    ::  GMT       ! Hour of day (fractional) (needed for urban)
   INTEGER, ALLOCATABLE                    ::  JULDAY    ! Integer day (needed for urban)
@@ -431,9 +411,6 @@ module module_ldas_noahmp
     INTEGER, PARAMETER                  :: NSNOW = 3    ! number of snow layers fixed to 3
     REAL, PARAMETER                     :: undefined_real = 9.9692099683868690E36 ! NetCDF float   FillValue
     INTEGER, PARAMETER                  :: undefined_int = -2147483647            ! NetCDF integer FillValue
-    LOGICAL                             :: update_lai, update_veg
-    INTEGER                             :: spinup_loop
-    LOGICAL                             :: reset_spinup_date
 
 !---------------------------------------------------------------------
 !  File naming, parallel
@@ -474,125 +451,6 @@ module module_ldas_noahmp
   integer ix_tmp, jx_tmp
 #endif
 
-!---------------------------------------------------------------------
-!  NAMELIST start
-!---------------------------------------------------------------------
-
-  character(len=256) :: indir
-  ! nsoil defined above
-  integer            :: forcing_timestep
-  integer            :: noah_timestep
-  integer            :: start_year
-  integer            :: start_month
-  integer            :: start_day
-  integer            :: start_hour
-  integer            :: start_min
-  character(len=256) :: outdir = "."
-  character(len=256) :: resdir = "."
-  character(len=256) :: restart_filename_requested = " "
-  integer            :: restart_frequency_hours
-  integer            :: output_timestep
-  integer            :: spinup_loops
-
-  integer            :: sf_urban_physics = 0
-  integer            :: num_urban_ndm    = 1
-  integer            :: num_urban_ng     = 1
-  integer            :: num_urban_nwr    = 1
-  integer            :: num_urban_ngb    = 1
-  integer            :: num_urban_nf     = 1
-  integer            :: num_urban_nz     = 1
-  integer            :: num_urban_nbui   = 1
-  integer            :: num_urban_hi     = 15
-  real               :: urban_atmosphere_thickness = 2.0
-
-  ! derived urban dimensions
-
-  integer            :: urban_map_zrd
-  integer            :: urban_map_zwd
-  integer            :: urban_map_gd
-  integer            :: urban_map_zd
-  integer            :: urban_map_zdf
-  integer            :: urban_map_bd
-  integer            :: urban_map_wd
-  integer            :: urban_map_gbd
-  integer            :: urban_map_fbd
-
-  character(len=256) :: forcing_name_T = "T2D"
-  character(len=256) :: forcing_name_Q = "Q2D"
-  character(len=256) :: forcing_name_U = "U2D"
-  character(len=256) :: forcing_name_V = "V2D"
-  character(len=256) :: forcing_name_P = "PSFC"
-  character(len=256) :: forcing_name_LW = "LWDOWN"
-  character(len=256) :: forcing_name_SW = "SWDOWN"
-  character(len=256) :: forcing_name_PR = "RAINRATE"
-  character(len=256) :: forcing_name_SN = ""
-
-  integer            :: dynamic_veg_option
-  integer            :: canopy_stomatal_resistance_option
-  integer            :: btr_option
-  integer            :: runoff_option
-  integer            :: surface_drag_option
-  integer            :: supercooled_water_option
-  integer            :: frozen_soil_option
-  integer            :: radiative_transfer_option
-  integer            :: snow_albedo_option
-  integer            :: pcp_partition_option
-  integer            :: tbot_option
-  integer            :: temp_time_scheme_option
-  integer            :: glacier_option
-  integer            :: surface_resistance_option
-
-  integer            :: soil_data_option = 1
-  integer            :: pedotransfer_option = 1
-  integer            :: crop_option = 0
-
-  integer            :: split_output_count = 1
-  logical            :: skip_first_output = .false.
-  integer            :: khour
-  integer            :: kday
-  real               :: zlvl
-  character(len=256) :: hrldas_setup_file = " "
-  character(len=256) ::  spatial_filename = " "
-  character(len=256) :: external_veg_filename_template = " "
-  character(len=256) :: external_lai_filename_template = " "
-  integer            :: xstart = 1
-  integer            :: ystart = 1
-  integer            ::   xend = 0
-  integer            ::   yend = 0
-  integer, PARAMETER    :: MAX_SOIL_LEVELS = 10   ! maximum soil levels in namelist
-  REAL, DIMENSION(MAX_SOIL_LEVELS) :: soil_thick_input       ! depth to soil interfaces from namelist [m]
-
-  namelist / NOAHLSM_OFFLINE /    &
-#ifdef WRF_HYDRO
-       finemesh,finemesh_factor,forc_typ, snow_assim , GEO_STATIC_FLNM, HRLDAS_ini_typ, &
-#endif
-       indir, nsoil, soil_thick_input, forcing_timestep, noah_timestep, &
-       start_year, start_month, start_day, start_hour, start_min, &
-       outdir, skip_first_output, &
-       resdir, restart_filename_requested, restart_frequency_hours, output_timestep, &
-       spinup_loops, &
-       forcing_name_T,forcing_name_Q,forcing_name_U,forcing_name_V,forcing_name_P, &
-       forcing_name_LW,forcing_name_SW,forcing_name_PR,forcing_name_SN, &
-
-       dynamic_veg_option, canopy_stomatal_resistance_option, &
-       btr_option, runoff_option, surface_drag_option, supercooled_water_option, &
-       frozen_soil_option, radiative_transfer_option, snow_albedo_option, &
-       pcp_partition_option, tbot_option, temp_time_scheme_option, &
-       glacier_option, surface_resistance_option, &
-
-       soil_data_option, pedotransfer_option, crop_option, &
-
-       sf_urban_physics,num_urban_hi,urban_atmosphere_thickness, &
-       num_urban_ndm,num_urban_ng,num_urban_nwr ,num_urban_ngb , &
-       num_urban_nf ,num_urban_nz,num_urban_nbui, &
-
-
-       split_output_count, &
-       khour, kday, zlvl, hrldas_setup_file, &
-       spatial_filename, &
-       external_veg_filename_template, external_lai_filename_template, &
-       xstart, xend, ystart, yend
-
   contains
 
   subroutine land_driver_ini(NTIME_out,wrfits,wrfite,wrfjts,wrfjte)
@@ -606,193 +464,8 @@ module module_ldas_noahmp
     call  MPP_LAND_INIT()
 #endif
 
-! Initialize namelist variables to dummy values, so we can tell
-! if they have not been set properly.
-
-  nsoil                   = -999
-  soil_thick_input        = -999
-  dtbl                    = -999
-  start_year              = -999
-  start_month             = -999
-  start_day               = -999
-  start_hour              = -999
-  start_min               = -999
-  khour                   = -999
-  kday                    = -999
-  zlvl                    = -999
-  forcing_timestep        = -999
-  noah_timestep           = -999
-  output_timestep         = -999
-  spinup_loops            = 0
-  restart_frequency_hours = -999
-
-  open(30, file="ldas.namelist", form="FORMATTED", status="OLD", action="READ")
-  read(30, NOAHLSM_OFFLINE, iostat=ierr)
-  if (ierr /= 0) then
-     write(*,'(/," ***** ERROR: Problem reading namelist NOAHLSM_OFFLINE",/)')
-     rewind(30)
-     read(30, NOAHLSM_OFFLINE)
-     stop " ***** ERROR: Problem reading namelist NOAHLSM_OFFLINE"
-  endif
-  close(30)
-
-  dtbl = real(noah_timestep)
-  num_soil_layers = nsoil      ! because surface driver uses the long form
-  IDVEG = dynamic_veg_option ! transfer from namelist to driver format
-  IOPT_CRS = canopy_stomatal_resistance_option
-  IOPT_BTR = btr_option
-  IOPT_RUN = runoff_option
-  IOPT_SFC = surface_drag_option
-  IOPT_FRZ = supercooled_water_option
-  IOPT_INF = frozen_soil_option
-  IOPT_RAD = radiative_transfer_option
-  IOPT_ALB = snow_albedo_option
-  IOPT_SNF = pcp_partition_option
-  IOPT_TBOT = tbot_option
-  IOPT_STC = temp_time_scheme_option
-  IOPT_GLA = glacier_option
-  IOPT_RSF = surface_resistance_option
-  IOPT_SOIL = soil_data_option
-  IOPT_PEDO = pedotransfer_option
-  IOPT_CROP = crop_option
-!---------------------------------------------------------------------
-!  NAMELIST end
-!---------------------------------------------------------------------
-
-!---------------------------------------------------------------------
-!  NAMELIST check begin
-!---------------------------------------------------------------------
-
-  update_lai = .true.   ! default: use LAI if present in forcing file
-  if (dynamic_veg_option == 2 .or. dynamic_veg_option == 5 .or. &
-      dynamic_veg_option == 6 .or. dynamic_veg_option == 10) &
-    update_lai = .false.
-
-  update_veg = .false.  ! default: don't use VEGFRA if present in forcing file
-  if (dynamic_veg_option == 1 .or. dynamic_veg_option == 6 .or. dynamic_veg_option == 7) &
-    update_veg = .true.
-
-  if (nsoil < 0) then
-     stop " ***** ERROR: NSOIL must be set in the namelist."
-  endif
-
-  if ((khour < 0) .and. (kday < 0)) then
-     write(*, '(" ***** Namelist error: ************************************")')
-     write(*, '(" ***** ")')
-     write(*, '(" *****      Either KHOUR or KDAY must be defined.")')
-     write(*, '(" ***** ")')
-     stop
-  else if (( khour < 0 ) .and. (kday > 0)) then
-     khour = kday * 24
-  else if ((khour > 0) .and. (kday > 0)) then
-     write(*, '("Namelist warning:  KHOUR and KDAY both defined.")')
-  else
-     ! all is well.  KHOUR defined
-  endif
-
-  if (forcing_timestep < 0) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: *****************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       FORCING_TIMESTEP needs to be set greater than zero.")')
-        write(*, '(" ***** ")')
-        write(*, *)
-        stop
-  endif
-
-  if (noah_timestep < 0) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: *****************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       NOAH_TIMESTEP needs to be set greater than zero.")')
-        write(*, '(" *****                     900 seconds is recommended.       ")')
-        write(*, '(" ***** ")')
-        write(*, *)
-        stop
-  endif
-
-  !
-  ! Check that OUTPUT_TIMESTEP fits into NOAH_TIMESTEP:
-  !
-  if (output_timestep /= 0) then
-     if (mod(output_timestep, noah_timestep) > 0) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: *********************************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       OUTPUT_TIMESTEP should set to an integer multiple of NOAH_TIMESTEP.")')
-        write(*, '(" *****            OUTPUT_TIMESTEP = ", I12, " seconds")') output_timestep
-        write(*, '(" *****            NOAH_TIMESTEP   = ", I12, " seconds")') noah_timestep
-        write(*, '(" ***** ")')
-        write(*, *)
-        stop
-     endif
-  endif
-
-  !
-  ! Check that RESTART_FREQUENCY_HOURS fits into NOAH_TIMESTEP:
-  !
-  if (restart_frequency_hours /= 0) then
-     if (mod(restart_frequency_hours*3600, noah_timestep) > 0) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: ******************************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       RESTART_FREQUENCY_HOURS (converted to seconds) should set to an ")')
-        write(*, '(" *****       integer multiple of NOAH_TIMESTEP.")')
-        write(*, '(" *****            RESTART_FREQUENCY_HOURS = ", I12, " hours:  ", I12, " seconds")') &
-             restart_frequency_hours, restart_frequency_hours*3600
-        write(*, '(" *****            NOAH_TIMESTEP           = ", I12, " seconds")') noah_timestep
-        write(*, '(" ***** ")')
-        write(*, *)
-        stop
-     endif
-  endif
-
-  if (dynamic_veg_option == 2 .or. dynamic_veg_option == 5 .or. dynamic_veg_option == 6) then
-     if ( canopy_stomatal_resistance_option /= 1) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: ******************************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       CANOPY_STOMATAL_RESISTANCE_OPTION must be 1 when DYNAMIC_VEG_OPTION == 2/5/6")')
-        write(*, *)
-        stop
-     endif
-  endif
-
-  if (soil_data_option == 4 .and. spatial_filename == " ") then
-        write(*, *)
-        write(*, '(" ***** Namelist error: ******************************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       SPATIAL_FILENAME must be provided when SOIL_DATA_OPTION == 4")')
-        write(*, *)
-        stop
-  endif
-
-  if (sf_urban_physics == 2 .or. sf_urban_physics == 3) then
-     if ( urban_atmosphere_thickness <= 0.0) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: ******************************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       When running BEP/BEM, URBAN_ATMOSPHERE_LEVELS must contain at least 3 levels")')
-        write(*, *)
-        stop
-     endif
-     num_urban_atmosphere = int(zlvl/urban_atmosphere_thickness)
-     if (zlvl - num_urban_atmosphere*urban_atmosphere_thickness >= 0.5*urban_atmosphere_thickness)  &
-            num_urban_atmosphere = num_urban_atmosphere + 1
-     if ( num_urban_atmosphere <= 2) then
-        write(*, *)
-        write(*, '(" ***** Namelist error: ******************************************************")')
-        write(*, '(" ***** ")')
-        write(*, '(" *****       When running BEP/BEM, num_urban_atmosphere must contain at least 3 levels, ")')
-        write(*, '(" *****        decrease URBAN_ATMOSPHERE_THICKNESS")')
-        write(*, *)
-        stop
-     endif
-  endif
-
-!---------------------------------------------------------------------
-!  NAMELIST check end
-!---------------------------------------------------------------------
+  ! read namelist
+  call ldas_config_load()
 
   ! derived urban dimensions
 
@@ -1058,7 +731,7 @@ module module_ldas_noahmp
   ALLOCATE ( GVFMAX    (XSTART:XEND,YSTART:YEND) )  ! annual maximum in vegetation fraction
 
 !------------------------------------------------------------------------
-! Needed for MMF_RUNOFF (IOPT_RUN = 5); not part of MP driver in WRF
+! Needed for MMF_RUNOFF (OPT_RUN = 5); not part of MP driver in WRF
 !------------------------------------------------------------------------
 
   ALLOCATE ( MSFTX       (XSTART:XEND,YSTART:YEND) )  !
@@ -1421,7 +1094,7 @@ ENDIF
 ! For spatially-varying soil parameters, read in necessary extra fields
 !------------------------------------------------------------------------
 
-  if (soil_data_option == 2) then
+  if (opt_soil == 2) then
     CALL READ_SOIL_TEXTURE(HRLDAS_SETUP_FILE, XSTART, XEND, YSTART, YEND, &
                       NSOIL,IVGTYP,SOILCL1,SOILCL2,SOILCL3,SOILCL4,ISICE,ISWATER)
 
@@ -1429,24 +1102,24 @@ ENDIF
 
   end if
 
-  if (soil_data_option == 3) then
+  if (opt_soil == 3) then
     CALL READ_SOIL_COMPOSITION(HRLDAS_SETUP_FILE, XSTART, XEND, YSTART, YEND, &
                       NSOIL,IVGTYP,ISICE,ISWATER, &
                       SOILCOMP)
   end if
 
-  if (soil_data_option == 4) then
+  if (opt_soil == 4) then
     CALL READ_3D_SOIL(SPATIAL_FILENAME, XSTART, XEND, YSTART, YEND, &
                       NSOIL,BEXP_3D,SMCDRY_3D,SMCWLT_3D,SMCREF_3D,SMCMAX_3D,  &
                       DKSAT_3D,DWSAT_3D,PSISAT_3D,QUARTZ_3D,REFDK_2D,REFKDT_2D)
   end if
 
 !------------------------------------------------------------------------
-! For IOPT_RUN = 5 (MMF groundwater), read in necessary extra fields
+! For OPT_RUN = 5 (MMF groundwater), read in necessary extra fields
 ! This option is not tested for parallel use in the offline driver
 !------------------------------------------------------------------------
 
-  if (runoff_option == 5) then
+  if (opt_run == 5) then
     CALL READ_MMF_RUNOFF(HRLDAS_SETUP_FILE, XSTART, XEND, YSTART, YEND,&
                          FDEPTHXY,EQZWT,RECHCLIM,RIVERBEDXY)
   end if
@@ -1459,7 +1132,7 @@ ENDIF
   PLANTING   = 126     ! default planting date
   HARVEST    = 290     ! default harvest date
   SEASON_GDD = 1605    ! default total seasonal growing degree days
-  if (dynamic_veg_option == 10) then
+  if (dveg == 10) then
     CALL READ_CROP_INPUT(HRLDAS_SETUP_FILE, XSTART, XEND, YSTART, YEND,&
                          CROPTYPE,PLANTING,HARVEST,SEASON_GDD)
   end if
@@ -1639,7 +1312,7 @@ ENDIF
                 CROPTYPE,  CROPCAT,                                                   &
                   T2MVXY,   T2MBXY, CHSTARXY,                                         &
                    NSOIL,  .true.,                                                   &
-                  .true.,runoff_option, crop_option,                                 &
+                  .true., opt_run, opt_crop,                                 &
                   sf_urban_physics,                         &  ! urban scheme
                   ids,ide+1, jds,jde+1, kds,kde,                &  ! domain
                   ims,ime, jms,jme, kms,kme,                &  ! memory
@@ -1773,7 +1446,7 @@ ENDIF
                 CROPTYPE,  CROPCAT,                                                   &
                   T2MVXY,   T2MBXY, CHSTARXY,                                         &
                    NSOIL,  .false.,                                                   &
-                  .true.,runoff_option, crop_option,                                 &
+                  .true., opt_run, opt_crop, &
                   sf_urban_physics,                         &  ! urban scheme
                   ids,ide+1, jds,jde+1, kds,kde,                &  ! domain
                   ims,ime, jms,jme, kms,kme,                &  ! memory
@@ -1784,7 +1457,7 @@ ENDIF
                      rechclim ,gecros_state                 &
                      )
 
-         if(iopt_run == 5) then
+         if(opt_run == 5) then
               call groundwater_init (                                           &
                  nsoil, dzs, isltyp, ivgtyp, wtddt ,                  &
                  fdepthxy   , terrain , riverbedxy, eqzwt     ,                 &
@@ -2066,10 +1739,10 @@ end subroutine land_driver_ini
                  IVGTYP,   ISLTYP,   VEGFRA,   GVFMAX,       TMN,             &
                   XLAND,     XICE,     XICE_THRESHOLD,   CROPCAT,             &
                PLANTING,  HARVEST,SEASON_GDD,                               &
-                  IDVEG, IOPT_CRS, IOPT_BTR, IOPT_RUN,  IOPT_SFC,   IOPT_FRZ, &
-               IOPT_INF, IOPT_RAD, IOPT_ALB, IOPT_SNF, IOPT_TBOT,   IOPT_STC, &
-               IOPT_GLA, IOPT_RSF,IOPT_SOIL,IOPT_PEDO,IOPT_CROP,              &
-               IZ0TLND, sf_urban_physics,                                     &
+                  DVEG, OPT_CRS, OPT_BTR, OPT_RUN, OPT_SFC, OPT_FRZ, &
+               OPT_INF, OPT_RAD, OPT_ALB, OPT_SNF, OPT_TBOT, OPT_STC, &
+               OPT_GLA, OPT_RSF, OPT_SOIL, OPT_PEDO, OPT_CROP, &
+               OPT_Z0TLND, sf_urban_physics,                                     &
                SOILCOMP,  SOILCL1,  SOILCL2,   SOILCL3,  SOILCL4,             &
                   T_PHY,  QV_CURR,    U_PHY,    V_PHY,    SWDOWN,        GLW, &
                     P8W,   RAINBL,       SR,                                  &
@@ -2168,7 +1841,7 @@ end subroutine land_driver_ini
 
          ENDIF
 
-  IF(RUNOFF_OPTION == 5) then
+  IF(opt_run == 5) then
     if (MOD(ITIME, STEPWTD) == 0)THEN
            CALL wrf_message('calling WTABLE' )
 
@@ -2349,7 +2022,7 @@ endif
               call add_to_output(APARXY     , "APAR"    , "Photosynthesis active energy by canopy" , "W m{-2}"             )
 
         ! Carbon allocation model
-            IF(RUNOFF_OPTION == 5) THEN
+            IF(opt_run == 5) THEN
               call add_to_output(SMCWTDXY   , "SMCWTD"   , "Leaf mass"                            , "g m{-2}"               )
               call add_to_output(RECHXY     , "RECH"     , "Mass of fine roots"                   , "g m{-2}"               )
               call add_to_output(QRFSXY     , "QRFS"     , "Stem mass"                            , "g m{-2}"               )
