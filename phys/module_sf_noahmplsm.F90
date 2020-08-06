@@ -18,15 +18,253 @@
 !
 !  User controllable options: <if applicable>
 
+
+module module_noahmp_option
+  implicit none
+! **recommended
+  integer :: dveg     ! options for dynamic vegetation:
+                      !   1 -> off (use table LAI; use FVEG = SHDFAC from input)
+                      !   2 -> on  (together with OPT_CRS = 1)
+                      !   3 -> off (use table LAI; calculate FVEG)
+                      ! **4 -> off (use table LAI; use maximum vegetation fraction)
+                      ! **5 -> on  (use maximum vegetation fraction)
+                      !   6 -> on  (use FVEG = SHDFAC from input)
+                      !   7 -> off (use input LAI; use FVEG = SHDFAC from input)
+                      !   8 -> off (use input LAI; calculate FVEG)
+                      !   9 -> off (use input LAI; use maximum vegetation fraction)
+                      !  10 -> crop model on (use maximum vegetation fraction)
+
+  integer :: opt_crs  ! options for canopy stomatal resistance
+                      ! **1 -> Ball-Berry
+                      !   2 -> Jarvis
+
+  integer :: opt_btr  ! options for soil moisture factor for stomatal resistance
+                      ! **1 -> Noah (soil moisture)
+                      !   2 -> CLM  (matric potential)
+                      !   3 -> SSiB (matric potential)
+
+  integer :: opt_run  ! options for runoff and groundwater
+                      ! **1 -> TOPMODEL with groundwater (Niu et al. 2007 JGR) ;
+                      !   2 -> TOPMODEL with an equilibrium water table (Niu et al. 2005 JGR) ;
+                      !   3 -> original surface and subsurface runoff (free drainage)
+                      !   4 -> BATS surface and subsurface runoff (free drainage)
+                      !   5 -> Miguez-Macho&Fan groundwater scheme (Miguez-Macho et al. 2007 JGR; Fan et al. 2007 JGR)
+                      !          (needs further testing for public use)
+
+  integer :: opt_sfc  ! options for surface layer drag coeff (CH & CM)
+                      ! **1 -> M-O
+                      ! **2 -> original Noah (Chen97)
+                      ! **3 -> MYJ consistent; 4->YSU consistent. MB: removed in v3.7 for further testing
+
+  integer :: opt_frz  ! options for supercooled liquid water (or ice fraction)
+                      ! **1 -> no iteration (Niu and Yang, 2006 JHM)
+                      !   2 -> Koren's iteration
+
+  integer :: opt_inf  ! options for frozen soil permeability
+                      ! **1 -> linear effects, more permeable (Niu and Yang, 2006, JHM)
+                      !   2 -> nonlinear effects, less permeable (old)
+
+  integer :: opt_rad  ! options for radiation transfer
+                      !   1 -> modified two-stream (gap = F(solar angle, 3D structure ...)<1-FVEG)
+                      !   2 -> two-stream applied to grid-cell (gap = 0)
+                      ! **3 -> two-stream applied to vegetated fraction (gap=1-FVEG)
+
+  integer :: opt_alb  ! options for ground snow surface albedo
+                      !   1 -> BATS
+                      ! **2 -> CLASS
+
+  integer :: opt_snf  ! options for partitioning  precipitation into rainfall & snowfall
+                      ! **1 -> Jordan (1991)
+                      !   2 -> BATS: when SFCTMP<TFRZ+2.2
+                      !   3 -> SFCTMP < TFRZ
+                      !   4 -> Use WRF microphysics output
+
+  integer :: opt_tbot ! options for lower boundary condition of soil temperature
+                      !   1 -> zero heat flux from bottom (ZBOT and TBOT not used)
+                      ! **2 -> TBOT at ZBOT (8m) read from a file (original Noah)
+
+  integer :: opt_stc  ! options for snow/soil temperature time scheme (only layer 1)
+                      ! **1 -> semi-implicit; flux top boundary condition
+                      !   2 -> full implicit (original Noah); temperature top boundary condition
+                      !   3 -> same as 1, but FSNO for TS calculation (generally improves snow; v3.7)
+
+  integer :: opt_rsf  ! options for surface resistent to evaporation/sublimation
+                      ! **1 -> Sakaguchi and Zeng, 2009
+                      !   2 -> Sellers (1992)
+                      !   3 -> adjusted Sellers to decrease RSURF for wet soil
+                      !   4 -> option 1 for non-snow; rsurf = rsurf_snow for snow (set in MPTABLE); AD v3.8
+
+  integer :: opt_soil ! options for defining soil properties
+                      ! **1 -> use input dominant soil texture
+                      !   2 -> use input soil texture that varies with depth
+                      !   3 -> use soil composition (sand, clay, orgm) and pedotransfer functions (OPT_PEDO)
+                      !   4 -> use input soil properties (BEXP_3D, SMCMAX_3D, etc.)
+
+  integer :: opt_pedo ! options for pedotransfer functions (used when OPT_SOIL = 3)
+                      ! **1 -> Saxton and Rawls (2006)
+
+  integer :: opt_crop ! options for crop model
+                      ! **0 -> No crop model, will run default dynamic vegetation
+                      !   1 -> Liu, et al. 2016
+                      !   2 -> Gecros (Genotype-by-Environment interaction on CROp growth Simulator) Yin and van Laar, 2005
+  contains
+
+  subroutine noahmp_option_check(isvalid, msg)
+    ! check the validation of the options in terms of ranges and combinations
+    implicit none
+    logical, intent(out) :: isvalid
+    character(len=*) :: msg
+    isvalid = .true.
+    msg = ' '
+
+    if (dveg < 1 .or. dveg > 10) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'dveg', dveg, 1, 10
+    end if
+
+    if (opt_crs < 1 .or. opt_crs > 2) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_crs', opt_crs, 1, 2
+    end if
+
+    if (opt_btr < 1 .or. opt_btr > 3) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_btr', opt_btr, 1, 3
+    end if
+
+    if (opt_run < 1 .or. opt_run > 5) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_run', opt_run, 1, 5
+    end if
+
+    if (opt_sfc < 1 .or. opt_sfc > 3) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_sfc', opt_sfc, 1, 3
+    end if
+
+    if (opt_frz < 1 .or. opt_frz > 2) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_frz', opt_frz, 1, 2
+    end if
+
+    if (opt_inf < 1 .or. opt_inf > 2) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_inf', opt_inf, 1, 2
+    end if
+
+    if (opt_rad < 1 .or. opt_rad > 3) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_rad', opt_rad, 1, 3
+    end if
+
+    if (opt_alb < 1 .or. opt_alb > 2) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_alb', opt_alb, 1, 2
+    end if
+
+    if (opt_snf < 1 .or. opt_snf > 4) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_snf', opt_snf, 1, 4
+    end if
+
+    if (opt_tbot < 1 .or. opt_tbot > 2) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_tbot', opt_tbot, 1, 2
+    end if
+
+    if (opt_stc < 1 .or. opt_stc > 3) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_stc', opt_stc, 1, 3
+    end if
+
+    if (opt_rsf < 1 .or. opt_rsf > 4) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_rsf', opt_rsf, 1, 4
+    end if
+
+    if (opt_soil < 1 .or. opt_soil > 4) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_soil', opt_soil, 1, 4
+    end if
+
+    if (opt_soil ==3) then
+      if (opt_pedo < 1 .or. opt_pedo > 1) then
+        isvalid = .false.
+        write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_pedo', opt_pedo, 1, 1
+      end if
+    end if
+
+    if (opt_crop < 0 .or. opt_crop > 2) then
+      isvalid = .false.
+      write(msg, '(A," (",I2,") out of the range [",I2," ", I2"]")') 'opt_crop', opt_crop, 0, 2
+    end if
+
+
+    if (dveg == 2 .or. dveg == 5 .or. dveg ==6) then
+      if (opt_crs /= 1) then
+        isvalid = .false.
+        write(msg, *) 'opt_crs must be 1 when dveg == 2/5/6'
+      end if
+    end if
+  end subroutine noahmp_option_check
+
+  subroutine noahmp_option_pack(idveg, iopt_crs, iopt_btr, &
+    iopt_run, iopt_sfc, iopt_frz, &
+    iopt_inf, iopt_rad, iopt_alb, &
+    iopt_snf, iopt_tbot, iopt_stc, &
+    iopt_rsf, iopt_soil, iopt_pedo, &
+    iopt_crop)
+    ! pack all input arguments into this module
+    implicit none
+
+    integer, intent(in) :: idveg     !dynamic vegetation (1 -> off ; 2 -> on) with opt_crs = 1
+    integer, intent(in) :: iopt_crs  !canopy stomatal resistance (1-> Ball-Berry; 2->Jarvis)
+    integer, intent(in) :: iopt_btr  !soil moisture factor for stomatal resistance (1-> Noah; 2-> CLM; 3-> SSiB)
+    integer, intent(in) :: iopt_run  !runoff and groundwater (1->SIMGM; 2->SIMTOP; 3->Schaake96; 4->BATS)
+    integer, intent(in) :: iopt_sfc  !surface layer drag coeff (CH & CM) (1->M-O; 2->Chen97)
+    integer, intent(in) :: iopt_frz  !supercooled liquid water (1-> NY06; 2->Koren99)
+    integer, intent(in) :: iopt_inf  !frozen soil permeability (1-> NY06; 2->Koren99)
+    integer, intent(in) :: iopt_rad  !radiation transfer (1->gap=F(3D,cosz); 2->gap=0; 3->gap=1-Fveg)
+    integer, intent(in) :: iopt_alb  !snow surface albedo (1->BATS; 2->CLASS)
+    integer, intent(in) :: iopt_snf  !rainfall & snowfall (1-Jordan91; 2->BATS; 3->Noah)
+    integer, intent(in) :: iopt_tbot !lower boundary of soil temperature (1->zero-flux; 2->Noah)
+
+    integer, intent(in) :: iopt_stc  !snow/soil temperature time scheme (only layer 1)
+                                      ! 1 -> semi-implicit; 2 -> full implicit (original Noah)
+    integer, intent(in) :: iopt_rsf  !surface resistance (1->Sakaguchi/Zeng; 2->Seller; 3->mod Sellers; 4->1+snow)
+    integer, intent(in) :: iopt_soil !soil parameters set-up option
+    integer, intent(in) :: iopt_pedo !pedo-transfer function
+    integer, intent(in) :: iopt_crop !crop model option (0->none; 1->Liu et al.; 2->Gecros)
+
+    dveg = idveg
+    opt_crs  = iopt_crs
+    opt_btr  = iopt_btr
+    opt_run  = iopt_run
+    opt_sfc  = iopt_sfc
+    opt_frz  = iopt_frz
+    opt_inf  = iopt_inf
+    opt_rad  = iopt_rad
+    opt_alb  = iopt_alb
+    opt_snf  = iopt_snf
+    opt_tbot = iopt_tbot
+    opt_stc  = iopt_stc
+    opt_rsf  = iopt_rsf
+    opt_soil = iopt_soil
+    opt_pedo = iopt_pedo
+    opt_crop = iopt_crop
+  end subroutine noahmp_option_pack
+
+end module module_noahmp_option
+
+
 MODULE MODULE_SF_NOAHMPLSM
 
   use module_wrf_error
-
   use module_sf_gecros, only : gecros
+  use module_noahmp_option
 
   IMPLICIT NONE
 
-  public  :: noahmp_options
   public  :: NOAHMP_SFLX
 
   private :: ATM
@@ -84,95 +322,6 @@ MODULE MODULE_SF_NOAHMPLSM
 !  private ::       CH4FLUX
 
   private :: ERROR
-
-! =====================================options for different schemes================================
-! **recommended
-
-  INTEGER :: DVEG     ! options for dynamic vegetation:
-                      !   1 -> off (use table LAI; use FVEG = SHDFAC from input)
-                      !   2 -> on  (together with OPT_CRS = 1)
-                      !   3 -> off (use table LAI; calculate FVEG)
-                      ! **4 -> off (use table LAI; use maximum vegetation fraction)
-                      ! **5 -> on  (use maximum vegetation fraction)
-                      !   6 -> on  (use FVEG = SHDFAC from input)
-                      !   7 -> off (use input LAI; use FVEG = SHDFAC from input)
-                      !   8 -> off (use input LAI; calculate FVEG)
-                      !   9 -> off (use input LAI; use maximum vegetation fraction)
-                      !  10 -> crop model on (use maximum vegetation fraction)
-
-  INTEGER :: OPT_CRS  ! options for canopy stomatal resistance
-                      ! **1 -> Ball-Berry
-                      !   2 -> Jarvis
-
-  INTEGER :: OPT_BTR  ! options for soil moisture factor for stomatal resistance
-                      ! **1 -> Noah (soil moisture)
-                      !   2 -> CLM  (matric potential)
-                      !   3 -> SSiB (matric potential)
-
-  INTEGER :: OPT_RUN  ! options for runoff and groundwater
-                      ! **1 -> TOPMODEL with groundwater (Niu et al. 2007 JGR) ;
-                      !   2 -> TOPMODEL with an equilibrium water table (Niu et al. 2005 JGR) ;
-                      !   3 -> original surface and subsurface runoff (free drainage)
-                      !   4 -> BATS surface and subsurface runoff (free drainage)
-                      !   5 -> Miguez-Macho&Fan groundwater scheme (Miguez-Macho et al. 2007 JGR; Fan et al. 2007 JGR)
-                      !          (needs further testing for public use)
-
-  INTEGER :: OPT_SFC  ! options for surface layer drag coeff (CH & CM)
-                      ! **1 -> M-O
-                      ! **2 -> original Noah (Chen97)
-                      ! **3 -> MYJ consistent; 4->YSU consistent. MB: removed in v3.7 for further testing
-
-  INTEGER :: OPT_FRZ  ! options for supercooled liquid water (or ice fraction)
-                      ! **1 -> no iteration (Niu and Yang, 2006 JHM)
-                      !   2 -> Koren's iteration
-
-  INTEGER :: OPT_INF  ! options for frozen soil permeability
-                      ! **1 -> linear effects, more permeable (Niu and Yang, 2006, JHM)
-                      !   2 -> nonlinear effects, less permeable (old)
-
-  INTEGER :: OPT_RAD  ! options for radiation transfer
-                      !   1 -> modified two-stream (gap = F(solar angle, 3D structure ...)<1-FVEG)
-                      !   2 -> two-stream applied to grid-cell (gap = 0)
-                      ! **3 -> two-stream applied to vegetated fraction (gap=1-FVEG)
-
-  INTEGER :: OPT_ALB  ! options for ground snow surface albedo
-                      !   1 -> BATS
-                      ! **2 -> CLASS
-
-  INTEGER :: OPT_SNF  ! options for partitioning  precipitation into rainfall & snowfall
-                      ! **1 -> Jordan (1991)
-                      !   2 -> BATS: when SFCTMP<TFRZ+2.2
-                      !   3 -> SFCTMP < TFRZ
-                      !   4 -> Use WRF microphysics output
-
-  INTEGER :: OPT_TBOT ! options for lower boundary condition of soil temperature
-                      !   1 -> zero heat flux from bottom (ZBOT and TBOT not used)
-                      ! **2 -> TBOT at ZBOT (8m) read from a file (original Noah)
-
-  INTEGER :: OPT_STC  ! options for snow/soil temperature time scheme (only layer 1)
-                      ! **1 -> semi-implicit; flux top boundary condition
-                      !   2 -> full implicit (original Noah); temperature top boundary condition
-                      !   3 -> same as 1, but FSNO for TS calculation (generally improves snow; v3.7)
-
-  INTEGER :: OPT_RSF  ! options for surface resistent to evaporation/sublimation
-                      ! **1 -> Sakaguchi and Zeng, 2009
-                      !   2 -> Sellers (1992)
-                      !   3 -> adjusted Sellers to decrease RSURF for wet soil
-                      !   4 -> option 1 for non-snow; rsurf = rsurf_snow for snow (set in MPTABLE); AD v3.8
-
-  INTEGER :: OPT_SOIL ! options for defining soil properties
-                      ! **1 -> use input dominant soil texture
-                      !   2 -> use input soil texture that varies with depth
-                      !   3 -> use soil composition (sand, clay, orgm) and pedotransfer functions (OPT_PEDO)
-                      !   4 -> use input soil properties (BEXP_3D, SMCMAX_3D, etc.)
-
-  INTEGER :: OPT_PEDO ! options for pedotransfer functions (used when OPT_SOIL = 3)
-                      ! **1 -> Saxton and Rawls (2006)
-
-  INTEGER :: OPT_CROP ! options for crop model
-                      ! **0 -> No crop model, will run default dynamic vegetation
-                      !   1 -> Liu, et al. 2016
-                      !   2 -> Gecros (Genotype-by-Environment interaction on CROp growth Simulator) Yin and van Laar, 2005
 
 !------------------------------------------------------------------------------------------!
 ! Physical Constants:                                                                      !
@@ -9097,56 +9246,8 @@ END SUBROUTINE EMERG
 ! ********************************* end of carbon subroutines *****************************
 ! ==================================================================================================
 
-!== begin noahmp_options ===========================================================================
-
-  subroutine noahmp_options(idveg     ,iopt_crs  ,iopt_btr  ,iopt_run  ,iopt_sfc  ,iopt_frz , &
-                             iopt_inf  ,iopt_rad  ,iopt_alb  ,iopt_snf  ,iopt_tbot, iopt_stc, &
-                             iopt_rsf , iopt_soil, iopt_pedo, iopt_crop )
-
-  implicit none
-
-  INTEGER,  INTENT(IN) :: idveg     !dynamic vegetation (1 -> off ; 2 -> on) with opt_crs = 1
-  INTEGER,  INTENT(IN) :: iopt_crs  !canopy stomatal resistance (1-> Ball-Berry; 2->Jarvis)
-  INTEGER,  INTENT(IN) :: iopt_btr  !soil moisture factor for stomatal resistance (1-> Noah; 2-> CLM; 3-> SSiB)
-  INTEGER,  INTENT(IN) :: iopt_run  !runoff and groundwater (1->SIMGM; 2->SIMTOP; 3->Schaake96; 4->BATS)
-  INTEGER,  INTENT(IN) :: iopt_sfc  !surface layer drag coeff (CH & CM) (1->M-O; 2->Chen97)
-  INTEGER,  INTENT(IN) :: iopt_frz  !supercooled liquid water (1-> NY06; 2->Koren99)
-  INTEGER,  INTENT(IN) :: iopt_inf  !frozen soil permeability (1-> NY06; 2->Koren99)
-  INTEGER,  INTENT(IN) :: iopt_rad  !radiation transfer (1->gap=F(3D,cosz); 2->gap=0; 3->gap=1-Fveg)
-  INTEGER,  INTENT(IN) :: iopt_alb  !snow surface albedo (1->BATS; 2->CLASS)
-  INTEGER,  INTENT(IN) :: iopt_snf  !rainfall & snowfall (1-Jordan91; 2->BATS; 3->Noah)
-  INTEGER,  INTENT(IN) :: iopt_tbot !lower boundary of soil temperature (1->zero-flux; 2->Noah)
-
-  INTEGER,  INTENT(IN) :: iopt_stc  !snow/soil temperature time scheme (only layer 1)
-                                    ! 1 -> semi-implicit; 2 -> full implicit (original Noah)
-  INTEGER,  INTENT(IN) :: iopt_rsf  !surface resistance (1->Sakaguchi/Zeng; 2->Seller; 3->mod Sellers; 4->1+snow)
-  INTEGER,  INTENT(IN) :: iopt_soil !soil parameters set-up option
-  INTEGER,  INTENT(IN) :: iopt_pedo !pedo-transfer function
-  INTEGER,  INTENT(IN) :: iopt_crop !crop model option (0->none; 1->Liu et al.; 2->Gecros)
-
-! -------------------------------------------------------------------------------------------------
-
-  dveg = idveg
-
-  opt_crs  = iopt_crs
-  opt_btr  = iopt_btr
-  opt_run  = iopt_run
-  opt_sfc  = iopt_sfc
-  opt_frz  = iopt_frz
-  opt_inf  = iopt_inf
-  opt_rad  = iopt_rad
-  opt_alb  = iopt_alb
-  opt_snf  = iopt_snf
-  opt_tbot = iopt_tbot
-  opt_stc  = iopt_stc
-  opt_rsf  = iopt_rsf
-  opt_soil = iopt_soil
-  opt_pedo = iopt_pedo
-  opt_crop = iopt_crop
-
-  end subroutine noahmp_options
-
 END MODULE MODULE_SF_NOAHMPLSM
+
 
 MODULE NOAHMP_TABLES
 

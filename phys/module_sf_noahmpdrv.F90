@@ -461,9 +461,12 @@ CONTAINS
 
 ! ----------------------------------------------------------------------
 
-    CALL NOAHMP_OPTIONS(IDVEG  ,IOPT_CRS  ,IOPT_BTR  ,IOPT_RUN  ,IOPT_SFC  ,IOPT_FRZ , &
-                     IOPT_INF  ,IOPT_RAD  ,IOPT_ALB  ,IOPT_SNF  ,IOPT_TBOT, IOPT_STC , &
-                     IOPT_RSF  ,IOPT_SOIL ,IOPT_PEDO ,IOPT_CROP )
+    CALL noahmp_option_pack(IDVEG, IOPT_CRS, IOPT_BTR, &
+      IOPT_RUN, IOPT_SFC, IOPT_FRZ, &
+      IOPT_INF, IOPT_RAD, IOPT_ALB, &
+      IOPT_SNF, IOPT_TBOT, IOPT_STC, &
+      IOPT_RSF, IOPT_SOIL, IOPT_PEDO, &
+      IOPT_CROP)
 
     IPRINT    =  .false.                     ! debug printout
 
