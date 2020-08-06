@@ -47,7 +47,6 @@ module module_ldas_noahmp
   REAL                                    ::  DTBL      ! timestep [s]
   REAL,    ALLOCATABLE, DIMENSION(:)      ::  DZS       ! thickness of soil layers [m]
   INTEGER                                 ::  NSOIL     ! number of soil layers
-  INTEGER                                 ::  NUM_SOIL_LAYERS     ! number of soil layers
   REAL                                    ::  DX        ! horizontal grid spacing [m]
   INTEGER, ALLOCATABLE, DIMENSION(:,:)    ::  IVGTYP    ! vegetation type
   INTEGER, ALLOCATABLE, DIMENSION(:,:)    ::  ISLTYP    ! soil type
@@ -1653,10 +1652,10 @@ ENDIF
 
          IF(SF_URBAN_PHYSICS > 0 ) THEN  !urban
 
-                CALL urban_param_init(DZR,DZB,DZG,num_soil_layers,sf_urban_physics)
+                CALL urban_param_init(DZR,DZB,DZG,nsoil,sf_urban_physics)
 
                 CALL urban_var_init(ISURBAN,TSK,TSLB,TMN,IVGTYP,                        & !urban
-                      ims,ime,jms,jme,kms,kme,num_soil_layers,                          & !urban
+                      ims,ime,jms,jme,kms,kme,nsoil,                          & !urban
                       LOW_DENSITY_RESIDENTIAL_TABLE,                                    &
                       HIGH_DENSITY_RESIDENTIAL_TABLE,                                   &
                       HIGH_INTENSITY_INDUSTRIAL_TABLE,                                  &
@@ -1787,7 +1786,7 @@ ENDIF
 
          if(iopt_run == 5) then
               call groundwater_init (                                           &
-                 num_soil_layers, dzs, isltyp, ivgtyp, wtddt ,                  &
+                 nsoil, dzs, isltyp, ivgtyp, wtddt ,                  &
                  fdepthxy   , terrain , riverbedxy, eqzwt     ,                 &
                  rivercondxy, pexpxy  , areaxy    , zwtxy     ,                 &
                  smois      , sh2o    , smoiseq   , smcwtdxy  , deeprechxy,     &
@@ -1803,10 +1802,10 @@ ENDIF
 
          IF(SF_URBAN_PHYSICS > 0 ) THEN  !urban
 
-                 CALL urban_param_init(DZR,DZB,DZG,num_soil_layers,sf_urban_physics)
+                 CALL urban_param_init(DZR,DZB,DZG,nsoil,sf_urban_physics)
 
                 CALL urban_var_init(ISURBAN,TSK,TSLB,TMN,IVGTYP,                        & !urban
-                      ims,ime,jms,jme,kms,kme,num_soil_layers,                          & !urban
+                      ims,ime,jms,jme,kms,kme,nsoil,                          & !urban
                       LOW_DENSITY_RESIDENTIAL_TABLE,                                    &
                       HIGH_DENSITY_RESIDENTIAL_TABLE,                                   &
                       HIGH_INTENSITY_INDUSTRIAL_TABLE,                                  &
@@ -2063,7 +2062,7 @@ end subroutine land_driver_ini
     call system_clock(count=count_before_sflx, count_rate=clock_rate)
 
          CALL noahmplsm(ITIMESTEP,       YR,   JULIAN,   COSZEN,  XLAT,XLONG, &
-                   DZ8W,     DTBL,      DZS,     NUM_SOIL_LAYERS,         DX, &
+                   DZ8W,     DTBL,      DZS,     nsoil,         DX, &
                  IVGTYP,   ISLTYP,   VEGFRA,   GVFMAX,       TMN,             &
                   XLAND,     XICE,     XICE_THRESHOLD,   CROPCAT,             &
                PLANTING,  HARVEST,SEASON_GDD,                               &
@@ -2118,7 +2117,7 @@ end subroutine land_driver_ini
 
          IF(SF_URBAN_PHYSICS > 0 ) THEN  !urban
 
-           call noahmp_urban (sf_urban_physics,     NUM_SOIL_LAYERS,     IVGTYP,ITIMESTEP,  & ! IN : Model configuration
+           call noahmp_urban (sf_urban_physics,     nsoil,     IVGTYP,ITIMESTEP,  & ! IN : Model configuration
                                DTBL,         COSZEN,           XLAT,                        & ! IN : Time/Space-related
                               T_PHY,        QV_CURR,          U_PHY,      V_PHY,   SWDOWN,  & ! IN : Forcing
                                 GLW,            P8W,         RAINBL,       DZ8W,      ZNT,  & ! IN : Forcing
@@ -2175,7 +2174,7 @@ end subroutine land_driver_ini
 
 !gmm update wtable from lateral flow and shed water to rivers
            CALL WTABLE_MMF_NOAHMP(                                        &
-               NUM_SOIL_LAYERS,  XLAND, XICE,       XICE_THRESHOLD, ISICE,    &
+               nsoil,  XLAND, XICE,       XICE_THRESHOLD, ISICE,    &
                ISLTYP,      SMOISEQ,    DZS,        WTDDT,                &
                FDEPTHXY,    AREAXY,     TERRAIN,    ISURBAN,    IVGTYP,   &
                RIVERCONDXY, RIVERBEDXY, EQZWT,      PEXPXY,               &
