@@ -1598,33 +1598,31 @@ end subroutine land_driver_ini
 #endif
 
 #ifdef WRF_HYDRO
-
 #ifdef MPP_LAND
      call mpp_land_bcast_char(19,forcDate(1:19))
 #endif
-     if(finemesh .ne. 0) goto 991
+     if(finemesh .eq. 0) then
+       if(forc_typ .eq. 0) then
+           CALL READFORC_HRLDAS(INFLNM_TEMPLATE, FORCING_TIMESTEP, OLDDATE,  &
+               XSTART, XEND, YSTART, YEND,                                  &
+         forcing_name_T,forcing_name_Q,forcing_name_U,forcing_name_V,forcing_name_P, &
+         forcing_name_LW,forcing_name_SW,forcing_name_PR,forcing_name_SN, &
+               T_PHY(:,1,:),QV_CURR(:,1,:),U_PHY(:,1,:),V_PHY(:,1,:),          &
+                 P8W(:,1,:), GLW       ,SWDOWN      ,RAINBL_tmp, SNOWBL, VEGFRA, update_veg, LAI, update_lai, reset_spinup_date, startdate)
+           VEGFRA = VEGFRA * 100.
+       else
+           if(olddate == forcDate) then
+             LAI_tmp = LAI
+             CALL HYDRO_frocing_drv(trim(indir), forc_typ,snow_assim,olddate,                      &
+                 xstart, xend, ystart, yend,    &
+                 T_PHY(:,1,:),QV_CURR(:,1,:),U_PHY(:,1,:),V_PHY(:,1,:),P8W(:,1,:),    &
+                 GLW,SWDOWN,RAINBL_tmp,LAI,VEGFRA,SNOWH,ITIME,FORCING_TIMESTEP,prcp0)
 
-     if(forc_typ .eq. 0) then
-        CALL READFORC_HRLDAS(INFLNM_TEMPLATE, FORCING_TIMESTEP, OLDDATE,  &
-             XSTART, XEND, YSTART, YEND,                                  &
-       forcing_name_T,forcing_name_Q,forcing_name_U,forcing_name_V,forcing_name_P, &
-       forcing_name_LW,forcing_name_SW,forcing_name_PR,forcing_name_SN, &
-             T_PHY(:,1,:),QV_CURR(:,1,:),U_PHY(:,1,:),V_PHY(:,1,:),          &
-               P8W(:,1,:), GLW       ,SWDOWN      ,RAINBL_tmp, SNOWBL, VEGFRA, update_veg, LAI, update_lai, reset_spinup_date, startdate)
-        VEGFRA = VEGFRA * 100.
-     else
-        if(olddate == forcDate) then
-           LAI_tmp = LAI
-           CALL HYDRO_frocing_drv(trim(indir), forc_typ,snow_assim,olddate,                      &
-               xstart, xend, ystart, yend,    &
-               T_PHY(:,1,:),QV_CURR(:,1,:),U_PHY(:,1,:),V_PHY(:,1,:),P8W(:,1,:),    &
-               GLW,SWDOWN,RAINBL_tmp,LAI,VEGFRA,SNOWH,ITIME,FORCING_TIMESTEP,prcp0)
-
-           call geth_newdate(newdate, forcDate, FORCING_TIMESTEP)
-           forcDate = newdate
-        endif
-     endif
-
+             call geth_newdate(newdate, forcDate, FORCING_TIMESTEP)
+             forcDate = newdate
+           endif
+       endif
+     end if
 #else
      CALL READFORC_HRLDAS(INFLNM_TEMPLATE, FORCING_TIMESTEP, OLDDATE,  &
           XSTART, XEND, YSTART, YEND,                                  &
@@ -1633,8 +1631,6 @@ end subroutine land_driver_ini
           T_PHY(:,1,:),QV_CURR(:,1,:),U_PHY(:,1,:),V_PHY(:,1,:),          &
             P8W(:,1,:), GLW       ,SWDOWN      ,RAINBL_tmp, SNOWBL, VEGFRA, update_veg, LAI, update_lai, reset_spinup_date, startdate)
 #endif
-
-991  continue
 
      where(XLAND > 1.5)   T_PHY(:,1,:) = 0.0  ! Prevent some overflow problems with ifort compiler [MB:20150812]
      where(XLAND > 1.5)   U_PHY(:,1,:) = 0.0

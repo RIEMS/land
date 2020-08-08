@@ -1096,7 +1096,7 @@ contains
        else
           ierr = iret
 #ifdef MPP_LAND
-          goto 9991
+          call sync()
 #endif
           return
        endif
@@ -1121,7 +1121,7 @@ contains
 #endif
     if (iret /= 0) then
 #ifdef MPP_LAND
-          goto 9991
+          call sync()
 #endif
        if (FATAL_IF_ERROR) then
           print*, 'ncid =', ncid
@@ -1134,14 +1134,19 @@ contains
 
     ierr = 0;
 #ifdef MPP_LAND
-9991    continue
     endif
-    call mpp_land_bcast_int1(ierr)
-    !yyww call mpp_land_bcast(units)
-    call mpp_land_bcast_char(256,units)
-    if(ierr /= 0) return
-  !  write(6,*) "xstart,xend, ystart, yend", xstart,xend, ystart, yend
-    call decompose_data_real(g_array,array)
+    call sync()
+#endif
+
+  contains
+#ifdef MPP_LAND
+    subroutine sync()
+      implicit none
+      call mpp_land_bcast_int1(ierr)
+      call mpp_land_bcast_char(256,units)
+      if(ierr /= 0) return
+      call decompose_data_real(g_array,array)
+    end subroutine sync
 #endif
   end subroutine get_2d_netcdf
 
@@ -1183,7 +1188,7 @@ contains
        else
           ierr = iret
 #ifdef MPP_LAND
-          goto 9992
+          call sync()
 #endif
           return
        endif
@@ -1212,7 +1217,7 @@ contains
        else
           ierr = iret
 #ifdef MPP_LAND
-          goto 9992
+          call sync()
 #endif
           return
        endif
@@ -1220,12 +1225,19 @@ contains
 
     ierr = 0;
 #ifdef MPP_LAND
-9992    continue
     endif
-    call mpp_land_bcast_int1(ierr)
-    call mpp_land_bcast_char(256,units)
-    if(ierr /= 0) return
-    call decompose_data_real3d(g_array,array,4)
+    call sync()
+#endif
+
+  contains
+#ifdef MPP_LAND
+    subroutine sync()
+      implicit none
+      call mpp_land_bcast_int1(ierr)
+      call mpp_land_bcast_char(256,units)
+      if(ierr /= 0) return
+      call decompose_data_real3d(g_array,array,4)
+    end subroutine sync
 #endif
   end subroutine get_netcdf_soillevel
 

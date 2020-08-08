@@ -2819,7 +2819,7 @@ ENDIF   ! CROPTYPE == 0
     IF (IB.EQ.1) FSUN = 0.
   END DO
 
-  IF(COSZ <= 0) GOTO 100
+  IF(COSZ <= 0) return
 
 ! weight reflectance/transmittance by LAI and SAI
 
@@ -2883,8 +2883,6 @@ ENDIF   ! CROPTYPE == 0
      WL = EXT
   END IF
   FSUN = WL
-
-100 CONTINUE
 
   END SUBROUTINE ALBEDO
 
@@ -5794,38 +5792,36 @@ ENDIF   ! CROPTYPE == 0
 !  START OF ITERATIONS
 ! ----------------------------------------------------------------------
           IF (SWL < 0.) SWL = 0.
-1001      Continue
-          IF (.NOT.( (NLOG < 10) .AND. (KCOUNT == 0)))   goto 1002
-          NLOG = NLOG +1
-          DF = ALOG ( ( parameters%PSISAT(ISOIL) * GRAV / HFUS ) * ( ( 1. + CK * SWL )**2.) * &
-               ( parameters%SMCMAX(ISOIL) / (SMC - SWL) )** BX) - ALOG ( - (               &
-               TKELV - TFRZ)/ TKELV)
-          DENOM = 2. * CK / ( 1. + CK * SWL ) + BX / ( SMC - SWL )
-          SWLK = SWL - DF / DENOM
+          do while((NLOG < 10) .and. (KCOUNT == 0))
+             NLOG = NLOG +1
+             DF = ALOG ( ( parameters%PSISAT(ISOIL) * GRAV / HFUS ) * ( ( 1. + CK * SWL )**2.) * &
+                  ( parameters%SMCMAX(ISOIL) / (SMC - SWL) )** BX) - ALOG ( - (               &
+                  TKELV - TFRZ)/ TKELV)
+             DENOM = 2. * CK / ( 1. + CK * SWL ) + BX / ( SMC - SWL )
+             SWLK = SWL - DF / DENOM
 ! ----------------------------------------------------------------------
 ! BOUNDS USEFUL FOR MATHEMATICAL SOLUTION.
 ! ----------------------------------------------------------------------
-          IF (SWLK > (SMC -0.02)) SWLK = SMC - 0.02
-          IF (SWLK < 0.) SWLK = 0.
+             IF (SWLK > (SMC -0.02)) SWLK = SMC - 0.02
+             IF (SWLK < 0.) SWLK = 0.
 
 ! ----------------------------------------------------------------------
 ! MATHEMATICAL SOLUTION BOUNDS APPLIED.
 ! ----------------------------------------------------------------------
-          DSWL = ABS (SWLK - SWL)
+             DSWL = ABS (SWLK - SWL)
 ! IF MORE THAN 10 ITERATIONS, USE EXPLICIT METHOD (CK=0 APPROX.)
 ! WHEN DSWL LESS OR EQ. ERROR, NO MORE ITERATIONS REQUIRED.
 ! ----------------------------------------------------------------------
-          SWL = SWLK
-          IF ( DSWL <= ERROR ) THEN
-             KCOUNT = KCOUNT +1
-          END IF
+             SWL = SWLK
+             IF ( DSWL <= ERROR ) THEN
+                KCOUNT = KCOUNT +1
+             END IF
 ! ----------------------------------------------------------------------
 !  END OF ITERATIONS
 ! ----------------------------------------------------------------------
 ! BOUNDS APPLIED WITHIN DO-BLOCK ARE VALID FOR PHYSICAL SOLUTION.
 ! ----------------------------------------------------------------------
-          goto 1001
-1002      continue
+          end do
           FREE = SMC - SWL
        END IF
 ! ----------------------------------------------------------------------
