@@ -261,10 +261,10 @@ module module_ldas_noahmp
 !------------------------------------------------------------------------
 
 
-  REAL,    ALLOCATABLE                    ::  GMT       ! Hour of day (fractional) (needed for urban)
-  INTEGER, ALLOCATABLE                    ::  JULDAY    ! Integer day (needed for urban)
+  REAL ::  GMT       ! Hour of day (fractional) (needed for urban)
+  INTEGER ::  JULDAY    ! Integer day (needed for urban)
   REAL,    ALLOCATABLE, DIMENSION(:,:)    ::  HRANG     ! hour angle (needed for urban)
-  REAL,    ALLOCATABLE                    ::  DECLIN    ! declination (needed for urban)
+  REAL ::  DECLIN    ! declination (needed for urban)
   INTEGER                                 ::  num_roof_layers = 4
   INTEGER                                 ::  num_road_layers = 4
   INTEGER                                 ::  num_wall_layers = 4
@@ -774,9 +774,6 @@ IF(SF_URBAN_PHYSICS > 0 )  THEN  ! any urban model
   ALLOCATE ( rn_urb2d       (XSTART:XEND,                 YSTART:YEND) )  !
   ALLOCATE ( ts_urb2d       (XSTART:XEND,                 YSTART:YEND) )  !
   ALLOCATE ( HRANG          (XSTART:XEND,                 YSTART:YEND) )  !
-  ALLOCATE ( DECLIN                                                    )  !
-  ALLOCATE ( GMT                                                       )  !
-  ALLOCATE ( JULDAY                                                    )  !
   ALLOCATE ( frc_urb2d      (XSTART:XEND,                 YSTART:YEND) )  !
   ALLOCATE ( utype_urb2d    (XSTART:XEND,                 YSTART:YEND) )  !
   ALLOCATE ( lp_urb2d       (XSTART:XEND,                 YSTART:YEND) )  !
