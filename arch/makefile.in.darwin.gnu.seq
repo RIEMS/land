@@ -2,21 +2,14 @@
 #  Options for Darwin with gfortran
 
 CPP = cpp
-CPPFLAGS = -traditional -D_GFORTRAN_
+CPPFLAGS = -traditional
 CC = gcc
 F90 = gfortran
+MF90 = $(F90)
 F90FLAGS = -g -cpp -ffree-form -ffree-line-length-none -fbounds-check -fno-range-check -fno-underscoring
-MPP_INC =
 LDFLAGS =
 LIBS =
 RM = rm -f
 
-JASPER_INC = -I/usr/local/include/jasper
-JASPER_LIB = -L/usr/local/lib -ljpeg -ljasper
-
 NETCDF_INC = -I/usr/local/include
 NETCDF_LIB = -L/usr/local/lib -lnetcdf -lnetcdff
-
-BZIP2_USE = NO
-BZIP2_INC = -I/usr/local/include
-BZIP2_LIB = -lbz2

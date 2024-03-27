@@ -15,8 +15,7 @@ OBJS = \
 all: $(OBJS)
 
 .F90.o:
-	$(F90) -o $(@) $(CPPFLAGS) $(F90FLAGS) -c $(*).F90
-	@echo ""
+	$(F90) -o $(@) $(F90FLAGS) -c $(*).F90
 
 #
 # Dependencies:
@@ -28,4 +27,3 @@ all: $(OBJS)
 
 clean:
 	$(RM) *.o *.mod *.smod *.stb *~
-

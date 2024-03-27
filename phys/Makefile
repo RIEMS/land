@@ -38,4 +38,3 @@ module_sf_bep_bem.o: module_sf_urban.o module_sf_bem.o
 
 clean:
 	$(RM) *.o *.mod *.smod *.stb *~
-
